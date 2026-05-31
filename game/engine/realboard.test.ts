@@ -32,15 +32,14 @@ test("a player can travel the real ring, study, work, and win easy goals", () =>
   }, WORLD).state;
 
   g = run(g, [
-    { type: "takeClass", course: "basics" },     // at university: +20 education
-    { type: "moveTo", node: "employment" },       // travel the ring
-    { type: "applyForJob", job: "clerk" },        // needs education 20 ✓
-    { type: "moveTo", node: "tryandsave" },        // clerk's workplace + a shop
-    { type: "work" },                             // earn wage
+    { type: "enroll", course: "basics" },          // at university: pay tuition, lock in
+    { type: "study" }, { type: "study" }, { type: "study" }, // graduate → education 20
+    { type: "moveTo", node: "employment" },         // travel the ring (1 hop)
+    { type: "applyForJob", job: "clerk" },          // needs education 20 ✓
     { type: "endWeek" },
   ]);
 
   expect(g.players[0].jobId).toBe("clerk");
-  expect(g.players[0].education).toBeGreaterThanOrEqual(20);
+  expect(g.players[0].education).toBe(20);
   expect(g.phase).toBe("won");
 });
