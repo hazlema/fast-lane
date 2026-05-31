@@ -25,6 +25,8 @@ test("createGame seeds one player with starting money and no time yet", () => {
   expect(p.jobId).toBeNull();
   expect(p.travelMultiplier).toBe(1);
   expect(p.timeLeft).toBe(0); // time is granted when goals are set (week begins)
+  expect(p.weeklyRent).toBe(0);
+  expect(p.housingId).toBeNull();
 });
 
 test("createGame uses default goals", () => {
