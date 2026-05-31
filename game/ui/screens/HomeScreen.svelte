@@ -2,9 +2,9 @@
 <script lang="ts">
   import { gameStore } from "../stores/game.svelte";
 
-  // Newest entries first, capped so the feed stays readable.
-  const feed = $derived([...gameStore.state.log].reverse().slice(0, 6));
   const week = $derived(gameStore.state.week);
+  // Only THIS week's briefing — the paper is reprinted each week, not accreted.
+  const feed = $derived(gameStore.state.log.filter((e) => e.week === week).reverse());
 </script>
 
 <div class="home">

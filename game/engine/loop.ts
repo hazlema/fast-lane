@@ -116,5 +116,10 @@ export function endTurn(state: GameState, world: World): GameState {
 
   // Goals met → you win; otherwise roll into the next turn's preflight.
   if (hasWon(settled, state.current)) return { ...settled, phase: "won" };
-  return gameLoop({ ...settled, phase: "startTurn" }, world);
+  const next = gameLoop({ ...settled, phase: "startTurn" }, world);
+
+  // Make sure the new week's briefing isn't blank (settlement + preflight may
+  // both have been quiet).
+  const hasBriefing = next.log.some((e) => e.week === next.week);
+  return hasBriefing ? next : addNews(next, ["A quiet week — nothing in the news."]);
 }
