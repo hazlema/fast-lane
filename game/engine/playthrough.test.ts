@@ -2,13 +2,13 @@
 import { test, expect } from "bun:test";
 import { applyAction, type Action } from "./reducer";
 import { createGame } from "./state";
-import { WORLD } from "../data/world";
+import { TEST_WORLD } from "../data/world";
 
 // Apply a sequence, asserting each step succeeds; returns the final state.
 function run(start: ReturnType<typeof createGame>, actions: Action[]) {
   let g = start;
   for (const a of actions) {
-    const r = applyAction(g, a, WORLD);
+    const r = applyAction(g, a, TEST_WORLD);
     if (!r.ok) throw new Error(`action ${a.type} rejected: ${r.reason}`);
     g = r.state;
   }
@@ -23,7 +23,7 @@ test("a productive week reaches a win against easy goals", () => {
   g = applyAction(g, {
     type: "setGoals",
     goals: { wealth: 100, happiness: 0, education: 20, career: 0 },
-  }, WORLD).state;
+  }, TEST_WORLD).state;
 
   // Play the week (everything before settling).
   g = run(g, [
@@ -39,11 +39,11 @@ test("a productive week reaches a win against easy goals", () => {
   const mid = g.players[0];
   expect(mid.jobId).toBe("clerk");
   expect(mid.education).toBeGreaterThanOrEqual(20);
-  expect(mid.happiness).toBe(WORLD.items.burger.happinessGain); // 6
+  expect(mid.happiness).toBe(TEST_WORLD.items.burger.happinessGain); // 6
   expect(mid.cash).toBe(262); // 200 start − 50 class + 120 work − 8 burger
 
   // Settle the week → all four goals met → win.
-  const r = applyAction(g, { type: "endWeek" }, WORLD);
+  const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   expect(r.ok).toBe(true);
   expect(r.state.phase).toBe("won"); // wealth 262, education 20, happiness≥0, career 0
 });
