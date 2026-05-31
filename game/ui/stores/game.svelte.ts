@@ -83,10 +83,16 @@ export const gameStore = {
 
   // Commit an action. Returns true on success; sets lastError on rejection.
   dispatch(action: Action): boolean {
+    const before = this.player.timeLeft;
     const r = applyAction(game, action, WORLD);
-    if (r.ok) { game = r.state; lastError = null; }
-    else { lastError = r.reason ?? "Not allowed."; }
-    return r.ok;
+    if (!r.ok) { lastError = r.reason ?? "Not allowed."; return false; }
+    game = r.state; lastError = null;
+    // Spent your last time unit? The week's over — end it automatically.
+    // (Travel is excluded: goTo ends it after the walk, not mid-step.)
+    if (action.type !== "moveTo" && game.phase === "playing" && before > 0 && this.player.timeLeft <= 0) {
+      this.endWeek();
+    }
+    return true;
   },
 
   // Goal-setup → begin the week.
@@ -109,7 +115,10 @@ export const gameStore = {
     if (from === node) { this.openBuilding(node); return; }
     if (!this.dispatch({ type: "moveTo", node })) return; // rejected (e.g. no time)
     await this.walkRoad(from, node); // travel first…
-    this.openBuilding(node);         // …then open the building on arrival
+    // Spent your last time getting here? End the week on arrival rather than
+    // opening a building you can't act in.
+    if (game.phase === "playing" && this.player.timeLeft <= 0) this.endWeek();
+    else this.openBuilding(node); // …otherwise open the building
   },
 
   openBuilding(node: NodeId): void { screen = node; },
