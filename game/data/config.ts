@@ -3,6 +3,7 @@
 export const CONFIG = {
   weeklyTimeBudget: 60, // time units available each week
   hopCost: 5,           // time units per waypoint hop traveled
+  weeksPerMonth: 4,    // a "month" is 4 weeks (rent + inflation cadence)
   startingCash: 200,
   startingBank: 0,
 
