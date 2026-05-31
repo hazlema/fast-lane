@@ -4,6 +4,13 @@ export const CONFIG = {
   weeklyTimeBudget: 60, // time units available each week
   hopCost: 5,           // time units per waypoint hop traveled
   weeksPerMonth: 4,    // a "month" is 4 weeks (rent + inflation cadence)
+
+  // Economy index (fluctuating inflation; Mechanic 10)
+  indexStart: 1.0,     // starting economic index
+  indexStepMax: 0.08,  // max +/- change per week
+  indexFloor: 0.5,     // cheapest economy (deflation)
+  indexCeil: 1.8,      // most expensive economy (high inflation)
+
   startingCash: 200,
   startingBank: 0,
 
