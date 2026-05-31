@@ -63,6 +63,9 @@ export function startTurn(state: GameState, world: World): GameState {
   if (fired) news.push("Fired — you stopped showing up. Find a new job at the Employment Office.");
   else if (skippedWork) news.push("Your boss noticed you skipped work this week.");
 
+  // Rent hangs over you until it's paid.
+  if (you.rentDue > 0) news.push(`Rent due: $${you.rentDue} — pay it at the Rent Office.`);
+
   // Ready to play: home, fresh time, flags reset for the new week.
   const home = world.buildings.find((b) => b.id === you.housingId)?.node ?? you.position;
   const ready: Player = {
@@ -99,7 +102,8 @@ export function endTurn(state: GameState, world: World): GameState {
     if (unit) {
       const due = Math.round(unit.monthlyRent * economyIndex);
       afterRent = { ...afterInterest, rentDue: afterInterest.rentDue + due };
-      news.push(`Rent of $${due} came due — pay it at the Rent Office.`);
+      // No news line here — startTurn reminds you of the balance every week
+      // until it's paid (this month's charge included).
     }
   }
 
@@ -107,7 +111,8 @@ export function endTurn(state: GameState, world: World): GameState {
   const afterPromo = checkPromotion(afterRent);
   if (afterPromo.careerLevel > afterRent.careerLevel) news.push(`Promoted to career level ${afterPromo.careerLevel}!`);
   const afterDecay = decayHappiness(afterPromo);
-  if (afterPromo.happiness - afterDecay.happiness > 0) news.push(`Happiness drifted down ${afterPromo.happiness - afterDecay.happiness}.`);
+  const happinessLost = afterPromo.happiness - afterDecay.happiness;
+  if (happinessLost > 0) news.push(`The weekly grind wore you down — happiness −${happinessLost}. Buy something you enjoy to lift it.`);
 
   const settled = addNews(
     { ...setPlayer(state, afterDecay), week: state.week + 1, economyIndex },
