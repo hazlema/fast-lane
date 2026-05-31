@@ -3,6 +3,7 @@ import { applyAction, type Action } from "../../engine/reducer";
 import { createGame, type GameState, type Player, type Stat } from "../../engine/state";
 import { WORLD } from "../../data/world";
 import { NODE_XY, type NodeId } from "../../data/board";
+import { monthOf } from "../../engine/calendar";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
 import { serialize, deserialize } from "../lib/save";
 
@@ -15,7 +16,7 @@ type Screen = string;
 
 function newSetupGame(): GameState {
   // Starts in phase "setup": the GoalsScreen calls startGame() to begin.
-  return createGame({ playerName: "You", startNode: START_NODE, seed: Date.now() >>> 0 });
+  return createGame({ playerName: "You", startNode: START_NODE, seed: Date.now() >>> 0, startHousing: "lowcost" });
 }
 
 function loadFromStorage(): { state: GameState; screen: Screen } | null {
@@ -56,6 +57,8 @@ export const gameStore = {
   get tokenXY(): Pt { return tokenXY; },
   get walking(): boolean { return walking; },
   get screen(): Screen { return screen; },
+  get economyIndex(): number { return game.economyIndex; },
+  get month(): number { return monthOf(game.week); },
 
   // Board.svelte calls this once with the SVG <path id="Road"> element.
   attachRoad(path: SVGPathElement): void {
@@ -128,6 +131,10 @@ export const gameStore = {
       screen = game.phase === "won" ? "won" : "home";
       persist(); // autosave at each week-end
     }
+  },
+
+  payRent(): void {
+    if (this.dispatch({ type: "payRent" })) persist();
   },
 
   save(): void { persist(); },

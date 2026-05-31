@@ -1,7 +1,7 @@
 // game/ui/lib/save.ts
 import type { GameState } from "../../engine/state";
 
-const VERSION = 1;
+const VERSION = 2; // bumped for Plan 6a state shape (economyIndex, rentDue, no weeklyRent)
 
 export interface SaveData {
   state: GameState;
