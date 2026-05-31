@@ -1,9 +1,10 @@
 {
   "scripts": {
-    "dev": "bun --watch index.ts",
-    "start": "bun index.ts",
-    "batch": "bun batch.ts",
-    "export": "bun export-layout.ts"
+    "dev": "bun --watch tools/index.ts",
+    "start": "bun tools/index.ts",
+    "batch": "bun tools/batch.ts",
+    "export": "bun tools/export-layout.ts",
+    "test": "bun test"
   },
   "dependencies": {
     "openai": "latest"

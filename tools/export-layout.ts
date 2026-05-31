@@ -5,7 +5,7 @@ const ROOT = import.meta.dir;
 const LAYOUT_FILE = path.join(ROOT, "layout.json");
 const SOURCE_DIR = path.join(ROOT, "generated", "source");
 const CROPPED_DIR = path.join(ROOT, "generated", "cropped");
-const EXPORT_DIR = path.join(ROOT, "export");
+const EXPORT_DIR = path.join(ROOT, "..", "assets", "sprites");
 
 // "rent_office_2026-05-29T11-41-58-314Z.png" -> "rent_office"
 // also strips the "_crop_<stamp>" suffix on cropped files.
