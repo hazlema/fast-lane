@@ -11,13 +11,6 @@ export function accrueInterest(p: Player): Player {
   };
 }
 
-// Pay weekly rent from cash; any shortfall becomes debt (gentle failure).
-export function settleRent(p: Player): Player {
-  const owed = p.weeklyRent;
-  const paid = Math.min(owed, p.cash);
-  return { ...p, cash: p.cash - paid, debt: p.debt + (owed - paid) };
-}
-
 // Promote one level if employed, experienced enough, and educated enough for the next level.
 export function checkPromotion(p: Player): Player {
   if (!p.jobId) return p;

@@ -10,12 +10,11 @@ function atRentOffice() {
   return g;
 }
 
-test("renting sets weeklyRent and housingId", () => {
+test("renting sets housingId", () => {
   const g = atRentOffice();
   const r = applyAction(g, { type: "rent", unit: "lowcost" }, TEST_WORLD);
   expect(r.ok).toBe(true);
   expect(r.state.players[0].housingId).toBe("lowcost");
-  expect(r.state.players[0].weeklyRent).toBe(TEST_WORLD.housing.lowcost.weeklyRent);
 });
 
 test("renting an unlisted unit is rejected", () => {

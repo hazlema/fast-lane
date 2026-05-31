@@ -20,7 +20,7 @@ export function work(state: GameState, _action: WorkAction, world: World): Apply
     return reject(state, "You must be at your workplace to work.");
   }
   if (job.timeCost > player.timeLeft) return reject(state, "Not enough time to work a shift.");
-  const pay = wageFor(job, player.careerLevel);
+  const pay = wageFor(job, player.careerLevel, state.economyIndex);
   return ok(
     updateCurrent(state, (p) => ({
       ...p,

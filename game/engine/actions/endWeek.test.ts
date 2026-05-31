@@ -5,10 +5,10 @@ import { createGame } from "../state";
 import { TEST_WORLD } from "../../data/world";
 import { CONFIG } from "../../data/config";
 
-function playing(over: Partial<ReturnType<typeof createGame>["players"][number]> = {}) {
+function playing(over: Partial<ReturnType<typeof createGame>["players"][number]> = {}, week = 1) {
   let g = createGame({ playerName: "Al", startNode: "n0", seed: 1 });
   g = applyAction(g, { type: "setGoals", goals: g.goals }, TEST_WORLD).state;
-  g = { ...g, players: [{ ...g.players[0], ...over }] };
+  g = { ...g, week, players: [{ ...g.players[0], ...over }] };
   return g;
 }
 
@@ -21,37 +21,38 @@ test("endWeek advances the week and refills time", () => {
   expect(r.state.phase).toBe("playing");
 });
 
-test("endWeek accrues interest, charges rent, and decays happiness", () => {
-  const g = playing({ cash: 500, bank: 1000, debt: 0, weeklyRent: 40, happiness: 50 });
+test("endWeek accrues interest and decays happiness (no weekly rent anymore)", () => {
+  const g = playing({ cash: 500, bank: 1000, debt: 0, happiness: 50 });
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   const p = r.state.players[0];
-  expect(p.bank).toBe(1020);          // +2% of 1000
-  expect(p.cash).toBe(460);           // 500 - 40 rent
-  expect(p.happiness).toBe(45);       // -5 decay
+  expect(p.bank).toBe(1020);     // +2% of 1000
+  expect(p.cash).toBe(500);      // rent is NOT auto-deducted weekly anymore
+  expect(p.happiness).toBe(45);  // -5 decay
 });
 
-test("endWeek logs itemized settlement lines for the week", () => {
-  const g = playing({ cash: 500, bank: 1000, debt: 0, weeklyRent: 40, happiness: 50 });
+test("endWeek re-rolls the economy index", () => {
+  const g = playing();
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
-  const wk1 = r.state.log.filter((e) => e.week === 1);
-  expect(wk1.length).toBeGreaterThanOrEqual(2);
-  expect(wk1.some((e) => e.text.includes("interest"))).toBe(true);
-  expect(wk1.some((e) => e.text.includes("rent"))).toBe(true);
-  expect(wk1.some((e) => e.text.includes("Happiness"))).toBe(true);
+  expect(typeof r.state.economyIndex).toBe("number");
+  expect(r.state.economyIndex).toBeGreaterThanOrEqual(CONFIG.indexFloor);
+  expect(r.state.economyIndex).toBeLessThanOrEqual(CONFIG.indexCeil);
 });
 
-test("endWeek logs a quiet-weekend line when nothing happened", () => {
-  const g = playing({ cash: 0, bank: 0, debt: 0, weeklyRent: 0, happiness: 0 });
+test("monthly rent accrues to rentDue at a month boundary when housed", () => {
+  const g = playing({ housingId: "lowcost", rentDue: 0 }, 4); // week 4 = month end
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
-  const wk1 = r.state.log.filter((e) => e.week === 1);
-  expect(wk1.length).toBe(1);
-  expect(wk1[0].text).toBe("A quiet weekend.");
+  expect(r.state.players[0].rentDue).toBeGreaterThan(0); // ~ round(40 × index)
+  expect(r.state.log.some((e) => e.text.includes("Rent"))).toBe(true);
+});
+
+test("no rent accrues mid-month", () => {
+  const g = playing({ housingId: "lowcost", rentDue: 0 }, 1); // week 1, not month end
+  const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
+  expect(r.state.players[0].rentDue).toBe(0);
 });
 
 test("endWeek sets phase to won when all goals are met", () => {
-  const g = playing({
-    cash: 99999, happiness: 999, education: 999, careerLevel: 99,
-  });
+  const g = playing({ cash: 99999, happiness: 999, education: 999, careerLevel: 99 });
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   expect(r.state.phase).toBe("won");
 });

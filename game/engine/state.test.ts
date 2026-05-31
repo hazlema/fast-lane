@@ -25,11 +25,17 @@ test("createGame seeds one player with starting money and no time yet", () => {
   expect(p.jobId).toBeNull();
   expect(p.travelMultiplier).toBe(1);
   expect(p.timeLeft).toBe(0); // time is granted when goals are set (week begins)
-  expect(p.weeklyRent).toBe(0);
   expect(p.housingId).toBeNull();
+  expect(p.rentDue).toBe(0);
+  expect(g.economyIndex).toBe(CONFIG.indexStart);
 });
 
 test("createGame uses default goals", () => {
   const g = createGame({ playerName: "Al", startNode: "n0", seed: 1 });
   expect(g.goals).toEqual({ ...CONFIG.defaultGoals });
+});
+
+test("createGame can start the player already renting a unit", () => {
+  const g = createGame({ playerName: "Al", startNode: "n0", seed: 1, startHousing: "lowcost" });
+  expect(g.players[0].housingId).toBe("lowcost");
 });

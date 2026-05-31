@@ -18,5 +18,5 @@ export function rent(state: GameState, action: RentAction, world: World): ApplyR
   if (!housing.housingIds.includes(action.unit)) return reject(state, "That unit is not available here.");
   const unit = world.housing[action.unit];
   if (!unit) return reject(state, `Unknown housing: ${action.unit}`);
-  return ok(updateCurrent(state, (p) => ({ ...p, housingId: action.unit, weeklyRent: unit.weeklyRent })));
+  return ok(updateCurrent(state, (p) => ({ ...p, housingId: action.unit })));
 }
