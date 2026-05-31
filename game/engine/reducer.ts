@@ -10,8 +10,9 @@ import { takeClass, type TakeClassAction } from "./actions/takeClass";
 import { buy, type BuyAction } from "./actions/buy";
 import { bank, type BankAction } from "./actions/bank";
 import { rent, type RentAction } from "./actions/rent";
+import { endWeek, type EndWeekAction } from "./actions/endWeek";
 
-export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction;
+export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction | EndWeekAction;
 // More action variants are added to this union as their handlers land (buy, …).
 
 export { type ApplyResult } from "./result";
@@ -34,6 +35,8 @@ export function applyAction(state: GameState, action: Action, world: World): App
       return bank(state, action, world);
     case "rent":
       return rent(state, action, world);
+    case "endWeek":
+      return endWeek(state, action, world);
     default: {
       const _exhaustive: never = action;
       return reject(state, `Unknown action: ${(_exhaustive as { type: string }).type}`);

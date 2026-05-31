@@ -3,7 +3,6 @@ import { test, expect } from "bun:test";
 import { applyAction } from "../reducer";
 import { createGame } from "../state";
 import { WORLD } from "../../data/world";
-import { CONFIG } from "../../data/config";
 
 // Start a playing game with the player employed as janitor (works at "factory", node n0).
 function employedAtFactory() {
