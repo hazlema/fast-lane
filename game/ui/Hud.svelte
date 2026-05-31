@@ -3,6 +3,9 @@
   import { wealthOf } from "../engine/winCheck";
 
   const player = $derived(gameStore.player);
+  const month = $derived(gameStore.month);
+  const rentDue = $derived(player.rentDue);
+  const cost = $derived(gameStore.economyIndex); // 1.0 = normal cost of living
   const goals = $derived(gameStore.state.goals);
   const stats = $derived([
     { key: "wealth", label: "Wealth", val: wealthOf(player), goal: goals.wealth },
@@ -15,10 +18,12 @@
 
 <div class="hud">
   <div class="top">
-    <span class="chip">Week <b>{gameStore.state.week}</b></span>
+    <span class="chip">Wk <b>{gameStore.state.week}</b> · M<b>{month}</b></span>
+    <span class="chip" title="Cost of living (1.0 = normal)">📊 <b>{cost.toFixed(2)}</b></span>
     <span class="chip">⏳ <b>{player.timeLeft}</b></span>
     <span class="chip">💵 <b>${player.cash}</b></span>
     <span class="chip">🏦 <b>${player.bank}</b></span>
+    {#if rentDue > 0}<span class="chip rent">🏠 <b>${rentDue}</b></span>{/if}
     {#if player.debt > 0}<span class="chip debt">📉 <b>${player.debt}</b></span>{/if}
   </div>
   <div class="stats">
@@ -38,6 +43,7 @@
   .chip { background: #fff; border-radius: 6px; padding: 3px 8px; font-size: clamp(9px, 1.1vw, 14px); }
   .chip b { color: #1a2412; }
   .chip.debt b { color: #c22; }
+  .chip.rent b { color: #b8860b; }
   .stats { display: flex; gap: 6px; }
   .stat { flex: 1; background: #fff; border-radius: 6px; padding: 4px 6px; }
   .lbl { font-size: clamp(8px, 0.9vw, 12px); color: #555; display: flex; justify-content: space-between; }
