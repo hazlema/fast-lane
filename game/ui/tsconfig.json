@@ -11,5 +11,6 @@
     "isolatedModules": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["**/*.ts", "**/*.svelte", "../data/**/*.ts", "../engine/**/*.ts"]
+  "include": ["**/*.ts", "**/*.svelte", "../data/**/*.ts", "../engine/**/*.ts"],
+  "exclude": ["../data/**/*.test.ts", "../engine/**/*.test.ts"]
 }
