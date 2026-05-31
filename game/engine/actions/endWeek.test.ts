@@ -30,11 +30,22 @@ test("endWeek accrues interest, charges rent, and decays happiness", () => {
   expect(p.happiness).toBe(45);       // -5 decay
 });
 
-test("endWeek logs an entry for the week", () => {
-  const g = playing();
+test("endWeek logs itemized settlement lines for the week", () => {
+  const g = playing({ cash: 500, bank: 1000, debt: 0, weeklyRent: 40, happiness: 50 });
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
-  expect(r.state.log.length).toBe(1);
-  expect(r.state.log[0].week).toBe(1);
+  const wk1 = r.state.log.filter((e) => e.week === 1);
+  expect(wk1.length).toBeGreaterThanOrEqual(2);
+  expect(wk1.some((e) => e.text.includes("interest"))).toBe(true);
+  expect(wk1.some((e) => e.text.includes("rent"))).toBe(true);
+  expect(wk1.some((e) => e.text.includes("Happiness"))).toBe(true);
+});
+
+test("endWeek logs a quiet-weekend line when nothing happened", () => {
+  const g = playing({ cash: 0, bank: 0, debt: 0, weeklyRent: 0, happiness: 0 });
+  const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
+  const wk1 = r.state.log.filter((e) => e.week === 1);
+  expect(wk1.length).toBe(1);
+  expect(wk1[0].text).toBe("A quiet weekend.");
 });
 
 test("endWeek sets phase to won when all goals are met", () => {

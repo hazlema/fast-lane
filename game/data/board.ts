@@ -38,7 +38,7 @@ export const BOARD: BoardGraph = {
 export const BOARD_SIZE = { width: 2300, height: 1850 } as const;
 
 // The inclusive sequence of nodes from `from` to `to` along the shorter ring arc.
-// Used by the UI to walk the token hop-by-hop.
+// (The UI now tweens the token along the Road path; kept for tests/other callers.)
 export function ringPath(graph: BoardGraph, from: NodeId, to: NodeId): NodeId[] {
   const i = graph.nodes.indexOf(from);
   const j = graph.nodes.indexOf(to);

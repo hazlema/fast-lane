@@ -1,12 +1,12 @@
 <script lang="ts">
   import Board from "./Board.svelte";
-  import Hud from "./Hud.svelte";
+  import DialogPanel from "./DialogPanel.svelte";
 </script>
 
 <main>
   <div class="stage">
     <Board />
-    <div class="panel"><Hud /></div>
+    <div class="panel"><DialogPanel /></div>
   </div>
 </main>
 
