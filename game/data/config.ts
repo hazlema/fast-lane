@@ -1,7 +1,7 @@
 // game/data/config.ts
 // Central tunables. Adjusting the economy = editing this file, not logic.
 export const CONFIG = {
-  weeklyTimeBudget: 8,  // action units available each week (small: ~2 work shifts + a couple errands)
+  weeklyTimeBudget: 30, // action units available each week (work/study/buy = 1 each; travel = 1/hop)
   hopCost: 1,           // time units per waypoint hop traveled (travel time scales with distance)
   weeksPerMonth: 4,    // a "month" is 4 weeks (rent + inflation cadence)
 
