@@ -5,10 +5,8 @@ import { WORLD } from "../../data/world";
 import { NODE_XY, type NodeId } from "../../data/board";
 import { monthOf } from "../../engine/calendar";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
-import { serialize, deserialize } from "../lib/save";
 
 const START_NODE: NodeId = "tryandsave";
-const SAVE_KEY = "jones-save-v1";
 const WALK_MS_PER_HALF = 2200; // time to traverse half the loop; scaled by arc length
 
 // Screen is "goals" | "home" | "won" | a building id (NodeId === building id).
@@ -19,18 +17,15 @@ function newSetupGame(): GameState {
   return createGame({ playerName: "You", startNode: START_NODE, seed: Date.now() >>> 0, startHousing: "lowcost" });
 }
 
-function loadFromStorage(): { state: GameState; screen: Screen } | null {
-  if (typeof localStorage === "undefined") return null;
-  const data = deserialize(localStorage.getItem(SAVE_KEY));
-  return data ? { state: data.state, screen: data.screen } : null;
-}
+// Saving/resuming is intentionally DISABLED during development: every load
+// starts a fresh game at goal-setup so playtests aren't tainted by a stale
+// resumed save. (Clear any old save left over from earlier builds.)
+if (typeof localStorage !== "undefined") localStorage.removeItem("jones-save-v1");
 
-const loaded = loadFromStorage();
-
-let game = $state<GameState>(loaded ? loaded.state : newSetupGame());
-let screen = $state<Screen>(loaded ? loaded.screen : "goals");
+let game = $state<GameState>(newSetupGame());
+let screen = $state<Screen>("goals");
 let lastError = $state<string | null>(null);
-let tokenXY = $state<Pt>({ ...NODE_XY[loaded ? loaded.state.players[loaded.state.current].position : START_NODE] });
+let tokenXY = $state<Pt>({ ...NODE_XY[START_NODE] });
 let walking = $state(false);
 
 // Transient feedback signal (e.g. job-application result). The id lets the
@@ -45,8 +40,7 @@ let roadLen = 0;
 let offsets: Record<NodeId, number> | null = null;
 
 function persist(): void {
-  if (typeof localStorage === "undefined") return;
-  localStorage.setItem(SAVE_KEY, serialize({ state: game, screen }));
+  /* saving disabled during development — no-op */
 }
 
 function pointAt(len: number): Pt {
@@ -151,10 +145,7 @@ export const gameStore = {
     if (this.dispatch({ type: "payRent" })) persist();
   },
 
-  save(): void { persist(); },
-
   newGame(): void {
-    if (typeof localStorage !== "undefined") localStorage.removeItem(SAVE_KEY);
     game = newSetupGame();
     screen = "goals";
     lastError = null;
