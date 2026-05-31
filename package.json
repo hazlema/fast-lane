@@ -4,12 +4,19 @@
     "start": "bun tools/index.ts",
     "batch": "bun tools/batch.ts",
     "export": "bun tools/export-layout.ts",
-    "test": "bun test"
+    "test": "bun test",
+    "ui:dev": "vite",
+    "ui:build": "vite build",
+    "ui:check": "svelte-check --tsconfig ./game/ui/tsconfig.json"
   },
   "dependencies": {
     "openai": "latest"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@sveltejs/vite-plugin-svelte": "^7.1.2",
+    "@types/bun": "latest",
+    "svelte": "^5.56.0",
+    "svelte-check": "^4.4.8",
+    "vite": "^8.0.14"
   }
 }
