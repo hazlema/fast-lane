@@ -12,5 +12,5 @@
     "allowImportingTsExtensions": true
   },
   "include": ["**/*.ts", "**/*.svelte", "../data/**/*.ts", "../engine/**/*.ts"],
-  "exclude": ["../data/**/*.test.ts", "../engine/**/*.test.ts"]
+  "exclude": ["**/*.test.ts", "../data/**/*.test.ts", "../engine/**/*.test.ts"]
 }
