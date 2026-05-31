@@ -27,6 +27,7 @@ export function work(state: GameState, _action: WorkAction, world: World): Apply
       cash: p.cash + pay,
       timeLeft: p.timeLeft - job.timeCost,
       experience: p.experience + 1,
+      dependability: p.dependability + 1,
     })),
   );
 }

@@ -20,6 +20,9 @@ export function enroll(state: GameState, action: EnrollAction, world: World): Ap
   if (!edu.courseIds.includes(action.course)) return reject(state, "That course is not offered here.");
   const course = world.courses[action.course];
   if (!course) return reject(state, `Unknown course: ${action.course}`);
+  if (p.completedCourses.includes(action.course)) return reject(state, `You've already earned the ${course.name} degree.`);
+  const missing = course.requires.find((r) => !p.completedCourses.includes(r));
+  if (missing) return reject(state, `Requires the ${world.courses[missing]?.name ?? missing} degree first.`);
   if (course.cost > p.cash) return reject(state, "You can't afford the tuition.");
   return ok(updateCurrent(state, (pl) => ({ ...pl, cash: pl.cash - course.cost, enrolledCourse: action.course, courseProgress: 0 })));
 }

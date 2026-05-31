@@ -32,10 +32,10 @@ test("a player can travel the real ring, study, work, and win easy goals", () =>
   }, WORLD).state;
 
   g = run(g, [
-    { type: "enroll", course: "basics" },          // at university: pay tuition, lock in
-    { type: "study" }, { type: "study" }, { type: "study" }, // graduate → education 20
+    { type: "enroll", course: "juniorcollege" },    // at university: pay tuition, lock in
+    { type: "study" }, { type: "study" }, { type: "study" }, // graduate Junior College → education 20
     { type: "moveTo", node: "employment" },         // travel the ring (1 hop)
-    { type: "applyForJob", job: "clerk" },          // needs education 20 ✓
+    { type: "applyForJob", job: "clerk" },          // Clerk requires the Junior College degree ✓
     { type: "endWeek" },
   ]);
 

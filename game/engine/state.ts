@@ -20,8 +20,10 @@ export interface Player {
   careerLevel: number;
   jobId: JobId | null;
   experience: number; // progress toward promotion; consumed by Plan 2 career logic
-  enrolledCourse: CourseId | null; // current University course, null if none
-  courseProgress: number;          // study sessions completed toward graduation
+  dependability: number;            // reliability record; rises with work, gates hiring
+  enrolledCourse: CourseId | null;  // current University course, null if none
+  courseProgress: number;           // study sessions completed toward graduation
+  completedCourses: CourseId[];     // degrees earned (university tech tree)
   inventory: ItemId[];
   rentDue: number;             // accrued unpaid rent (paid at the Rent Office)
   housingId: HousingId | null; // current rented place
@@ -66,8 +68,10 @@ export function createGame(opts: {
     careerLevel: 0,
     jobId: null,
     experience: 0,
+    dependability: 0,
     enrolledCourse: null,
     courseProgress: 0,
+    completedCourses: [],
     inventory: [],
     rentDue: 0,
     housingId: opts.startHousing ?? null,

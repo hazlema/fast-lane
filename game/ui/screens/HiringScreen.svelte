@@ -3,8 +3,12 @@
   import { gameStore } from "../stores/game.svelte";
   import { WORLD } from "../../data/world";
   import { JOBS } from "../../data/jobs";
+  import { COURSES } from "../../data/courses";
   import { CONFIG } from "../../data/config";
   import ActionRow from "./ActionRow.svelte";
+
+  const degreeReq = (degrees: string[]) =>
+    degrees.length ? `needs: ${degrees.map((d) => COURSES[d]?.name ?? d).join(" + ")}` : "no degree required";
 
   let { jobIds }: { jobIds: string[] } = $props();
 
@@ -39,7 +43,7 @@
     {@const job = JOBS[id]}
     {@const r = gameStore.preview({ type: "applyForJob", job: id })}
     <ActionRow name={`Apply: ${job.title}`}
-      sub={job.requiredEducation > 0 ? `needs Edu ${job.requiredEducation}` : "no requirements"}
+      sub={degreeReq(job.requiredDegrees)}
       badges={[{ text: `💵 $${job.wage}/shift` }, { text: `⏳ ${CONFIG.applyJobTimeCost}` }]}
       disabled={!r.ok} reason={r.reason ?? ""} onact={() => gameStore.dispatch({ type: "applyForJob", job: id })} />
   {/each}

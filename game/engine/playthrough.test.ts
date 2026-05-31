@@ -25,17 +25,17 @@ test("a productive week reaches a win against easy goals", () => {
   }, TEST_WORLD).state;
 
   g = run(g, [
-    { type: "enroll", course: "basics" },   // n3: pay 50 tuition, lock in basics
+    { type: "enroll", course: "juniorcollege" }, // n3: pay 50 tuition, lock in Junior College
     { type: "study" },                       // +partial edu, -15 time
     { type: "study" },                       // +partial edu, -15 time
-    { type: "study" },                       // graduates basics → education 20, -15 time
+    { type: "study" },                       // graduates Junior College → education 20, -15 time
     { type: "moveTo", node: "n2" },          // to employment office (1 hop)
-    { type: "applyForJob", job: "clerk" },   // needs education 20 ✓
+    { type: "applyForJob", job: "clerk" },   // Clerk requires the Junior College degree ✓
   ]);
 
   const mid = g.players[0];
   expect(mid.jobId).toBe("clerk");
-  expect(mid.education).toBe(20);            // graduated basics
+  expect(mid.education).toBe(20);            // graduated Junior College
   expect(mid.enrolledCourse).toBeNull();
   expect(mid.cash).toBe(150);                // 200 start − 50 tuition (no work this week)
 

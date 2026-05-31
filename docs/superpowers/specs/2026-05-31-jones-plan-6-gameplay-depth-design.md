@@ -48,14 +48,20 @@ Because this is a large, cohesive body of work, it is **decomposed into a sequen
 - **Gentle failure:** unpaid `rentDue` simply persists (shown in HUD + news). No eviction in MVP. (Optionally it could accrue into debt later; out of scope now.)
 - The weekly auto-rent deduction in `endWeek`/`settleRent` is **removed**.
 
-## Mechanic 3 — University: enroll, then study to graduate
+## Mechanic 3 — University: a one-time degree tech tree
 
-- New player state: `enrolledCourse: CourseId | null`, `courseProgress: number` (completed study sessions).
-- **Enroll** (`enroll {course}`) at the University: requires no current enrollment; pays the course **tuition once** (catalog/course price); sets `enrolledCourse`, `courseProgress = 0`. Rejected if already enrolled, can't afford, or not at University.
-- **Study** (`study {}`) at the University: requires being enrolled; costs the course's `timeCost`; increments `courseProgress`; grants partial education `round(course.educationGain / sessions)` each session.
-- **Graduation:** after `CONFIG.studySessionsToGraduate = 3` study sessions, the final session tops education up to the exact `educationGain` total, then **clears** `enrolledCourse`/`courseProgress` — now free to enroll in another.
-- Cannot be enrolled in two courses at once (enroll rejected while enrolled).
-- Studying is blocked while "naked" (see Clothing).
+Faithful to the original *Jones in the Fast Lane*: education is a set of **degrees** earned one at a time by repeated study, forming a prerequisite tree. (Implemented on the existing `Course`/`CourseId` data — a "course" *is* a degree.)
+
+- **Player state:** `enrolledCourse: CourseId | null`, `courseProgress: number`, and **`completedCourses: CourseId[]`** (degrees earned).
+- **Data:** each `Course` gains `requires: CourseId[]` (prerequisite degrees; `[]` for roots).
+- **Available to enroll** = every prerequisite in `completedCourses` AND the degree itself not yet in `completedCourses`. The University screen lists **only available degrees**; earning one removes it and reveals its successors.
+- **Enroll** (`enroll {course}`): rejects if already enrolled, already completed, prerequisites unmet, can't afford tuition, or not at the University.
+- **Study** (`study {}`): costs the course's `timeCost`; accrues partial education each session; after `CONFIG.studySessionsToGraduate` sessions (the original takes ≈10; tunable) the degree **graduates** — added to `completedCourses`, full `educationGain` granted, enrollment cleared.
+- One degree at a time; studying/enrolling blocked while "naked" (see Clothing).
+- **The tree** (two roots, faithful to the original; extensible toward its full 11 degrees):
+  - **Junior College** (root) → Business Administration; Academic → Graduate School → Research; Electronics.
+  - **Trade School** (root) → Pre-Engineering → Engineering.
+- Education **points** (the win-goal `education` stat) still accumulate as degrees are earned; degrees additionally gate jobs (Mechanic 7).
 
 ## Mechanic 4 — Eat or lose time
 
@@ -69,7 +75,7 @@ Because this is a large, cohesive body of work, it is **decomposed into a sequen
 
 - **Tiers:** `ClothingTier = "casual" | "dress"`, ordered `dress > casual` (owning fresh dress satisfies a casual requirement; casual does not satisfy a dress requirement).
 - **State:** `clothingExpiry: { casual: number; dress: number }` — the week number through which each tier remains fresh (0 = none / never owned). A tier is **fresh** if `currentWeek <= clothingExpiry[tier]`.
-- **Buying clothing** (a `buy` of an item with a `clothingTier`) sets `clothingExpiry[tier] = week + CONFIG.clothingLifespanWeeks` (12 weeks ≈ 3 months). Re-buying refreshes.
+- **Buying clothing** (a `buy` of an item with a `clothingTier`) sets `clothingExpiry[tier] = week + CONFIG.clothingLifespanWeeks` (**8 weeks**, faithful to the original — clothes "rot off" if not renewed). Re-buying refreshes.
 - **Naked** = no fresh clothing of any tier. While naked, **work and study/enroll are blocked** (reducer rejects; rows grey via `preview`).
 - **Job gate:** each `Job` gains `requiredClothing: ClothingTier`. `work` requires fresh clothing of the job's tier or higher. Mapping: Janitor → casual, Store Clerk → casual, Engineer → dress (the professional/"manager-or-higher" tier). Tunable.
 - **Items:** the existing **Suit** becomes `clothingTier: "dress"`; add **Casual Clothes** (`clothingTier: "casual"`, cheap), sold at Discount / Off the Rack. (Old `clothing: boolean` on Item is replaced by optional `clothingTier`.)
@@ -84,10 +90,27 @@ Because this is a large, cohesive body of work, it is **decomposed into a sequen
 - **Without a fridge:** groceries spoil. The player does **not** get fed, and at `endWeek` they get **sick**: an automatic **doctor bill** (`CONFIG.spoiledGroceriesDoctorBill = 50`, paid from cash; shortfall → debt) **plus** a time penalty next week (`CONFIG.sicknessTimePenalty = 15`, which supersedes — does not stack with — the hunger penalty). News explains and points to Electronics.
 - Tracked via `player.groceriesUnrefrigerated: boolean` set when groceries are bought without a fridge, consumed at settlement.
 
-## Mechanic 7 — Hiring: pick employer, then openings (UI)
+## Mechanic 7 — Hiring: degree-gated jobs (+ two-level UI)
 
-- The **Employment Office** becomes a **two-level** screen: it lists **employers** (the distinct buildings that own the offered jobs); selecting an employer shows that employer's **openings**, where you apply.
-- **Reducer is unchanged** — `applyForJob {job}` still validates the job is offered at the hiring building and the player meets requirements. This is purely a UI navigation change over the existing `hiring` service's `jobIds`.
+Faithful to the original: each job has three hiring minimums — **Experience**, **Dependability**, and **Education = holding the required degree(s)** (0, 1, or 2). The top jobs need **two** degrees.
+
+- **Data:** `Job.requiredEducation: number` → **`requiredDegrees: CourseId[]`** (0–2 degrees), plus `requiredExperience: number` and `requiredDependability: number`.
+- **New player stat:** `dependability: number` (0–100), rises with reliable work (incremented on each `work` shift alongside `experience`).
+- **`applyForJob`** validates: at the hiring building, job offered there, **all `requiredDegrees` ∈ `completedCourses`**, `experience ≥ requiredExperience`, `dependability ≥ requiredDependability`. Reject reasons name the gap ("Requires the Engineering degree." / "Need more experience.").
+- **Job table** (faithful; mapped onto our board's workplaces; wages/exp/dep tunable):
+
+  | Job | requiredDegrees | Exp | Dep |
+  |---|---|---|---|
+  | Cook (entry) | — (always hired) | 0 | 0 |
+  | Store Clerk | [Junior College] | low | low |
+  | Butcher | [Trade School] | 30 | 30 |
+  | Teacher | [Academic] | mid | mid |
+  | Engineer | [Engineering, Junior College] | 60 | 60 |
+  | Broker | [Business Administration, Academic] | 70 | 70 |
+  | General Manager | [Engineering, Business Administration] | 70 | 70 |
+
+- **Two-level UI** (built in 6b): the Employment Office lists **employers** → their **openings**; each opening now shows its degree/exp/dep requirements and greys (via `preview`) when unmet.
+- (Dependability will also feed promotions later; for now it is a hiring gate that grows with work.)
 
 ## Mechanic 8 — Data-driven, inflating store catalog + rotating Discount
 
@@ -108,6 +131,7 @@ Fire during `endWeek` settlement (after deterministic charges, before time reset
 - **Concert night-out:** if the player holds a concert ticket, that weekend they go out — pay a random night-out cost (`concertNightOut` $20–60), gain happiness (`concertHappiness = 30`), and the ticket is consumed. (Buying the ticket does *not* grant happiness immediately; the weekend resolves it.)
 - **Computer income:** if the player owns a computer, chance `computerIncomeChance = 0.4` to earn a random `computerIncome` ($50–150) freelancing.
 - **Random doctor bill:** chance `doctorBillChance = 0.15` of a surprise medical bill (`doctorBill` $30–120; shortfall → debt). Independent of the deterministic grocery-spoilage sickness.
+- **Mugger** (faithful to the original): chance `muggerChance = 0.10` of being mugged, losing a fraction (`muggerFraction = 0.5`) of **un-banked cash on hand** (bank balance is safe). Rewards keeping money in the Bank. News: "You were mugged — lost $X you were carrying."
 
 ## Mechanic 10 — A living economy: fluctuating index, wages, and crises
 
@@ -117,30 +141,32 @@ Fire during `endWeek` settlement (after deterministic charges, before time reset
 - **Economic crisis** — when `economyIndex ≥ CONFIG.crisisHigh` (`1.5`) or `≤ CONFIG.crisisLow` (`0.6`), the economy is in crisis. During a crisis weekend, an **employed** player faces a seeded chance `CONFIG.layoffChance` (`0.25`) of a job hit:
   - **Pay cut** — `player.payCut = CONFIG.payCutFactor` (`0.5`, halves wages). Persists until the economy returns to the normal band, then clears automatically.
   - **Fired** — `jobId = null` (and `careerLevel`/`experience` reset); the player must re-apply, and likely only qualifies for an entry "burger-flipper" job.
-  - **Which one:** weighted by job quality — a **good job** (higher `requiredEducation` / `careerLevel`) is **more likely to take the pay cut** and rarely fired; a low-tier job is more likely **fired**. (Concretely: `P(fired)` scales down as the job's tier rises; defaults make engineers seldom fired, janitors often.)
+  - **Which one:** weighted by job quality — a **good job** (more `requiredDegrees` / higher `careerLevel`) is **more likely to take the pay cut** and rarely fired; a low-tier job is more likely **fired**. (Concretely: `P(fired)` scales down as the job's tier rises; defaults make engineers seldom fired, cooks often.)
   - Rare overall (only during out-of-band weeks, then a 1-in-4 roll). Logged in news ("Recession! Your hours were cut 50%." / "Layoffs hit — you lost your job.").
 - **Recovery:** when `economyIndex` returns within `(crisisLow, crisisHigh)`, any active `payCut` clears (news: "The economy recovered — your pay is back to normal.").
 - A subtle HUD indicator (e.g., a cost-of-living chip showing the index trend) is nice-to-have; the news lines are the primary signal.
 
 ## State & action changes (summary)
 
-**`Player` additions:** `enrolledCourse`, `courseProgress`, `ateThisWeek`, `rentDue`, `clothingExpiry`, `groceriesUnrefrigerated`, `payCut` (0 normally; `0.5` during a pay-cut). (Existing `housingId` now starts as `"lowcost"`; `weeklyRent` is replaced by monthly handling via `rentDue` + the housing table's base monthly figure × index.)
+**`Player` additions:** `enrolledCourse`, `courseProgress`, **`completedCourses: CourseId[]`** (degrees earned), **`dependability: number`** (rises with work), `ateThisWeek`, `rentDue`, `clothingExpiry`, `groceriesUnrefrigerated`, `payCut` (0 normally; `0.5` during a pay-cut). (Existing `housingId` now starts as `"lowcost"`; `weeklyRent` is replaced by monthly handling via `rentDue` + the housing table's base monthly figure × index.)
+
+**Data changes:** `Course` gains `requires: CourseId[]` (degree prerequisites). `Job.requiredEducation: number` → `requiredDegrees: CourseId[]` (+ `requiredExperience`, `requiredDependability`).
 
 **`GameState` additions:** `market: { item: ItemId; price: number }[]`, `economyIndex: number` (fluctuating inflation index, starts `1.0`). (Month is derived from `week`.)
 
 **New / changed actions:**
-- `enroll { course }`, `study {}` (replace the instant `takeClass`).
+- `enroll { course }` — rejects if already completed or prerequisites unmet (degree tree); `study {}` — on graduation records `completedCourses`. (Both replaced the instant `takeClass` in 6b.)
 - `payRent {}` (pay `rentDue` at the Rent Office; pays `min(rentDue, cash)`).
 - `buy { item }` — pricing now store/market-driven; sets `ateThisWeek`/`groceriesUnrefrigerated` for food; sets `clothingExpiry` for clothing; records durables; rejects duplicate durables.
-- `work {}` — now also requires fresh clothing of the job's tier (and not naked).
-- `applyForJob { job }` — unchanged in the reducer (UI two-level only).
+- `work {}` — requires fresh clothing of the job's tier (not naked); increments `experience` **and `dependability`**.
+- `applyForJob { job }` — now gates on `requiredDegrees ⊆ completedCourses`, `experience`, and `dependability` (no longer a plain `requiredEducation` number).
 
 **Settlement (`endWeek`) — new ordered pipeline:**
 1. **Re-roll the economy index** (seeded) for the coming week; everything below uses the new value.
 2. Bank/loan interest (unchanged).
 3. **Month boundary:** if `week % 4 == 0`, `rentDue += round(baseRent × economyIndex)`.
 4. **Grocery spoilage:** if `groceriesUnrefrigerated`, apply doctor bill (cash→debt) and mark sickness time penalty.
-5. **Weekend random events** (seeded): concert resolve, computer income, random doctor bill; **economic crisis** layoff/pay-cut if the index is out of the normal band, and clear `payCut` if it returned to normal.
+5. **Weekend random events** (seeded): concert resolve, computer income, random doctor bill, **mugger** (lose a fraction of un-banked cash); **economic crisis** layoff/pay-cut if the index is out of the normal band, and clear `payCut` if it returned to normal.
 6. Promotion check (unchanged).
 7. Happiness decay (unchanged).
 8. **Return home:** `position = homeNode`.
@@ -161,12 +187,13 @@ Each effect appends an itemized news line (extending the Plan 5 itemized log).
 
 Each phase is an independently shippable implementation plan; later phases depend on earlier engine state. Final slicing is confirmed when each plan is written.
 
-- **Plan 6a — Calendar, economy index, home, rent & wages:** week/month derivation; `economyIndex` (seeded, bounded random walk re-rolled each `endWeek`, starts 1.0); start renting Low Cost; return-home at `endWeek`; monthly `rentDue = round(baseRent × index)`; `payRent` at the Rent Office; **wages inverse to the index** (`wages.ts`); drop weekly auto-rent. Rent Office UI gains Pay-Rent + due balance; HUD shows month, rent due, and a cost-of-living indicator.
-- **Plan 6b — University enroll/study & two-level hiring:** `enroll`/`study`, `courseProgress`, graduation; University enroll/study screen; Employment Office two-level employer→openings UI. (Reducer hiring unchanged.)
-- **Plan 6c — Food, clothing & health:** `ateThisWeek` + hunger penalty; clothing tiers, job gates, wear-out, naked lockout; groceries + fridge + spoilage→sickness. Item-attribute changes; `work`/`study` gating; buy effects; HUD fed/clothing indicators.
-- **Plan 6d — Catalog, market, appliances & weekend/crisis events:** external `store-catalog.json`; move pricing out of `ITEMS` (priced × index from 6a); rotating Discount `market` (seeded) + always-available appliances; new items (book/concert/microwave/vcr/computer/fridge); `buy` pricing rework; seeded weekend events (concert/computer/doctor) **and economic-crisis layoffs/pay-cuts** (consume the 6a index + jobs). Discount/Electronics UI; news lines.
+- **Plan 6a — Calendar, economy index, home, rent & wages** ✅ DONE/merged. week/month; `economyIndex` (seeded bounded walk); start renting Low Cost; return-home; monthly `rentDue = round(baseRent × index)`; `payRent`; wages inverse to index; HUD month/rent/cost-of-living.
+- **Plan 6b — University enroll/study & two-level hiring** ✅ DONE/merged. `enroll`/`study`/graduation; University screen; Employment Office two-level UI. (Built with simple `requiredEducation` jobs and flat courses — superseded by 6b-2.)
+- **Plan 6b-2 — Faithful degree tech tree + degree-gated jobs:** turn courses into a one-time **degree tree** (`Course.requires`, `Player.completedCourses`, available-only filtering, removed-when-earned); replace `Job.requiredEducation:number` with **`requiredDegrees: CourseId[]`** (0–2) + `requiredExperience`/`requiredDependability`; add **`Player.dependability`** (rises on `work`); `applyForJob` gates on degrees+exp+dep; the real degree set (Junior College/Trade School roots → Business Admin/Academic/Electronics/Pre-Engineering/Engineering/Graduate School/Research) and job table (Cook/Clerk/Butcher/Teacher/Engineer/Broker/General Manager). EducationScreen shows available degrees only; HiringScreen shows requirements. Migrate the integration tests + save bump. (Revises 6b's education/job model.)
+- **Plan 6c — Food, clothing & health:** `ateThisWeek` + hunger penalty; clothing tiers, job gates, **8-week** wear-out, naked lockout; groceries + fridge + spoilage→sickness. Item-attribute changes; `work`/`study` gating; HUD fed/clothing indicators.
+- **Plan 6d — Catalog, market, appliances & weekend/crisis events:** external `store-catalog.json`; move pricing out of `ITEMS`; rotating Discount `market`; new items (book/concert/microwave/vcr/computer/fridge); `buy` pricing rework; seeded weekend events (concert/computer/doctor/**mugger**) **and economic-crisis layoffs/pay-cuts**. Discount/Electronics UI; news lines.
 
-(6a is foundational — it introduces the index that 6a-rent, 6a-wages, 6c-prices-via-buy, and 6d all consume. 6c depends on 6a's settlement pipeline; 6d depends on the item/`buy` groundwork in 6c. 6b is largely independent after 6a.)
+(6a ✅ and 6b ✅ are merged. 6b-2 revises the 6b education/job model to the faithful degree tree — do it next. 6c depends on 6a's settlement pipeline; 6d depends on 6c's item/`buy` groundwork.)
 
 ## Open Decisions (defaults chosen; flag to change)
 
@@ -175,3 +202,7 @@ Each phase is an independently shippable implementation plan; later phases depen
 - Durable re-purchase is a no-op/reject (you can't own two fridges).
 - Economy index walks within `[0.5, 1.8]` (step ≤ 0.08/wk); crisis bands at `≤0.6` / `≥1.5`; per-crisis-weekend layoff roll `0.25`; pay cut `0.5`; fired-vs-pay-cut weighted by job tier (good jobs rarely fired). All in `CONFIG`, freely tunable.
 - Numbers above (penalties, chances, ranges, lifespan, sessions, index bounds) live in `CONFIG` and are freely tunable.
+
+## Real-game fidelity note
+
+Mechanics are modeled on the original *Jones in the Fast Lane* (Sierra, 1991): 4 goals (wealth/happiness/education/career-status); education = a tree of one-time **degrees** (≈11; we ship a faithful subset, extensible via data); jobs gated by **0–2 specific degrees + Experience + Dependability**; **clothing renews ≈ every 8 weeks** or you can't work; eat weekly or lose time; **fridge** stores **groceries** (else spoilage); **rent ≈ $325 / 4 weeks** in the original (our base figures are scaled to our wage economy — relative balance matters more than the absolute, tune in `CONFIG`/housing); a **fluctuating economy** (prices/rents up, wages can be cut, crashes cause layoffs); weekend randomness (night-out costs, **muggers** taking un-banked cash, doctor bills). Study takes ≈10 sessions per degree in the original (`studySessionsToGraduate`, tunable). Sources: Wikipedia, Hardcore Gaming 101, and the Jones in the Fast Lane Fandom wiki (Degrees/Jobs).

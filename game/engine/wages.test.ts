@@ -3,7 +3,7 @@ import { test, expect } from "bun:test";
 import { wageFor } from "./wages";
 import type { Job } from "../data/jobs";
 
-const job: Job = { id: "x", title: "X", buildingId: "b", wage: 100, timeCost: 10, requiredEducation: 0 };
+const job: Job = { id: "x", title: "X", buildingId: "b", wage: 100, timeCost: 10, requiredDegrees: [], requiredExperience: 0, requiredDependability: 0 };
 
 test("wage at career level 0 and a normal economy is the base wage", () => {
   expect(wageFor(job, 0, 1)).toBe(100);
