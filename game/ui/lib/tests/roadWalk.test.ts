@@ -1,6 +1,6 @@
 // game/ui/lib/roadWalk.test.ts
 import { test, expect } from "bun:test";
-import { nodeOffsets, shorterArc, wrap, type Sampler } from "./roadWalk";
+import { nodeOffsets, shorterArc, wrap, type Sampler } from "../roadWalk";
 
 // A 10×10 square perimeter, length 40, starting at (0,0) going clockwise:
 // top edge 0..10, right edge 10..20, bottom 20..30, left 30..40.

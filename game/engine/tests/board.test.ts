@@ -1,8 +1,8 @@
 // game/engine/board.test.ts
 import { test, expect } from "bun:test";
-import { hopsBetween, testRing } from "../data/board";
-import { BOARD, NODE_XY, BOARD_SIZE } from "../data/board";
-import { ringPath } from "../data/board";
+import { hopsBetween, testRing } from "../../data/board";
+import { BOARD, NODE_XY, BOARD_SIZE } from "../../data/board";
+import { ringPath } from "../../data/board";
 
 test("testRing is an ordered loop of 8 nodes", () => {
   expect(testRing.nodes.length).toBe(8);

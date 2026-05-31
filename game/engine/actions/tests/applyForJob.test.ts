@@ -1,9 +1,9 @@
 // game/engine/actions/applyForJob.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
-import { CONFIG } from "../../data/config";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
+import { CONFIG } from "../../../data/config";
 
 // Playing game with the player at the employment office (node n2).
 function atEmployment() {

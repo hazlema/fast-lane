@@ -1,9 +1,9 @@
 // game/engine/checks.test.ts
 import { test, expect } from "bun:test";
-import { createGame } from "./state";
-import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired } from "./checks";
-import { JOBS } from "../data/jobs";
-import { CONFIG } from "../data/config";
+import { createGame } from "../state";
+import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired } from "../checks";
+import { JOBS } from "../../data/jobs";
+import { CONFIG } from "../../data/config";
 
 const player = (over: Partial<ReturnType<typeof createGame>["players"][number]> = {}) => ({
   ...createGame({ playerName: "Al", startNode: "n0", seed: 1 }).players[0],

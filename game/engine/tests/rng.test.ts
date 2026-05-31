@@ -1,6 +1,6 @@
 // game/engine/rng.test.ts
 import { test, expect } from "bun:test";
-import { makeRng, randInt } from "./rng";
+import { makeRng, randInt } from "../rng";
 
 test("same seed produces the same sequence", () => {
   const a = makeRng(123);

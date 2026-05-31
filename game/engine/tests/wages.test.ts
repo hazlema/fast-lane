@@ -1,7 +1,7 @@
 // game/engine/wages.test.ts
 import { test, expect } from "bun:test";
-import { wageFor } from "./wages";
-import type { Job } from "../data/jobs";
+import { wageFor } from "../wages";
+import type { Job } from "../../data/jobs";
 
 const job: Job = { id: "x", title: "X", buildingId: "b", wage: 100, timeCost: 10, requiredDegrees: [], requiredExperience: 0, requiredDependability: 0 };
 

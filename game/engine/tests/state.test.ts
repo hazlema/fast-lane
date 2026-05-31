@@ -1,7 +1,7 @@
 // game/engine/state.test.ts
 import { test, expect } from "bun:test";
-import { createGame } from "./state";
-import { CONFIG } from "../data/config";
+import { createGame } from "../state";
+import { CONFIG } from "../../data/config";
 
 test("createGame starts in setup phase at week 1", () => {
   const g = createGame({ playerName: "Al", startNode: "n0", seed: 1 });

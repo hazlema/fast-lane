@@ -1,8 +1,8 @@
 // game/engine/movement.test.ts
 import { test, expect } from "bun:test";
-import { travelCost } from "./movement";
-import { testRing } from "../data/board";
-import { CONFIG } from "../data/config";
+import { travelCost } from "../movement";
+import { testRing } from "../../data/board";
+import { CONFIG } from "../../data/config";
 
 test("travelCost is hops × hopCost at default multiplier", () => {
   // n0 -> n3 = 3 hops; 3 × 5 = 15

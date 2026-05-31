@@ -1,7 +1,7 @@
 // game/engine/winCheck.test.ts
 import { test, expect } from "bun:test";
-import { wealthOf, statValue, hasWon } from "./winCheck";
-import { createGame } from "./state";
+import { wealthOf, statValue, hasWon } from "../winCheck";
+import { createGame } from "../state";
 
 function gameWith(overrides: Partial<ReturnType<typeof createGame>["players"][number]>) {
   const g = createGame({ playerName: "Al", startNode: "n0", seed: 1 });

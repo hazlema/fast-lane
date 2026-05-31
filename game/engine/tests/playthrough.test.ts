@@ -1,8 +1,8 @@
 // game/engine/playthrough.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "./reducer";
-import { createGame, type GameState } from "./state";
-import { TEST_WORLD } from "../data/world";
+import { applyAction } from "../reducer";
+import { createGame, type GameState } from "../state";
+import { TEST_WORLD } from "../../data/world";
 
 // Enroll, then study the course to graduation — ending the week whenever time
 // runs out. A degree takes more study sessions than fit in one week, so this

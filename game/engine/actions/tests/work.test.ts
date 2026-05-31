@@ -1,8 +1,8 @@
 // game/engine/actions/work.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
 
 // Start a playing game with the player employed as janitor (works at "factory", node n0).
 function employedAtFactory() {

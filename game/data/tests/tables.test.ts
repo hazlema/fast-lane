@@ -1,9 +1,9 @@
 // game/data/tables.test.ts
 import { test, expect } from "bun:test";
-import { JOBS } from "./jobs";
-import { COURSES } from "./courses";
-import { ITEMS } from "./items";
-import { HOUSING } from "./housing";
+import { JOBS } from "../jobs";
+import { COURSES } from "../courses";
+import { ITEMS } from "../items";
+import { HOUSING } from "../housing";
 
 test("each table is keyed by its entries' own id", () => {
   for (const [key, job] of Object.entries(JOBS)) expect(job.id).toBe(key);

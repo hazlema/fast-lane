@@ -1,8 +1,8 @@
 // game/engine/actions/buy.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
 
 function atShop(cash = 1000) {
   let g = createGame({ playerName: "Al", startNode: "n1", seed: 1 }); // tryandsave = n1, has shop

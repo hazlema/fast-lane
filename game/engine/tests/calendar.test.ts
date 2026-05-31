@@ -1,6 +1,6 @@
 // game/engine/calendar.test.ts
 import { test, expect } from "bun:test";
-import { monthOf, weekOfMonth, isMonthEnd } from "./calendar";
+import { monthOf, weekOfMonth, isMonthEnd } from "../calendar";
 
 test("monthOf groups weeks into 4-week months", () => {
   expect(monthOf(1)).toBe(1);

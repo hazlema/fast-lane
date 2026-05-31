@@ -1,9 +1,9 @@
 // game/engine/actions/endWeek.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
-import { CONFIG } from "../../data/config";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
+import { CONFIG } from "../../../data/config";
 
 function playing(over: Partial<ReturnType<typeof createGame>["players"][number]> = {}, week = 1) {
   let g = createGame({ playerName: "Al", startNode: "n0", seed: 1 });

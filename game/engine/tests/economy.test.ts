@@ -1,8 +1,8 @@
 // game/engine/economy.test.ts
 import { test, expect } from "bun:test";
-import { accrueInterest, checkPromotion, decayHappiness } from "./economy";
-import { createGame } from "./state";
-import { CONFIG } from "../data/config";
+import { accrueInterest, checkPromotion, decayHappiness } from "../economy";
+import { createGame } from "../state";
+import { CONFIG } from "../../data/config";
 
 function player(over: Partial<ReturnType<typeof createGame>["players"][number]>) {
   return { ...createGame({ playerName: "Al", startNode: "n0", seed: 1 }).players[0], ...over };

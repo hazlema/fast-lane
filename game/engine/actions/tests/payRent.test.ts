@@ -1,8 +1,8 @@
 // game/engine/actions/payRent.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
 
 function atRentOffice(over = {}) {
   let g = createGame({ playerName: "Al", startNode: "n5", seed: 1 }); // rentoffice = n5

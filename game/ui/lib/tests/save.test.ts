@@ -1,7 +1,7 @@
 // game/ui/lib/save.test.ts
 import { test, expect } from "bun:test";
-import { serialize, deserialize } from "./save";
-import { createGame } from "../../engine/state";
+import { serialize, deserialize } from "../save";
+import { createGame } from "../../../engine/state";
 
 const sampleState = () => createGame({ playerName: "You", startNode: "tryandsave", seed: 7 });
 

@@ -1,8 +1,8 @@
 // game/data/world.test.ts
 import { test, expect } from "bun:test";
-import { makeWorld, WORLD, TEST_WORLD } from "./world";
-import { BOARD, testRing } from "./board";
-import { TEST_BUILDINGS } from "./buildings";
+import { makeWorld, WORLD, TEST_WORLD } from "../world";
+import { BOARD, testRing } from "../board";
+import { TEST_BUILDINGS } from "../buildings";
 
 test("WORLD uses the real 13-node board", () => {
   expect(WORLD.graph.nodes.length).toBe(13);

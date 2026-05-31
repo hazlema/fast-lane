@@ -1,8 +1,8 @@
 // game/engine/actions/enroll.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
 
 function atUniversity(over = {}) {
   let g = createGame({ playerName: "Al", startNode: "n3", seed: 1 }); // university = n3

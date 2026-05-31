@@ -1,7 +1,7 @@
 // game/data/buildings.test.ts
 import { test, expect } from "bun:test";
-import { BUILDINGS, TEST_BUILDINGS, buildingAt, hasService } from "./buildings";
-import { BOARD, testRing } from "./board";
+import { BUILDINGS, TEST_BUILDINGS, buildingAt, hasService } from "../buildings";
+import { BOARD, testRing } from "../board";
 
 test("every real building sits on a real board node, one per node", () => {
   const nodes = BUILDINGS.map((b) => b.node).sort();

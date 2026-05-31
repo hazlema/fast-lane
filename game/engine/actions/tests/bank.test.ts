@@ -1,8 +1,8 @@
 // game/engine/actions/bank.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "../reducer";
-import { createGame } from "../state";
-import { TEST_WORLD } from "../../data/world";
+import { applyAction } from "../../reducer";
+import { createGame } from "../../state";
+import { TEST_WORLD } from "../../../data/world";
 
 function atBank(over: Partial<ReturnType<typeof createGame>["players"][number]> = {}) {
   let g = createGame({ playerName: "Al", startNode: "n4", seed: 1 }); // bank = n4

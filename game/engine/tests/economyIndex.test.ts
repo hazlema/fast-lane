@@ -1,8 +1,8 @@
 // game/engine/economyIndex.test.ts
 import { test, expect } from "bun:test";
-import { nextIndex } from "./economyIndex";
-import { makeRng } from "./rng";
-import { CONFIG } from "../data/config";
+import { nextIndex } from "../economyIndex";
+import { makeRng } from "../rng";
+import { CONFIG } from "../../data/config";
 
 test("nextIndex moves by at most indexStepMax", () => {
   const rand = makeRng(123);

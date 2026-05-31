@@ -1,9 +1,9 @@
 // game/engine/reducer.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "./reducer";
-import { createGame } from "./state";
-import { TEST_WORLD } from "../data/world";
-import { CONFIG } from "../data/config";
+import { applyAction } from "../reducer";
+import { createGame } from "../state";
+import { TEST_WORLD } from "../../data/world";
+import { CONFIG } from "../../data/config";
 
 function newGame() {
   return createGame({ playerName: "Al", startNode: "n0", seed: 1 });

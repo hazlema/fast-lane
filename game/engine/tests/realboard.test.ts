@@ -1,8 +1,8 @@
 // game/engine/realboard.test.ts
 import { test, expect } from "bun:test";
-import { applyAction } from "./reducer";
-import { createGame, type GameState } from "./state";
-import { WORLD } from "../data/world"; // the REAL board
+import { applyAction } from "../reducer";
+import { createGame, type GameState } from "../state";
+import { WORLD } from "../../data/world"; // the REAL board
 
 // Study the enrolled course to graduation, ending the week when time runs out.
 function studyToGraduate(start: GameState, course: string): GameState {
