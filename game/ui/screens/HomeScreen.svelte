@@ -5,6 +5,13 @@
   // Newest entries first, capped so the feed stays readable.
   const feed = $derived([...gameStore.state.log].reverse().slice(0, 6));
   const week = $derived(gameStore.state.week);
+
+  let saved = $state(false);
+  function save() {
+    gameStore.save();
+    saved = true;
+    setTimeout(() => { saved = false; }, 1500);
+  }
 </script>
 
 <div class="home">
@@ -16,7 +23,10 @@
       {#each feed as e, i (i)}<p class="li">{e.text}</p>{/each}
     {/if}
   </div>
-  <button class="end" onclick={() => gameStore.endWeek()}>End Week →</button>
+  <div class="actions">
+    <button class="end" onclick={() => gameStore.endWeek()}>End Week →</button>
+    <button class="save" onclick={save}>{saved ? "Saved ✓" : "Save"}</button>
+  </div>
   <p class="tip">Click a building on the board to act.</p>
 </div>
 
@@ -27,6 +37,8 @@
   .li { font-size: clamp(9px, 1vw, 11px); color: #444; margin: 2px 0; }
   .li::before { content: "• "; color: #999; }
   .li.muted { color: #999; }
-  .end { width: 100%; background: #4a90d9; color: #fff; border: none; border-radius: 6px; padding: 8px; font-size: clamp(11px, 1.2vw, 13px); font-weight: 700; cursor: pointer; }
+  .actions { display: flex; gap: 6px; }
+  .end { flex: 1; background: #4a90d9; color: #fff; border: none; border-radius: 6px; padding: 8px; font-size: clamp(11px, 1.2vw, 13px); font-weight: 700; cursor: pointer; }
+  .save { background: #fff; color: #4a90d9; border: 1px solid #cdd9e8; border-radius: 6px; padding: 8px 12px; font-size: clamp(10px, 1.1vw, 12px); font-weight: 700; cursor: pointer; }
   .tip { font-size: clamp(8px, 0.9vw, 10px); color: #8a8666; text-align: center; margin: 5px 0 0; }
 </style>

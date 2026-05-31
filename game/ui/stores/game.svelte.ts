@@ -3,7 +3,6 @@ import { applyAction, type Action } from "../../engine/reducer";
 import { createGame, type GameState, type Player, type Stat } from "../../engine/state";
 import { WORLD } from "../../data/world";
 import { NODE_XY, type NodeId } from "../../data/board";
-import { buildingAt } from "../../data/buildings";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
 import { serialize, deserialize } from "../lib/save";
 
@@ -140,10 +139,5 @@ export const gameStore = {
     lastError = null;
     walking = false;
     tokenXY = { ...NODE_XY[START_NODE] };
-  },
-
-  // The building whose screen is open, if `screen` is a building id.
-  currentBuilding() {
-    return buildingAt(WORLD.buildings, screen);
   },
 };
