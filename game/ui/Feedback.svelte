@@ -35,7 +35,7 @@
       setTimeout(() => { confetti = []; }, 2400);
     } else if (n.tone === "info") {
       toast = n.text;
-      setTimeout(() => { toast = null; }, 1600);
+      setTimeout(() => { toast = null; }, 2200);
     } else {
       dialog = { title: n.title || (n.tone === "bad" ? "No offer" : ""), text: n.text, tone: n.tone };
       const me = n.id;
@@ -95,10 +95,11 @@
   @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
   .toast {
-    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 21;
-    background: rgba(26,36,18,.92); color: #fff; border-radius: 999px; padding: 6px 14px;
-    font-family: ui-sans-serif, system-ui, sans-serif; font-size: clamp(11px, 1.2vw, 13px); font-weight: 600;
-    box-shadow: 0 3px 12px rgba(0,0,0,.3); pointer-events: none; animation: toastin 0.18s ease-out;
+    position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 21;
+    background: rgba(26,36,18,.94); color: #fff; border: 2px solid #e6b800; border-radius: 999px;
+    padding: 11px 26px; max-width: 86%; text-align: center;
+    font-family: ui-sans-serif, system-ui, sans-serif; font-size: clamp(15px, 2vw, 21px); font-weight: 700;
+    box-shadow: 0 6px 20px rgba(0,0,0,.4); pointer-events: none; animation: toastin 0.2s ease-out;
   }
-  @keyframes toastin { from { transform: translate(-50%, 8px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+  @keyframes toastin { from { transform: translate(-50%, 14px) scale(0.9); opacity: 0; } to { transform: translate(-50%, 0) scale(1); opacity: 1; } }
 </style>
