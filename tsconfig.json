@@ -14,5 +14,6 @@
     "verbatimModuleSyntax": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["game"]
+  "include": ["game"],
+  "exclude": ["game/ui"]
 }

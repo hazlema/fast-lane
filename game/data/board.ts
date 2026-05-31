@@ -37,6 +37,25 @@ export const BOARD: BoardGraph = {
 // Board pixel size (matches the SVG viewBox) — used by the UI to place the token.
 export const BOARD_SIZE = { width: 2300, height: 1850 } as const;
 
+// The inclusive sequence of nodes from `from` to `to` along the shorter ring arc.
+// Used by the UI to walk the token hop-by-hop.
+export function ringPath(graph: BoardGraph, from: NodeId, to: NodeId): NodeId[] {
+  const i = graph.nodes.indexOf(from);
+  const j = graph.nodes.indexOf(to);
+  if (i < 0) throw new Error(`unknown node: ${from}`);
+  if (j < 0) throw new Error(`unknown node: ${to}`);
+  const n = graph.nodes.length;
+  const forward = (j - i + n) % n;
+  const backward = (i - j + n) % n;
+  const path: NodeId[] = [from];
+  if (forward <= backward) {
+    for (let k = 1; k <= forward; k++) path.push(graph.nodes[(i + k) % n]);
+  } else {
+    for (let k = 1; k <= backward; k++) path.push(graph.nodes[(i - k + n) % n]);
+  }
+  return path;
+}
+
 // Screen coordinate of each node's waypoint (extracted from the SVG diamonds).
 export const NODE_XY: Record<NodeId, { x: number; y: number }> = {
   highsec: { x: 242, y: 474 },
