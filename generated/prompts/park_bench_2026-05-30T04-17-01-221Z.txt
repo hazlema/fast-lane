@@ -1,0 +1,28 @@
+Create a 2D front-facing cartoon decorative prop asset for a life-sim board game inspired by 1990s management games.
+
+Subject:
+a single cartoon park bench with warm wooden slats and black metal armrests, viewed from the front
+
+Style rules:
+- A single standalone object, centered in frame
+- Straight-on front view
+- Fill 80% to 95% of the canvas
+- Leave only a small transparent or plain margin around the asset
+- The bottom of the object should rest on a flat baseline
+- Plain flat solid background, preferably light gray or off-white
+- No scenery, horizon, sky, street, or decorative background
+- No cast shadow touching the background
+- No isometric angle
+- No rotated perspective
+- Kids-cartoon style
+- Clean thick outline
+- Bright readable shapes
+- Slightly chunky toy-like proportions
+- Consistent lighting from upper left
+- Must match the look of the cartoon buildings in the same board game
+- No people
+- No cars
+- No text or signage unless explicitly described
+
+Avoid:
+isometric view, angled camera, realistic rendering, photorealism, complex background, street scene, sky, people, vehicles, heavy perspective, dramatic lighting.

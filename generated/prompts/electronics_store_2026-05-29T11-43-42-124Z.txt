@@ -1,0 +1,35 @@
+Create a 2D front-facing cartoon game asset for a life-sim board game inspired by 1990s management games.
+
+Subject:
+a flashy electronics and appliance store with a glass storefront full of glowing TVs, neon accents, and a bright electric sign
+
+Required sign text:
+"Electronics"
+
+Style rules:
+- Straight-on front view of the building
+- Fill 85% to 95% of the canvas height
+- Leave only a small transparent or plain margin around the asset
+- The bottom of the building should sit near the same baseline as other assets
+- Plain flat solid background, preferably light gray or off-white
+- No scenery, horizon, sky, street, or decorative background
+- No cast shadow touching the background
+- No isometric angle
+- No rotated perspective
+- Kids-cartoon style
+- Clean thick outline
+- Bright readable shapes
+- Slightly chunky toy-like proportions
+- Centered in frame
+- Building sits on a simple flat base or sidewalk
+- Consistent lighting from upper left
+- Sign text must be large, simple, and readable
+- No people
+- No cars
+- No background scenery
+- No sky
+- No street scene
+- No shadows outside the asset
+
+Avoid:
+isometric view, angled camera, realistic rendering, photorealism, tiny unreadable text, complex background, street scene, sky, people, vehicles, heavy perspective, dramatic lighting.

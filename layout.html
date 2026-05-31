@@ -1,0 +1,877 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Layout Tool</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      font-family: system-ui, sans-serif;
+      background: #151923;
+      color: #eef2ff;
+      overflow: hidden;
+    }
+
+    .checker {
+      background:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+      background-color: #e9e9e9;
+      background-size: 24px 24px;
+      background-position: 0 0, 0 12px, 12px -12px, -12px 0;
+    }
+
+    /* Grid */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: 4px;
+      padding: 4px;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .cell {
+      position: relative;
+      border-radius: 10px;
+      border: 1px solid #3a4258;
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color .12s;
+    }
+    .cell:hover { border-color: #5b7cfa; }
+    .cell img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    .hint {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #5b6480;
+      font-size: 32px;
+      font-weight: 800;
+      opacity: .5;
+      pointer-events: none;
+    }
+    .cell.filled .hint { display: none; }
+
+    /* Floating menu */
+    #menu {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 20;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      background: rgba(20, 25, 38, .82);
+      border: 1px solid #3a4258;
+      border-radius: 12px;
+      padding: 8px;
+      backdrop-filter: blur(4px);
+    }
+    #menu button {
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      font-size: 13px;
+      color: #eef2ff;
+      background: #2a3144;
+      border: 1px solid #3a4258;
+      border-radius: 8px;
+      padding: 7px 11px;
+    }
+    #menu button:hover { background: #5b7cfa; border-color: #5b7cfa; }
+
+    /* Modals */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 10, 16, .8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 30;
+    }
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: #1c2233;
+      border: 1px solid #3a4258;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 1100px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .modal.narrow { max-width: 620px; }
+    .modal header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid #2a3144;
+    }
+    .modal header h2 { margin: 0; font-size: 16px; }
+    .modal .body { padding: 18px; overflow: auto; }
+    .modal footer {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      padding: 14px 18px;
+      border-top: 1px solid #2a3144;
+    }
+
+    .btn {
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      color: #eef2ff;
+      background: #2a3144;
+      border: 1px solid #3a4258;
+      border-radius: 8px;
+      padding: 8px 14px;
+    }
+    .btn.primary { background: #5b7cfa; border-color: #5b7cfa; }
+    .btn:hover { filter: brightness(1.1); }
+
+    label { display: block; margin-top: 14px; font-weight: 700; }
+    input, textarea, select {
+      width: 100%;
+      box-sizing: border-box;
+      font: inherit;
+      margin-top: 6px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #3a4258;
+      background: #202638;
+      color: #eef2ff;
+    }
+    #batchText { min-height: 50vh; font-family: ui-monospace, monospace; white-space: pre; }
+    .status { margin: 10px 0 0; min-height: 20px; color: #9aa6c4; }
+    .status.err { color: #ff8e8e; }
+    .status.ok { color: #8ee6a0; }
+
+    /* Cell background controls */
+    #bgRow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #2a3144;
+    }
+    #bgRow .sw {
+      width: 28px; height: 28px;
+      border-radius: 7px;
+      border: 1px solid #5a6480;
+      cursor: pointer;
+      padding: 0;
+      font-size: 10px;
+      color: #1c2233;
+    }
+    #bgRow input[type=color] { width: 40px; height: 32px; padding: 2px; margin: 0; }
+
+    /* Picker gallery */
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .thumb {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      border: 1px solid #3a4258;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform .12s, border-color .12s;
+    }
+    .thumb:hover { border-color: #5b7cfa; transform: scale(1.03); }
+    .thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    #emptyMsg { padding: 40px; text-align: center; color: #8a93ad; }
+
+    /* Run progress */
+    #runLog {
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      max-height: 60vh;
+      overflow: auto;
+    }
+    #runLog .ok { color: #8ee6a0; }
+    #runLog .err { color: #ff8e8e; }
+    #runBar {
+      height: 8px;
+      border-radius: 6px;
+      background: #2a3144;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    #runBarFill { height: 100%; width: 0; background: #5b7cfa; transition: width .2s; }
+
+    /* Crop */
+    #cropFrame {
+      position: relative;
+      width: min(70vh, 80vw);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 8px;
+      cursor: grab;
+      touch-action: none;
+    }
+    #cropFrame.grabbing { cursor: grabbing; }
+    #cropFrame.erase { cursor: crosshair; }
+    #cropImg {
+      position: absolute;
+      left: 0; top: 0;
+      max-width: none;
+      pointer-events: none;
+      user-select: none;
+    }
+    .center { text-align: center; }
+    .hintline { color: #8a93ad; font-size: 13px; margin-top: 12px; }
+    .croptools {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+    .croptools input[type=range] { width: min(60vw, 360px); margin: 0; }
+    .croptools .zoombtn {
+      width: 34px; height: 34px;
+      font-size: 20px; line-height: 1;
+      padding: 0;
+      border-radius: 8px;
+      flex: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <button data-action="generate">Generate Single</button>
+    <button data-action="edit-batch">Edit Batch</button>
+    <button data-action="run-batch">Run Batch</button>
+    <button data-action="save-layout">Save Layout</button>
+    <button data-action="load-layout">Load Layout</button>
+  </div>
+
+  <div id="grid"></div>
+
+  <!-- Image picker -->
+  <div class="overlay" id="pickerOverlay">
+    <div class="modal">
+      <header>
+        <h2>Pick an image</h2>
+        <button class="btn" data-close>Close (Esc)</button>
+      </header>
+      <div class="body">
+        <div id="bgRow">
+          <span style="font-weight:700;">Cell background:</span>
+          <button class="sw checker" data-bg="" title="Checkerboard"></button>
+          <button class="sw" data-bg="#ffffff" style="background:#ffffff" title="White"></button>
+          <button class="sw" data-bg="#000000" style="background:#000000" title="Black"></button>
+          <button class="sw" data-bg="#888888" style="background:#888888" title="Gray"></button>
+          <button class="sw" data-bg="#f3ecd8" style="background:#f3ecd8" title="Cream"></button>
+          <button class="sw" data-bg="#bfe3ff" style="background:#bfe3ff" title="Sky"></button>
+          <button class="sw" data-bg="#cdeac0" style="background:#cdeac0" title="Grass"></button>
+          <input type="color" id="bgCustom" title="Custom color" />
+        </div>
+        <div id="gallery"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Single -->
+  <div class="overlay" id="genOverlay">
+    <div class="modal narrow">
+      <header>
+        <h2>Generate Single</h2>
+        <button class="btn" data-close>Close</button>
+      </header>
+      <div class="body">
+        <label>Load from batch</label>
+        <select id="g_pick"><option value="">— pick an item —</option></select>
+        <label>Asset name</label>
+        <input id="g_assetName" value="Low Cost Housing" />
+        <label>Sign text</label>
+        <input id="g_signText" value="Low Cost Housing" />
+        <label>Description</label>
+        <textarea id="g_description">a neglected low-cost apartment building with cracked plaster, boarded windows, weeds, bent railings, and a tired but readable sign</textarea>
+        <label>Kind</label>
+        <select id="g_kind">
+          <option value="building">building (uses sign text)</option>
+          <option value="prop">prop (no sign)</option>
+        </select>
+        <label>Model</label>
+        <select id="g_model">
+          <option value="gpt-image-1.5">gpt-image-1.5</option>
+          <option value="gpt-image-1">gpt-image-1</option>
+          <option value="gpt-image-1-mini">gpt-image-1-mini</option>
+          <option value="gpt-image-2">gpt-image-2</option>
+        </select>
+        <label>Size</label>
+        <select id="g_size">
+          <option value="1024x1024">1024x1024</option>
+          <option value="1536x1024">1536x1024</option>
+          <option value="1024x1536">1024x1536</option>
+        </select>
+        <label>Quality</label>
+        <select id="g_quality">
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high" selected>high</option>
+        </select>
+        <p class="status" id="g_status"></p>
+      </div>
+      <footer>
+        <button class="btn primary" id="g_render">Render</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Edit Batch -->
+  <div class="overlay" id="batchOverlay">
+    <div class="modal">
+      <header>
+        <h2>Edit Batch (batch.json)</h2>
+        <button class="btn" data-close>Close</button>
+      </header>
+      <div class="body">
+        <textarea id="batchText" spellcheck="false"></textarea>
+        <p class="status" id="batchStatus"></p>
+      </div>
+      <footer>
+        <button class="btn" id="batchSave">Save</button>
+        <button class="btn primary" id="batchSaveRun">Save &amp; Run</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Run progress -->
+  <div class="overlay" id="runOverlay">
+    <div class="modal narrow">
+      <header>
+        <h2>Running batch…</h2>
+        <button class="btn" data-close id="runClose">Close</button>
+      </header>
+      <div class="body">
+        <div id="runBar"><div id="runBarFill"></div></div>
+        <div id="runLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Crop -->
+  <div class="overlay" id="cropOverlay">
+    <div class="modal">
+      <header>
+        <h2>Crop to 1:1</h2>
+        <button class="btn" data-close>Cancel</button>
+      </header>
+      <div class="body center">
+        <div id="cropFrame" class="checker">
+          <img id="cropImg" />
+        </div>
+        <div class="croptools">
+          <button class="btn" id="bgRemove">Remove BG</button>
+          <button class="btn" id="bgErase">Erase: off</button>
+          <span style="font-size:13px;color:#8a93ad;">Tolerance</span>
+          <input type="range" id="bgTol" min="0" max="100" value="18" style="width:150px;" />
+          <button class="btn" id="bgRestore">Restore</button>
+        </div>
+        <div class="croptools">
+          <button class="btn zoombtn" id="cropOut">−</button>
+          <input type="range" id="cropZoom" min="10" max="600" value="100" />
+          <button class="btn zoombtn" id="cropIn">+</button>
+        </div>
+        <p class="hintline">Drag to pan · use the slider or scroll to zoom · pan the building down to baseline it. Empty area stays transparent.</p>
+      </div>
+      <footer>
+        <button class="btn" id="cropReset">Reset</button>
+        <button class="btn primary" id="cropConfirm">Crop &amp; Place</button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const CELLS = 20;
+    const grid = $("grid");
+
+    // ---- Grid state: each cell = { src, bg } ----
+    const cells = Array.from({ length: CELLS }, () => ({ src: null, bg: null }));
+    let activeIndex = null;
+    let images = [];
+
+    function renderCell(i) {
+      const el = grid.children[i];
+      const { src, bg } = cells[i];
+      el.classList.toggle("filled", !!src);
+      if (bg) {
+        el.classList.remove("checker");
+        el.style.background = bg;
+      } else {
+        el.classList.add("checker");
+        el.style.background = "";
+      }
+      el.innerHTML = '<div class="hint">+</div>';
+      if (src) {
+        const img = document.createElement("img");
+        img.src = src;
+        el.appendChild(img);
+      }
+    }
+
+    for (let i = 0; i < CELLS; i++) {
+      const cell = document.createElement("div");
+      cell.className = "cell checker";
+      cell.addEventListener("click", () => openPicker(i));
+      cell.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (cells[i].src) openCrop(i);
+      });
+      grid.appendChild(cell);
+      renderCell(i);
+    }
+
+    // ---- Overlay helpers ----
+    function openOverlay(id) { $(id).classList.add("open"); }
+    function closeOverlay(id) { $(id).classList.remove("open"); }
+    document.querySelectorAll("[data-close]").forEach((b) => {
+      b.addEventListener("click", () => b.closest(".overlay").classList.remove("open"));
+    });
+    document.querySelectorAll(".overlay").forEach((ov) => {
+      ov.addEventListener("click", (e) => { if (e.target === ov) ov.classList.remove("open"); });
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") document.querySelectorAll(".overlay.open").forEach((o) => o.classList.remove("open"));
+    });
+
+    // ---- Image picker ----
+    async function loadImages() {
+      try {
+        const res = await fetch("/api/images");
+        images = (await res.json()).images || [];
+      } catch { images = []; }
+    }
+
+    function openPicker(i) {
+      activeIndex = i;
+      $("bgCustom").value = cells[i].bg && /^#[0-9a-f]{6}$/i.test(cells[i].bg) ? cells[i].bg : "#ffffff";
+      const gallery = $("gallery");
+      gallery.innerHTML = "";
+      if (images.length === 0) {
+        gallery.innerHTML = '<div id="emptyMsg">No images in generated/source/. Generate some first.</div>';
+      } else {
+        for (const src of images) {
+          const thumb = document.createElement("div");
+          thumb.className = "thumb checker";
+          const img = document.createElement("img");
+          img.src = src; img.loading = "lazy";
+          thumb.appendChild(img);
+          thumb.addEventListener("click", () => {
+            cells[i].src = src;
+            renderCell(i);
+            closeOverlay("pickerOverlay");
+          });
+          gallery.appendChild(thumb);
+        }
+      }
+      openOverlay("pickerOverlay");
+    }
+
+    // Background swatches
+    $("bgRow").addEventListener("click", (e) => {
+      const sw = e.target.closest(".sw");
+      if (!sw || activeIndex === null) return;
+      cells[activeIndex].bg = sw.dataset.bg || null;
+      renderCell(activeIndex);
+    });
+    $("bgCustom").addEventListener("input", (e) => {
+      if (activeIndex === null) return;
+      cells[activeIndex].bg = e.target.value;
+      renderCell(activeIndex);
+    });
+
+    // ---- Menu actions ----
+    document.getElementById("menu").addEventListener("click", (e) => {
+      const action = e.target.dataset.action;
+      if (!action) return;
+      if (action === "generate") openGenerate();
+      else if (action === "edit-batch") openBatchEditor();
+      else if (action === "run-batch") runBatch();
+      else if (action === "save-layout") saveLayout();
+      else if (action === "load-layout") loadLayout();
+    });
+
+    // ---- Generate Single ----
+    let genBatch = { defaults: {}, items: [] };
+
+    async function openGenerate() {
+      try {
+        const res = await fetch("/api/batch");
+        genBatch = JSON.parse(await res.text());
+      } catch { genBatch = { defaults: {}, items: [] }; }
+
+      const pick = $("g_pick");
+      pick.innerHTML = '<option value="">— pick an item —</option>';
+      (genBatch.items || []).forEach((it, i) => {
+        const o = document.createElement("option");
+        o.value = i;
+        o.textContent = it.assetName || ("Item " + (i + 1));
+        pick.appendChild(o);
+      });
+      pick.value = "";
+      $("g_status").textContent = "";
+      openOverlay("genOverlay");
+    }
+
+    $("g_pick").addEventListener("change", () => {
+      const i = $("g_pick").value;
+      if (i === "") return;
+      const it = genBatch.items[i] || {};
+      const d = genBatch.defaults || {};
+      const name = it.assetName ?? d.assetName ?? "";
+      $("g_assetName").value = name;
+      $("g_signText").value = it.signText ?? d.signText ?? name;
+      $("g_description").value = it.description ?? d.description ?? "";
+      $("g_model").value = it.model ?? d.model ?? "gpt-image-1.5";
+      $("g_size").value = it.size ?? d.size ?? "1024x1024";
+      $("g_quality").value = it.quality ?? d.quality ?? "high";
+      $("g_kind").value = it.kind ?? d.kind ?? "building";
+    });
+
+    $("g_render").addEventListener("click", async () => {
+      const status = $("g_status");
+      status.className = "status"; status.textContent = "Rendering…";
+      try {
+        const res = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            assetName: $("g_assetName").value,
+            signText: $("g_signText").value,
+            description: $("g_description").value,
+            model: $("g_model").value,
+            size: $("g_size").value,
+            quality: $("g_quality").value,
+            kind: $("g_kind").value
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) { status.className = "status err"; status.textContent = data.error || "Failed."; return; }
+        status.className = "status ok"; status.textContent = "Saved: " + data.imageUrl;
+        await loadImages();
+      } catch (err) {
+        status.className = "status err"; status.textContent = String(err);
+      }
+    });
+
+    // ---- Edit Batch ----
+    async function openBatchEditor() {
+      $("batchStatus").textContent = "";
+      try {
+        const res = await fetch("/api/batch");
+        $("batchText").value = await res.text();
+      } catch { $("batchText").value = ""; }
+      openOverlay("batchOverlay");
+    }
+
+    async function saveBatch() {
+      const status = $("batchStatus");
+      status.className = "status";
+      try { JSON.parse($("batchText").value); }
+      catch (err) { status.className = "status err"; status.textContent = "Invalid JSON: " + err.message; return false; }
+      const res = await fetch("/api/batch", { method: "POST", body: $("batchText").value });
+      const data = await res.json();
+      if (!res.ok) { status.className = "status err"; status.textContent = data.error || "Save failed."; return false; }
+      status.className = "status ok"; status.textContent = "Saved.";
+      return true;
+    }
+
+    $("batchSave").addEventListener("click", saveBatch);
+    $("batchSaveRun").addEventListener("click", async () => {
+      if (await saveBatch()) { closeOverlay("batchOverlay"); runBatch(); }
+    });
+
+    // ---- Run Batch (SSE) ----
+    function runBatch() {
+      if (!confirm("Run the batch now? This generates every item in batch.json and uses real API credits.")) return;
+      const log = $("runLog");
+      log.innerHTML = "";
+      $("runBarFill").style.width = "0%";
+      openOverlay("runOverlay");
+
+      const es = new EventSource("/api/batch/run");
+      const line = (html, cls) => {
+        const div = document.createElement("div");
+        if (cls) div.className = cls;
+        div.innerHTML = html;
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+      };
+
+      es.addEventListener("progress", (ev) => {
+        const p = JSON.parse(ev.data);
+        if (p.status === "start") {
+          line(`[${p.index}/${p.total}] Generating "${p.name}"…`);
+        } else {
+          line(`&nbsp;&nbsp;${p.status === "ok" ? "✓ " + p.name : "✗ " + p.name + ": " + p.error}`, p.status === "ok" ? "ok" : "err");
+          $("runBarFill").style.width = Math.round((p.index / p.total) * 100) + "%";
+        }
+      });
+
+      es.addEventListener("done", async (ev) => {
+        const r = JSON.parse(ev.data);
+        line(`Done: ${r.ok} succeeded, ${r.failures.length} failed`, r.failures.length ? "err" : "ok");
+        $("runBarFill").style.width = "100%";
+        es.close();
+        await loadImages();
+      });
+
+      es.addEventListener("error", (ev) => {
+        if (ev.data) { try { line("Error: " + JSON.parse(ev.data).message, "err"); } catch {} }
+        es.close();
+      });
+    }
+
+    // ---- Save / Load layout ----
+    async function saveLayout() {
+      const res = await fetch("/api/layout", { method: "POST", body: JSON.stringify({ cells }) });
+      flash(res.ok ? "Layout saved." : "Save failed.", !res.ok);
+    }
+
+    async function loadLayout() {
+      const res = await fetch("/api/layout");
+      const data = await res.json();
+      if (!data.cells) { flash("No saved layout yet.", true); return; }
+      for (let i = 0; i < CELLS; i++) {
+        const c = data.cells[i];
+        // Tolerate the older string-only format.
+        cells[i] = typeof c === "string" ? { src: c, bg: null } : { src: c?.src ?? null, bg: c?.bg ?? null };
+        renderCell(i);
+      }
+      flash("Layout loaded.");
+    }
+
+    function flash(msg, isErr) {
+      const el = document.createElement("div");
+      el.textContent = msg;
+      el.style.cssText = "position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:50;padding:10px 16px;border-radius:10px;font-weight:700;background:" + (isErr ? "#b03a3a" : "#2f7d4f") + ";color:#fff;";
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1800);
+    }
+
+    // ---- Crop: fixed square frame, pan + zoom ----
+    const cropFrame = $("cropFrame");
+    const cropImg = $("cropImg");
+    const cropZoom = $("cropZoom");
+    const bgTol = $("bgTol");
+    let cropCtx = null;     // { index, src, nW, nH, img }
+    let work = null;        // offscreen canvas holding current (edited) pixels
+    let eraseMode = false;
+    let view = { scale: 1, tx: 0, ty: 0 };
+    let baseScale = 1;      // the "fit" scale; slider 100 == 1x of this
+    const OUT = 1024;       // output square resolution
+
+    function applyView() {
+      cropImg.style.width = (cropCtx.nW * view.scale) + "px";
+      cropImg.style.left = view.tx + "px";
+      cropImg.style.top = view.ty + "px";
+    }
+
+    // Zoom to a new scale while keeping the point under (anchorX, anchorY) fixed.
+    function zoomTo(newScale, anchorX, anchorY) {
+      newScale = Math.max(0.02, newScale);
+      const ix = (anchorX - view.tx) / view.scale;
+      const iy = (anchorY - view.ty) / view.scale;
+      view.scale = newScale;
+      view.tx = anchorX - ix * view.scale;
+      view.ty = anchorY - iy * view.scale;
+      applyView();
+      syncZoomSlider();
+    }
+
+    function syncZoomSlider() {
+      const pct = Math.round((view.scale / baseScale) * 100);
+      cropZoom.value = Math.max(+cropZoom.min, Math.min(+cropZoom.max, pct));
+    }
+
+    function fitView() {
+      const f = cropFrame.clientWidth;
+      // Contain the whole image, centered.
+      baseScale = f / Math.max(cropCtx.nW, cropCtx.nH);
+      view.scale = baseScale;
+      view.tx = (f - cropCtx.nW * view.scale) / 2;
+      view.ty = (f - cropCtx.nH * view.scale) / 2;
+      applyView();
+      cropZoom.value = 100;
+    }
+
+    function openCrop(i) {
+      const probe = new Image();
+      probe.onload = () => {
+        cropCtx = { index: i, src: cells[i].src, nW: probe.naturalWidth, nH: probe.naturalHeight, img: probe };
+        work = document.createElement("canvas");
+        work.width = probe.naturalWidth;
+        work.height = probe.naturalHeight;
+        work.getContext("2d", { willReadFrequently: true }).drawImage(probe, 0, 0);
+        setEraseMode(false);
+        cropImg.src = cells[i].src;
+        openOverlay("cropOverlay");
+        // Defer fit until the frame has layout dimensions.
+        requestAnimationFrame(fitView);
+      };
+      probe.src = cells[i].src;
+    }
+
+    $("cropReset").addEventListener("click", fitView);
+
+    // ---- Background removal (flood-fill transparency) ----
+    function refreshWork() {
+      cropImg.src = work.toDataURL("image/png");
+    }
+
+    // Flood-fill from (sx, sy), clearing connected pixels within color tolerance.
+    function floodFill(sx, sy, tol) {
+      const W = work.width, H = work.height;
+      if (sx < 0 || sy < 0 || sx >= W || sy >= H) return;
+      const ctx = work.getContext("2d", { willReadFrequently: true });
+      const id = ctx.getImageData(0, 0, W, H);
+      const d = id.data;
+      const si = (sy * W + sx) * 4;
+      const tr = d[si], tg = d[si + 1], tb = d[si + 2];
+      if (d[si + 3] === 0) return; // already transparent
+      const thr2 = Math.pow((tol / 100) * 442, 2);
+      const visited = new Uint8Array(W * H);
+      const stack = [sy * W + sx];
+      while (stack.length) {
+        const p = stack.pop();
+        if (visited[p]) continue;
+        visited[p] = 1;
+        const o = p * 4;
+        if (d[o + 3] === 0) continue;
+        const dr = d[o] - tr, dg = d[o + 1] - tg, db = d[o + 2] - tb;
+        if (dr * dr + dg * dg + db * db > thr2) continue;
+        d[o + 3] = 0;
+        const x = p % W, y = (p / W) | 0;
+        if (x > 0) stack.push(p - 1);
+        if (x < W - 1) stack.push(p + 1);
+        if (y > 0) stack.push(p - W);
+        if (y < H - 1) stack.push(p + W);
+      }
+      ctx.putImageData(id, 0, 0);
+      refreshWork();
+    }
+
+    function setEraseMode(on) {
+      eraseMode = on;
+      $("bgErase").textContent = "Erase: " + (on ? "on" : "off");
+      cropFrame.classList.toggle("erase", on);
+    }
+
+    $("bgRemove").addEventListener("click", () => {
+      const W = work.width, H = work.height, tol = +bgTol.value;
+      floodFill(0, 0, tol);
+      floodFill(W - 1, 0, tol);
+      floodFill(0, H - 1, tol);
+      floodFill(W - 1, H - 1, tol);
+    });
+    $("bgErase").addEventListener("click", () => setEraseMode(!eraseMode));
+    $("bgRestore").addEventListener("click", () => {
+      const ctx = work.getContext("2d", { willReadFrequently: true });
+      ctx.clearRect(0, 0, work.width, work.height);
+      ctx.drawImage(cropCtx.img, 0, 0);
+      refreshWork();
+    });
+
+    // Pan (or, in erase mode, click to flood-fill the clicked region)
+    let pan = null;
+    cropFrame.addEventListener("pointerdown", (e) => {
+      if (eraseMode) {
+        const rect = cropFrame.getBoundingClientRect();
+        const ix = Math.round((e.clientX - rect.left - view.tx) / view.scale);
+        const iy = Math.round((e.clientY - rect.top - view.ty) / view.scale);
+        floodFill(ix, iy, +bgTol.value);
+        return;
+      }
+      pan = { x: e.clientX, y: e.clientY, tx: view.tx, ty: view.ty };
+      cropFrame.classList.add("grabbing");
+      cropFrame.setPointerCapture(e.pointerId);
+    });
+    cropFrame.addEventListener("pointermove", (e) => {
+      if (!pan) return;
+      view.tx = pan.tx + (e.clientX - pan.x);
+      view.ty = pan.ty + (e.clientY - pan.y);
+      applyView();
+    });
+    cropFrame.addEventListener("pointerup", () => { pan = null; cropFrame.classList.remove("grabbing"); });
+
+    // Zoom with the wheel, anchored at the cursor.
+    cropFrame.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const rect = cropFrame.getBoundingClientRect();
+      const px = e.clientX - rect.left, py = e.clientY - rect.top;
+      const k = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+      zoomTo(view.scale * k, px, py);
+    }, { passive: false });
+
+    // Zoom with the slider / buttons, anchored at the frame center.
+    cropZoom.addEventListener("input", () => {
+      const f = cropFrame.clientWidth;
+      zoomTo(baseScale * (cropZoom.value / 100), f / 2, f / 2);
+    });
+    $("cropIn").addEventListener("click", () => {
+      cropZoom.value = Math.min(+cropZoom.max, +cropZoom.value + 25);
+      cropZoom.dispatchEvent(new Event("input"));
+    });
+    $("cropOut").addEventListener("click", () => {
+      cropZoom.value = Math.max(+cropZoom.min, +cropZoom.value - 25);
+      cropZoom.dispatchEvent(new Event("input"));
+    });
+
+    $("cropConfirm").addEventListener("click", async () => {
+      const f = cropFrame.clientWidth;
+      const k = OUT / f;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = OUT; canvas.height = OUT;
+      // Draw from the working canvas so background edits are baked in.
+      // Transparent everywhere the image doesn't cover.
+      canvas.getContext("2d").drawImage(
+        work,
+        view.tx * k, view.ty * k,
+        cropCtx.nW * view.scale * k, cropCtx.nH * view.scale * k
+      );
+
+      const blob = await new Promise((r) => canvas.toBlob(r, "image/png"));
+      const name = cropCtx.src.split("/").pop().replace(/\.png$/i, "");
+      const res = await fetch("/api/crop?name=" + encodeURIComponent(name), { method: "POST", body: blob });
+      const data = await res.json();
+      if (res.ok) {
+        cells[cropCtx.index].src = data.imageUrl;
+        renderCell(cropCtx.index);
+        await loadImages();
+        closeOverlay("cropOverlay");
+      } else {
+        alert(data.error || "Crop failed.");
+      }
+    });
+
+    loadImages();
+  </script>
+</body>
+</html>

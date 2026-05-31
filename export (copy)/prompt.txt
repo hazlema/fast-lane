@@ -1,0 +1,38 @@
+Hi, I have generated all the images for my game, hoping you can help with the layout it requires some art skills
+The board is laid out in a grid.  This is the order of items. (You can ignore the bg attribute)
+
+So the main board needs to be colorful, naturish, grass
+A winding road connects Building's in grid cells top row, right col, bottom row, (like a big rectangle, in a continous loop)
+
+I have attached aa zip files with the images
+
+{
+	"row1": [
+		{"src":"high_security_apartments.png","bg":"#cdeac0"},
+		{"src":"rent_office.png","bg":"#cdeac0"},
+		{"src":"low_cost_housing.png","bg":"#cdeac0"},
+		{"src":"pawn_shop.png","bg":"#cdeac0"},
+		{"src":"discount_store.png","bg":"#cdeac0"}
+	], 
+	"row2": [
+		{"src":"try_and_save.png","bg":"#cdeac0"},
+		{"src":null,"bg":"#bfe3ff"},
+		{"src":null,"bg":"#bfe3ff"},
+		{"src":null,"bg":"#bfe3ff"},
+		{"src":"frosty_burger.png","bg":"#cdeac0"}
+	],
+	"row3": [
+		{"src":"bank.png","bg":"#cdeac0"},
+		{"src":null,"bg":"#bfe3ff"},
+		{"src":null,"bg":"#bfe3ff"},
+		{"src":null,"bg":"#bfe3ff"},
+		{"src":"off_the_rack.png","bg":"#cdeac0"}
+	],
+	"row4": [
+		{"src":"factory.png","bg":"#cdeac0"},
+		{"src":"employment_office.png","bg":"#cdeac0"},
+		{"src":null,"bg":null},
+		{"src":"university.png","bg":"#cdeac0"},
+		{"src":"electronics_store.png","bg":"#cdeac0"}
+	]
+}

@@ -1,0 +1,50 @@
+{
+  "defaults": {
+    "kind": "prop",
+    "model": "gpt-image-1.5",
+    "size": "1024x1024",
+    "quality": "high"
+  },
+  "items": [
+    {
+      "assetName": "Round Tree",
+      "description": "a single round leafy cartoon tree with a thick sturdy brown trunk and a full bushy rounded green canopy, resting on a small tuft of grass"
+    },
+    {
+      "assetName": "Pine Tree",
+      "description": "a single tall cartoon pine tree with layered green triangular foliage and a short brown trunk"
+    },
+    {
+      "assetName": "Bush",
+      "description": "a small rounded green hedge bush with dense leaves, resting on a little patch of grass"
+    },
+    {
+      "assetName": "Fountain",
+      "description": "a small ornate round stone water fountain with a tiered basin and a gentle light-blue water spout"
+    },
+    {
+      "assetName": "Lamppost",
+      "description": "a single black wrought-iron street lamppost with a glowing warm lantern at the top and a small round base"
+    },
+    {
+      "assetName": "Park Bench",
+      "description": "a single cartoon park bench with warm wooden slats and black metal armrests, viewed from the front"
+    },
+    {
+      "assetName": "Flower Bed",
+      "description": "a small rectangular flower bed full of bright red, yellow, and pink flowers with green leaves and dark soil"
+    },
+    {
+      "assetName": "Mailbox",
+      "description": "a single blue cartoon mailbox on a short metal post"
+    },
+    {
+      "assetName": "Fire Hydrant",
+      "description": "a single bright red cartoon fire hydrant with two side nozzles and a rounded cap"
+    },
+    {
+      "assetName": "Phone Booth",
+      "description": "a single red retro telephone booth with glass panels, a small peaked roof, and a phone sign"
+    }
+  ]
+}

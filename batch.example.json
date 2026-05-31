@@ -1,0 +1,25 @@
+{
+  "defaults": {
+    "model": "gpt-image-1.5",
+    "size": "1024x1024",
+    "quality": "high"
+  },
+  "items": [
+    {
+      "assetName": "Low Cost Housing",
+      "signText": "Low Cost Housing",
+      "description": "a neglected low-cost apartment building with cracked plaster, boarded windows, weeds, bent railings, and a tired but readable sign"
+    },
+    {
+      "assetName": "Tesla Dealership",
+      "signText": "Tesla",
+      "description": "a sleek modern electric car dealership with large glass front, clean white walls, and a glowing brand sign",
+      "quality": "medium"
+    },
+    {
+      "assetName": "Frosty Burger",
+      "signText": "Frosty Burger",
+      "description": "a retro fast-food burger joint with a big rooftop burger mascot, striped awnings, and a bright neon-style sign"
+    }
+  ]
+}

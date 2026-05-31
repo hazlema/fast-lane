@@ -1,0 +1,69 @@
+{
+  "defaults": {
+    "model": "gpt-image-2",
+    "size": "1024x1024",
+    "quality": "high"
+  },
+  "items": [
+    {
+      "assetName": "Employment Office",
+      "signText": "Employment Office",
+      "description": "a plain government employment office building with double glass doors, a job-listings board in the front window, beige brick walls, and a no-nonsense sign"
+    },
+    {
+      "assetName": "Bank",
+      "signText": "Bank",
+      "description": "a sturdy stone bank building with tall columns, an arched entrance, a round clock above the door, and a bold dignified sign"
+    },
+    {
+      "assetName": "University",
+      "signText": "University",
+      "description": "a friendly university building with a clock tower, wide front steps, banner flags, large arched windows, and a proud campus sign"
+    },
+    {
+      "assetName": "Discount Store",
+      "signText": "Discount Store",
+      "description": "a budget discount department store with a flat boxy facade, big SALE banners in the windows, a row of shopping carts out front, and a cheerful bargain sign, two levels"
+    },
+    {
+      "assetName": "Try and Save",
+      "signText": "Try and Save",
+      "description": "a grocerty store with a flat boxy facade, big food SALE banners in the windows, a row of shopping carts out front, two levels"
+    },
+    {
+      "assetName": "Electronics Store",
+      "signText": "Electronics",
+      "description": "a flashy electronics and appliance store with a glass storefront full of glowing TVs, neon accents, and a bright electric sign"
+    },
+    {
+      "assetName": "Pawn Shop",
+      "signText": "Pawn Shop",
+      "description": "a cluttered corner pawn shop with barred windows, three golden balls hanging above the door, a neon OPEN glow, and a weathered hand-painted sign"
+    },
+    {
+      "assetName": "Factory",
+      "signText": "Factory",
+      "description": "a small industrial factory with corrugated metal walls, two smokestacks, a roll-up loading bay door, exposed pipes, and a riveted metal sign"
+    },
+    {
+      "assetName": "Off the Rack",
+      "signText": "Off the Rack",
+      "description": "an upscale luxury clothing store with a doorman canopy, marble entrance, gold trim, tall glass balconies, and an elegant gold-lettered sign"
+    },
+    {
+      "assetName": "Rent Office",
+      "signText": "Rent Office",
+      "description": "an office building where you pay rent with bushes outfront"
+    },
+    {
+      "assetName": "Low Cost Housing",
+      "signText": "Low Cost Housing",
+      "description": "a neglected low-cost apartment building with cracked plaster, boarded windows, weeds, bent railings, and a tired but readable sign"
+    },
+    {
+      "assetName": "High Security Apartments",
+      "signText": "High Security Apartments",
+      "description": "a very secure an apartment building"
+    }
+  ]
+}
