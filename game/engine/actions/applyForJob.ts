@@ -3,7 +3,7 @@ import type { GameState, JobId, LogEntry } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent } from "../result";
 import { buildingAt } from "../../data/buildings";
-import { isQualifiedFor, hasOpening } from "../checks";
+import { isQualifiedFor, hasOpening, hasGoodWorkHistory } from "../checks";
 import { CONFIG } from "../../data/config";
 
 export interface ApplyForJobAction {
@@ -34,8 +34,9 @@ export function applyForJob(state: GameState, action: ApplyForJobAction, world: 
   // something you're not qualified for and you simply don't get it — that's on
   // you. Even when qualified, a specialised job may have no opening this week
   // (entry jobs with no degree requirement always hire).
+  const goodHistory = hasGoodWorkHistory(player);
   const qualified = isQualifiedFor(player, job);
-  const hired = qualified && hasOpening(job, state.seed, state.week);
+  const hired = goodHistory && qualified && hasOpening(job, state.seed, state.week);
 
   const spent = updateCurrent(state, (p) => ({
     ...p,
@@ -45,9 +46,11 @@ export function applyForJob(state: GameState, action: ApplyForJobAction, world: 
 
   const text = hired
     ? `Hired as ${job.title}!`
-    : !qualified
-      ? `Applied for ${job.title} — not qualified, no offer.`
-      : `Applied for ${job.title} — qualified, but no openings right now.`;
+    : !goodHistory
+      ? `Rejected by ${job.title} — poor work history.`
+      : !qualified
+        ? `Applied for ${job.title} — not qualified, no offer.`
+        : `Applied for ${job.title} — qualified, but no openings right now.`;
   const log: LogEntry[] = [...spent.log, { week: spent.week, text }];
   return ok({ ...spent, log });
 }

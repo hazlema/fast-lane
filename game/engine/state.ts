@@ -23,6 +23,8 @@ export interface Player {
   dependability: number;            // reliability record; rises with work, gates hiring
   ateThisWeek: boolean;             // bought a meal this week? (else a hunger time penalty next week)
   hungry: boolean;                  // is THIS week docked because you didn't eat last week?
+  workedThisWeek: boolean;          // worked a shift this week? (attendance)
+  weeksSinceWorked: number;         // consecutive weeks employed-but-absent → poor work history → fired
   enrolledCourse: CourseId | null;  // current University course, null if none
   courseProgress: number;           // study sessions completed toward graduation
   completedCourses: CourseId[];     // degrees earned (university tech tree)
@@ -73,6 +75,8 @@ export function createGame(opts: {
     dependability: 0,
     ateThisWeek: true, // auto-fed only at game start (week 1); every later week you must eat
     hungry: false,     // week 1 isn't penalized
+    workedThisWeek: false,
+    weeksSinceWorked: 0,
     enrolledCourse: null,
     courseProgress: 0,
     completedCourses: [],

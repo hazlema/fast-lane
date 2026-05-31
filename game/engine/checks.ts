@@ -26,6 +26,13 @@ export const isFed = (p: Player): boolean => p.ateThisWeek;
 /** Can you cover a cash cost right now? */
 export const canAfford = (p: Player, cost: number): boolean => p.cash >= cost;
 
+/** Recent attendance still acceptable? (too many missed weeks → a "poor" record) */
+export const hasGoodWorkHistory = (p: Player): boolean => p.weeksSinceWorked <= CONFIG.maxWeeksAbsent;
+
+/** Has an employed worker skipped enough weeks in a row to be fired? */
+export const shouldBeFired = (p: Player): boolean =>
+  isEmployed(p) && p.weeksSinceWorked > CONFIG.fireAfterWeeks;
+
 // --- Hiring --------------------------------------------------------------
 
 /** Degrees the job demands that you haven't earned yet. */

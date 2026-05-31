@@ -42,6 +42,15 @@ test("a qualified application for a specialised job costs time and either hires 
   expect(hired || noOpening).toBe(true); // hired, or told there were no openings — never silently nothing
 });
 
+test("a poor work history gets you rejected even for a job you'd otherwise land", () => {
+  let g = atEmployment();
+  // employed but with a stretch of missed weeks → record is "poor"
+  g = { ...g, players: [{ ...g.players[0], jobId: "janitor", weeksSinceWorked: CONFIG.maxWeeksAbsent + 1 }] };
+  const r = applyAction(g, { type: "applyForJob", job: "janitor" }, TEST_WORLD); // entry job, always an opening
+  expect(r.ok).toBe(true);
+  expect(r.state.log.some((e) => /work history/i.test(e.text))).toBe(true);
+});
+
 test("applying is rejected away from a hiring building", () => {
   let g = atEmployment();
   g = { ...g, players: [{ ...g.players[0], position: "n4" }] }; // bank, no hiring

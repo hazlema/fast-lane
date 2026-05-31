@@ -33,6 +33,8 @@ test("createGame seeds one player with starting money and no time yet", () => {
   expect(p.dependability).toBe(0);
   expect(p.ateThisWeek).toBe(true); // auto-fed at game start (week 1 only)
   expect(p.hungry).toBe(false);     // week 1 isn't penalized
+  expect(p.workedThisWeek).toBe(false);
+  expect(p.weeksSinceWorked).toBe(0);
   expect(g.economyIndex).toBe(CONFIG.indexStart);
 });
 

@@ -8,7 +8,7 @@ import { makeRng } from "../rng";
 import { nextIndex } from "../economyIndex";
 import { isMonthEnd } from "../calendar";
 import { hasWon } from "../winCheck";
-import { isFed } from "../checks";
+import { isEmployed, isFed, shouldBeFired } from "../checks";
 
 export interface EndWeekAction {
   type: "endWeek";
@@ -51,12 +51,21 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   let timeUnits = CONFIG.weeklyTimeBudget;
   if (!fed) timeUnits -= CONFIG.hungerTimePenalty; // hungry → lose time
 
+  // Attendance: an employed worker who skipped this week's shift accrues an
+  // absent week; enough in a row → fired.
+  const absent = isEmployed(before) && !before.workedThisWeek;
+  const weeksSinceWorked = absent ? before.weeksSinceWorked + 1 : 0;
+  const fired = shouldBeFired({ ...before, weeksSinceWorked });
+
   const settled: Player = {
     ...afterDecay,
     position: homeNode,
     timeLeft: timeUnits,
-    hungry: !fed,         // flag the hungry week for the HUD
-    ateThisWeek: false,   // must eat again this week
+    hungry: !fed,                                  // flag the hungry week for the HUD
+    ateThisWeek: false,                            // must eat again this week
+    workedThisWeek: false,                         // new week — show up again
+    jobId: fired ? null : afterDecay.jobId,        // skipped too long → let go
+    weeksSinceWorked: fired ? 0 : weeksSinceWorked, // fired → clean slate as unemployed
   };
 
   // News lines for whatever actually happened.
@@ -72,6 +81,8 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   const happinessLost = afterPromo.happiness - afterDecay.happiness;
   if (happinessLost > 0) lines.push(`Happiness drifted down ${happinessLost}.`);
   if (!fed) lines.push(`You went hungry — lost ${CONFIG.hungerTimePenalty} time this week. Eat next time!`);
+  if (fired) lines.push("Fired — you stopped showing up. Find a new job at the Employment Office.");
+  else if (absent) lines.push("Your boss noticed you skipped work this week.");
   if (lines.length === 0) lines.push("A quiet weekend.");
 
   const log: LogEntry[] = [

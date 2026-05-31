@@ -37,6 +37,22 @@ test("eating this week means a full time budget next week", () => {
   expect(r.state.players[0].hungry).toBe(false); // not penalized → no HUD chip
 });
 
+test("skipping work while employed eventually gets you fired", () => {
+  let state = playing({ jobId: "janitor", workedThisWeek: false, weeksSinceWorked: 0 });
+  for (let i = 0; i <= CONFIG.fireAfterWeeks; i++) {
+    state = applyAction(state, { type: "endWeek" }, TEST_WORLD).state;
+  }
+  expect(state.players[0].jobId).toBeNull(); // let go after too many no-show weeks
+  expect(state.log.some((e) => /fired/i.test(e.text))).toBe(true);
+});
+
+test("working keeps your job safe — attendance resets", () => {
+  const g = playing({ jobId: "janitor", workedThisWeek: true, weeksSinceWorked: CONFIG.fireAfterWeeks });
+  const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
+  expect(r.state.players[0].jobId).toBe("janitor");
+  expect(r.state.players[0].weeksSinceWorked).toBe(0);
+});
+
 test("endWeek accrues interest and decays happiness (no weekly rent anymore)", () => {
   const g = playing({ cash: 500, bank: 1000, debt: 0, happiness: 50 });
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);

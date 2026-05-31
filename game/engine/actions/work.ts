@@ -29,6 +29,7 @@ export function work(state: GameState, _action: WorkAction, world: World): Apply
       timeLeft: p.timeLeft - job.timeCost,
       experience: p.experience + 1,
       dependability: p.dependability + 1,
+      workedThisWeek: true, // showed up → resets attendance at week-end
     })),
   );
 }
