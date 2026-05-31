@@ -13,7 +13,7 @@ function playing(over: Partial<ReturnType<typeof createGame>["players"][number]>
 }
 
 test("endWeek advances the week and refills time", () => {
-  const g = playing({ timeLeft: 3 }); // player starts fed → no hunger penalty
+  const g = playing({ timeLeft: 3, ateThisWeek: true }); // ate this week → no hunger penalty
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   expect(r.ok).toBe(true);
   expect(r.state.week).toBe(2);

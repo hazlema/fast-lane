@@ -70,7 +70,7 @@ export function createGame(opts: {
     jobId: null,
     experience: 0,
     dependability: 0,
-    ateThisWeek: true, // start the first week fed
+    ateThisWeek: false, // must eat each week from the start (skip a week → time penalty the next)
     enrolledCourse: null,
     courseProgress: 0,
     completedCourses: [],
