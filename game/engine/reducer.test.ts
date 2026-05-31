@@ -2,7 +2,7 @@
 import { test, expect } from "bun:test";
 import { applyAction } from "./reducer";
 import { createGame } from "./state";
-import { WORLD } from "../data/world";
+import { TEST_WORLD } from "../data/world";
 import { CONFIG } from "../data/config";
 
 function newGame() {
@@ -12,7 +12,7 @@ function newGame() {
 test("setGoals records goals and starts the week (playing, full time)", () => {
   const g = newGame();
   const goals = { wealth: 2000, happiness: 40, education: 30, career: 2 };
-  const r = applyAction(g, { type: "setGoals", goals }, WORLD);
+  const r = applyAction(g, { type: "setGoals", goals }, TEST_WORLD);
   expect(r.ok).toBe(true);
   expect(r.state.phase).toBe("playing");
   expect(r.state.goals).toEqual(goals);
@@ -21,26 +21,26 @@ test("setGoals records goals and starts the week (playing, full time)", () => {
 
 test("setGoals is rejected once already playing", () => {
   const g = newGame();
-  const started = applyAction(g, { type: "setGoals", goals: g.goals }, WORLD).state;
-  const r = applyAction(started, { type: "setGoals", goals: g.goals }, WORLD);
+  const started = applyAction(g, { type: "setGoals", goals: g.goals }, TEST_WORLD).state;
+  const r = applyAction(started, { type: "setGoals", goals: g.goals }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/setup/i);
   expect(r.state).toBe(started); // unchanged reference
 });
 
 test("moveTo deducts travel time and updates position", () => {
-  const g = applyAction(newGame(), { type: "setGoals", goals: newGame().goals }, WORLD).state;
-  const r = applyAction(g, { type: "moveTo", node: "n3" }, WORLD); // 3 hops × 5 = 15
+  const g = applyAction(newGame(), { type: "setGoals", goals: newGame().goals }, TEST_WORLD).state;
+  const r = applyAction(g, { type: "moveTo", node: "n3" }, TEST_WORLD); // 3 hops × 5 = 15
   expect(r.ok).toBe(true);
   expect(r.state.players[0].position).toBe("n3");
   expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget - 15);
 });
 
 test("moveTo is rejected when not enough time remains", () => {
-  let g = applyAction(newGame(), { type: "setGoals", goals: newGame().goals }, WORLD).state;
+  let g = applyAction(newGame(), { type: "setGoals", goals: newGame().goals }, TEST_WORLD).state;
   // Drain time down to 10 by editing a copy (engine-internal setup for the test).
   g = { ...g, players: [{ ...g.players[0], timeLeft: 10 }] };
-  const r = applyAction(g, { type: "moveTo", node: "n3" }, WORLD); // costs 15 > 10
+  const r = applyAction(g, { type: "moveTo", node: "n3" }, TEST_WORLD); // costs 15 > 10
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/time/i);
   expect(r.state.players[0].position).toBe("n0"); // unchanged
@@ -49,14 +49,14 @@ test("moveTo is rejected when not enough time remains", () => {
 
 test("moveTo is rejected when not in playing phase", () => {
   const g = newGame(); // still in setup
-  const r = applyAction(g, { type: "moveTo", node: "n3" }, WORLD);
+  const r = applyAction(g, { type: "moveTo", node: "n3" }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/playing/i);
 });
 
 test("moveTo to an unknown node is rejected, not thrown", () => {
-  const g = applyAction(newGame(), { type: "setGoals", goals: newGame().goals }, WORLD).state;
-  const r = applyAction(g, { type: "moveTo", node: "ghost" }, WORLD);
+  const g = applyAction(newGame(), { type: "setGoals", goals: newGame().goals }, TEST_WORLD).state;
+  const r = applyAction(g, { type: "moveTo", node: "ghost" }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/node/i);
 });
