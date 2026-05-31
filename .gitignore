@@ -1,4 +1,7 @@
 node_modules/
 .superpowers/
 tools/generated/
+# Affinity editor artifacts
 *~lock~
+~$*
+*.af~*
