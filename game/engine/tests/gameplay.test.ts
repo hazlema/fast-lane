@@ -96,6 +96,36 @@ test("with Trade School + Pre-Engineering done, you CAN enroll in Engineering", 
   expect(you(r.state).enrolledCourse).toBe("engineering");
 });
 
+// — Clothing ————————————————————————————————————————————————————————————
+
+test("in rags you can NOT work", () => {
+  const g = start({ jobId: "janitor", clothingWear: CONFIG.clothingLastsWeeks }, "factory");
+  const r = act(g, { type: "work" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/rags|clothes/i);
+});
+
+test("in rags you can NOT study", () => {
+  const g = start({ enrolledCourse: "juniorcollege", clothingWear: CONFIG.clothingLastsWeeks }, "university");
+  const r = act(g, { type: "study" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/rags|clothes/i);
+});
+
+test("buying clothes resets the wear and gets you back to work", () => {
+  let g = start({ jobId: "janitor", clothingWear: CONFIG.clothingLastsWeeks, cash: 999 }, "offrack");
+  g = act(g, { type: "buy", item: "suit" }).state; // Off the Rack sells suits
+  expect(you(g).clothingWear).toBe(0);
+  g = { ...g, players: [{ ...you(g), position: "factory" }] };
+  expect(act(g, { type: "work" }).ok).toBe(true);
+});
+
+test("clothes age one week at a time", () => {
+  let g = start({ housingId: null, clothingWear: 0 }); // no housing → no rent noise
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).clothingWear).toBe(1);
+});
+
 // — Showing up for work ————————————————————————————————————————————————
 
 test("an employee who never shows up gets fired", () => {

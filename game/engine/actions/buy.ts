@@ -29,7 +29,8 @@ export function buy(state: GameState, action: BuyAction, world: World): ApplyRes
       happiness: p.happiness + item.happinessGain,
       timeLeft: p.timeLeft - item.timeCost,
       inventory: [...p.inventory, action.item],
-      ateThisWeek: item.food ? true : p.ateThisWeek, // a meal feeds you for the week
+      ateThisWeek: item.food ? true : p.ateThisWeek,        // a meal feeds you for the week
+      clothingWear: item.clothing ? 0 : p.clothingWear,     // new clothes are fresh
     })),
   );
 }

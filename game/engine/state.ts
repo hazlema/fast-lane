@@ -25,6 +25,7 @@ export interface Player {
   hungry: boolean;                  // is THIS week docked because you didn't eat last week?
   workedThisWeek: boolean;          // worked a shift this week? (attendance)
   weeksSinceWorked: number;         // consecutive weeks employed-but-absent → poor work history → fired
+  clothingWear: number;             // weeks your clothes have been worn; past CONFIG.clothingLastsWeeks → in rags
   enrolledCourse: CourseId | null;  // current University course, null if none
   courseProgress: number;           // study sessions completed toward graduation
   completedCourses: CourseId[];     // degrees earned (university tech tree)
@@ -81,6 +82,7 @@ export function createGame(opts: {
     hungry: false,     // not docked going in
     workedThisWeek: false,
     weeksSinceWorked: 0,
+    clothingWear: 0, // you start decently dressed
     enrolledCourse: null,
     courseProgress: 0,
     completedCourses: [],

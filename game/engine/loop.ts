@@ -63,6 +63,14 @@ export function startTurn(state: GameState, world: World): GameState {
   if (fired) news.push("Fired — you stopped showing up. Find a new job at the Employment Office.");
   else if (skippedWork) news.push("Your boss noticed you skipped work this week.");
 
+  // Clothes wear out; in rags you can't work or study until you buy new ones.
+  const clothingWear = you.clothingWear + 1;
+  if (clothingWear >= CONFIG.clothingLastsWeeks) {
+    news.push("Your clothes are worn out — buy new ones or you can't work or study.");
+  } else if (clothingWear === CONFIG.clothingLastsWeeks - 1) {
+    news.push("Your clothes are getting threadbare — replace them soon.");
+  }
+
   // Rent hangs over you. Fall too far behind and you're evicted — game over.
   const weeksRentOverdue = you.rentDue > 0 ? you.weeksRentOverdue + 1 : 0;
   const evicted = shouldBeEvicted({ ...you, weeksRentOverdue });
@@ -86,6 +94,7 @@ export function startTurn(state: GameState, world: World): GameState {
     jobId: fired ? null : you.jobId,
     weeksSinceWorked: fired ? 0 : weeksSinceWorked,
     weeksRentOverdue,
+    clothingWear,
   };
 
   return addNews(setPlayer({ ...state, phase: evicted ? "lost" : "playing" }, ready), news);

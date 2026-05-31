@@ -1,7 +1,7 @@
 // game/data/config.ts
 // Central tunables. Adjusting the economy = editing this file, not logic.
 export const CONFIG = {
-  weeklyTimeBudget: 20, // action units available each week (work/study/buy = 1 each; travel = 1/hop)
+  weeklyTimeBudget: 24, // action units available each week (work/study/buy = 1 each; travel = 1/hop)
   hopCost: 1,           // time units per waypoint hop traveled (travel time scales with distance)
   weeksPerMonth: 4,    // a "month" is 4 weeks (rent + inflation cadence)
 
@@ -22,8 +22,9 @@ export const CONFIG = {
   noOpeningChance: 0.3,        // chance a qualified application finds no opening (entry jobs always hire)
   hungerTimePenalty: 5,        // time units lost next week if you didn't eat this week
   maxWeeksAbsent: 1,           // consecutive weeks you can skip work before your record turns "poor" (blocks new hires)
-  fireAfterWeeks: 2,           // skip more than this many weeks in a row → your boss fires you
-  evictAfterWeeks: 4,          // weeks rent can stay overdue before you're evicted (game over)
+  fireAfterWeeks: 4,           // skip more than this many weeks in a row → your boss fires you
+  evictAfterWeeks: 3,          // weeks rent can stay overdue before you're evicted (game over)
+  clothingLastsWeeks: 8,       // weeks clothes stay wearable; past this you're in rags (can't work/study)
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)

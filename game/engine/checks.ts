@@ -23,6 +23,9 @@ export const isEmployed = (p: Player): boolean => p.jobId !== null;
 /** Have you eaten this week? (else next week is docked — see endWeek) */
 export const isFed = (p: Player): boolean => p.ateThisWeek;
 
+/** Are your clothes still wearable? (past CONFIG.clothingLastsWeeks → in rags) */
+export const isClothed = (p: Player): boolean => p.clothingWear < CONFIG.clothingLastsWeeks;
+
 /** Can you cover a cash cost right now? */
 export const canAfford = (p: Player, cost: number): boolean => p.cash >= cost;
 

@@ -3,6 +3,7 @@ import type { GameState } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt, hasService } from "../../data/buildings";
+import { isClothed } from "../checks";
 import { CONFIG } from "../../data/config";
 
 export interface StudyAction {
@@ -13,6 +14,7 @@ export function study(state: GameState, _action: StudyAction, world: World): App
   const guard = requirePlaying(state, "study");
   if (guard) return guard;
   const p = state.players[state.current];
+  if (!isClothed(p)) return reject(state, "You're in rags — buy clothes before you can study.");
   if (!p.enrolledCourse) return reject(state, "You're not enrolled in a course. Enroll first.");
   const enrolled = p.enrolledCourse; // non-null past the guard; stable for the closure below
   const here = buildingAt(world.buildings, p.position);

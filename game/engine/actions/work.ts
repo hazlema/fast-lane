@@ -3,7 +3,7 @@ import type { GameState } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
-import { isEmployed } from "../checks";
+import { isEmployed, isClothed } from "../checks";
 import { wageFor } from "../wages";
 
 export interface WorkAction {
@@ -15,6 +15,7 @@ export function work(state: GameState, _action: WorkAction, world: World): Apply
   if (guard) return guard;
   const player = state.players[state.current];
   if (!isEmployed(player)) return reject(state, "You have no job.");
+  if (!isClothed(player)) return reject(state, "You're in rags — buy clothes before you can work.");
   const job = world.jobs[player.jobId!];
   if (!job) return reject(state, `Unknown job: ${player.jobId}`);
   const here = buildingAt(world.buildings, player.position);
