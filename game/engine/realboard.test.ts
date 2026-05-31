@@ -3,6 +3,7 @@ import { test, expect } from "bun:test";
 import { applyAction, type Action } from "./reducer";
 import { createGame } from "./state";
 import { WORLD } from "../data/world"; // the REAL board
+import { CONFIG } from "../data/config";
 
 function run(start: ReturnType<typeof createGame>, actions: Action[]) {
   let g = start;
@@ -24,22 +25,22 @@ test("buildings resolve on their own nodes on the real board", () => {
   expect(r.state.players[0].bank).toBe(100);
 });
 
-test("a player can travel the real ring, study, work, and win easy goals", () => {
+test("a player can study a degree on the real board and win easy goals", () => {
   let g = createGame({ playerName: "Al", startNode: "university", seed: 3 });
   g = applyAction(g, {
     type: "setGoals",
     goals: { wealth: 100, happiness: 0, education: 20, career: 0 },
   }, WORLD).state;
 
+  // Study Junior College to graduation (a degree fills the week), then settle.
   g = run(g, [
-    { type: "enroll", course: "juniorcollege" },    // at university: pay tuition, lock in
-    { type: "study" }, { type: "study" }, { type: "study" }, // graduate Junior College → education 20
-    { type: "moveTo", node: "employment" },         // travel the ring (1 hop)
-    { type: "applyForJob", job: "clerk" },          // Clerk requires the Junior College degree ✓
-    { type: "endWeek" },
+    { type: "enroll", course: "juniorcollege" },
+    ...Array.from({ length: CONFIG.studySessionsToGraduate }, () => ({ type: "study" }) as const),
   ]);
-
-  expect(g.players[0].jobId).toBe("clerk");
+  expect(g.players[0].completedCourses).toContain("juniorcollege");
   expect(g.players[0].education).toBe(20);
-  expect(g.phase).toBe("won");
+
+  const r = applyAction(g, { type: "endWeek" }, WORLD);
+  expect(r.ok).toBe(true);
+  expect(r.state.phase).toBe("won"); // wealth 150, education 20, happiness 0, career 0
 });
