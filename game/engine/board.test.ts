@@ -1,6 +1,7 @@
 // game/engine/board.test.ts
 import { test, expect } from "bun:test";
 import { hopsBetween, testRing } from "../data/board";
+import { BOARD, NODE_XY, BOARD_SIZE } from "../data/board";
 
 test("testRing is an ordered loop of 8 nodes", () => {
   expect(testRing.nodes.length).toBe(8);
@@ -19,4 +20,28 @@ test("hopsBetween takes the shorter way around the ring", () => {
 
 test("hopsBetween throws on unknown node", () => {
   expect(() => hopsBetween(testRing, "n0", "nope")).toThrow();
+});
+
+test("BOARD is a 13-node ring in clockwise order", () => {
+  expect(BOARD.nodes).toEqual([
+    "highsec", "rentoffice", "lowcost", "pawn", "discount", "frosty", "offrack",
+    "electronics", "university", "employment", "factory", "bank", "tryandsave",
+  ]);
+});
+
+test("hopsBetween works on the real board (shorter way around 13 nodes)", () => {
+  expect(hopsBetween(BOARD, "highsec", "rentoffice")).toBe(1);
+  expect(hopsBetween(BOARD, "highsec", "tryandsave")).toBe(1); // wraps backward
+  expect(hopsBetween(BOARD, "highsec", "electronics")).toBe(6); // 7 fwd vs 6 back
+});
+
+test("NODE_XY has a coordinate for every board node, within the board", () => {
+  for (const id of BOARD.nodes) {
+    const xy = NODE_XY[id];
+    expect(xy).toBeDefined();
+    expect(xy.x).toBeGreaterThanOrEqual(0);
+    expect(xy.x).toBeLessThanOrEqual(BOARD_SIZE.width);
+    expect(xy.y).toBeGreaterThanOrEqual(0);
+    expect(xy.y).toBeLessThanOrEqual(BOARD_SIZE.height);
+  }
 });
