@@ -1,7 +1,7 @@
 // game/ui/lib/save.ts
 import type { GameState } from "../../engine/state";
 
-const VERSION = 6; // bumped for weekly budget 30
+const VERSION = 7; // bumped for weekly budget 20
 
 export interface SaveData {
   state: GameState;

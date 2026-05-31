@@ -14,7 +14,9 @@ function enrolledAtUniversity(over = {}) {
 }
 
 test("study costs time and graduates after the configured sessions, granting exactly the course's education", () => {
-  let g = enrolledAtUniversity();
+  // Plenty of time so all sessions fit (this exercises the study mechanic, not
+  // the weekly budget — which is smaller than a full degree).
+  let g = enrolledAtUniversity({ timeLeft: CONFIG.studySessionsToGraduate + 5 });
   const c = TEST_WORLD.courses.juniorcollege;
   let t = g.players[0].timeLeft;
   for (let i = 0; i < CONFIG.studySessionsToGraduate; i++) {

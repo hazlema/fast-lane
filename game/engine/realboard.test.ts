@@ -1,16 +1,16 @@
 // game/engine/realboard.test.ts
 import { test, expect } from "bun:test";
-import { applyAction, type Action } from "./reducer";
-import { createGame } from "./state";
+import { applyAction } from "./reducer";
+import { createGame, type GameState } from "./state";
 import { WORLD } from "../data/world"; // the REAL board
-import { CONFIG } from "../data/config";
 
-function run(start: ReturnType<typeof createGame>, actions: Action[]) {
-  let g = start;
-  for (const a of actions) {
-    const r = applyAction(g, a, WORLD);
-    if (!r.ok) throw new Error(`action ${a.type} rejected: ${r.reason}`);
-    g = r.state;
+// Study the enrolled course to graduation, ending the week when time runs out.
+function studyToGraduate(start: GameState, course: string): GameState {
+  let g = applyAction(start, { type: "enroll", course }, WORLD).state;
+  let guard = 0;
+  while (!g.players[0].completedCourses.includes(course) && guard++ < 500) {
+    const r = applyAction(g, { type: "study" }, WORLD);
+    g = r.ok ? r.state : applyAction(g, { type: "endWeek" }, WORLD).state;
   }
   return g;
 }
@@ -32,11 +32,7 @@ test("a player can study a degree on the real board and win easy goals", () => {
     goals: { wealth: 100, happiness: 0, education: 20, career: 0 },
   }, WORLD).state;
 
-  // Study Junior College to graduation (a degree fills the week), then settle.
-  g = run(g, [
-    { type: "enroll", course: "juniorcollege" },
-    ...Array.from({ length: CONFIG.studySessionsToGraduate }, () => ({ type: "study" }) as const),
-  ]);
+  g = studyToGraduate(g, "juniorcollege"); // spans several 20-unit weeks
   expect(g.players[0].completedCourses).toContain("juniorcollege");
   expect(g.players[0].education).toBe(20);
 
