@@ -50,10 +50,32 @@ export function startTurn(state: GameState, world: World): GameState {
   const news: string[] = [];
   let time = CONFIG.weeklyTimeBudget;
 
-  // You have to eat.
-  if (!isFed(you)) {
+  // You have to eat — a fresh meal, or cook one from your frozen stock; else go hungry.
+  let mealsStocked = you.mealsStocked;
+  let fed = isFed(you);
+  if (!fed && mealsStocked > 0) {
+    mealsStocked -= 1;
+    fed = true;
+    news.push("You cooked a frozen Frosty Burger.");
+  }
+  if (!fed) {
     news.push("You have to eat! Lost 5 time this week.");
     time -= CONFIG.hungerTimePenalty;
+  }
+
+  // Lottery: a ticket bought last turn is drawn now.
+  let cash = you.cash;
+  let lotteryTicket = you.lotteryTicket;
+  if (lotteryTicket) {
+    const draw = makeRng(state.seed + state.week * 97 + 7);
+    if (draw() < CONFIG.lotteryWinChance) {
+      const prize = (1 + Math.floor(draw() * (CONFIG.lotteryMaxPrize / 100))) * 100;
+      cash += prize;
+      news.push(`🎉 You won $${prize} in the lottery!`);
+    } else {
+      news.push("Your lottery ticket didn't win. Maybe next week.");
+    }
+    lotteryTicket = false; // consumed at the draw
   }
 
   // You have to show up for work.
@@ -87,10 +109,13 @@ export function startTurn(state: GameState, world: World): GameState {
   const ready: Player = {
     ...you,
     position: home,
+    cash,
     timeLeft: time,
-    hungry: !isFed(you),
+    hungry: !fed,
     ateThisWeek: false,
     workedThisWeek: false,
+    mealsStocked,
+    lotteryTicket,
     jobId: fired ? null : you.jobId,
     weeksSinceWorked: fired ? 0 : weeksSinceWorked,
     weeksRentOverdue,

@@ -30,6 +30,8 @@ export interface Player {
   courseProgress: number;           // study sessions completed toward graduation
   completedCourses: CourseId[];     // degrees earned (university tech tree)
   inventory: ItemId[];
+  mealsStocked: number;        // frozen meals on hand — one is cooked a week to stay fed
+  lotteryTicket: boolean;      // holding a ticket for next turn's lottery draw
   rentDue: number;             // accrued unpaid rent (paid at the Rent Office)
   weeksRentOverdue: number;    // consecutive weeks rent has gone unpaid → eviction
   housingId: HousingId | null; // current rented place
@@ -87,6 +89,8 @@ export function createGame(opts: {
     courseProgress: 0,
     completedCourses: [],
     inventory: [],
+    mealsStocked: 0,
+    lotteryTicket: false,
     rentDue: 0,
     weeksRentOverdue: 0,
     housingId: opts.startHousing ?? null,

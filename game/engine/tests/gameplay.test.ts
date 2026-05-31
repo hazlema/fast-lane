@@ -96,7 +96,41 @@ test("with Trade School + Pre-Engineering done, you CAN enroll in Engineering", 
   expect(you(r.state).enrolledCourse).toBe("engineering");
 });
 
+// — Try and Save: groceries, newspaper, lottery —————————————————————————
+
+test("a frozen 8-pack keeps you fed for weeks without buying again", () => {
+  let g = start({ cash: 999 }, "tryandsave");
+  g = act(g, { type: "buy", item: "burger8" }).state;
+  expect(you(g).mealsStocked).toBe(8);
+  g = act(g, { type: "endWeek" }).state; // no fresh meal → cook a frozen one
+  expect(you(g).hungry).toBe(false);
+  expect(you(g).mealsStocked).toBe(7);
+});
+
+test("a newspaper lifts happiness and prints a headline", () => {
+  let g = start({ cash: 999, happiness: 0 }, "tryandsave");
+  g = act(g, { type: "buy", item: "newspaper" }).state;
+  expect(you(g).happiness).toBe(2);
+  expect(g.log.some((e) => /📰/.test(e.text))).toBe(true);
+});
+
+test("a lottery ticket is drawn next turn (win or lose) and consumed", () => {
+  let g = start({ cash: 999 }, "tryandsave");
+  g = act(g, { type: "buy", item: "lottery" }).state;
+  expect(you(g).lotteryTicket).toBe(true);
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).lotteryTicket).toBe(false); // consumed at the draw
+  expect(g.log.some((e) => /lottery/i.test(e.text))).toBe(true);
+});
+
 // — Clothing ————————————————————————————————————————————————————————————
+
+test("casual clothes are a cheaper way to stay clothed", () => {
+  let g = start({ clothingWear: CONFIG.clothingLastsWeeks, cash: 999 }, "offrack");
+  g = act(g, { type: "buy", item: "casual" }).state;
+  expect(you(g).clothingWear).toBe(0);
+});
+
 
 test("in rags you can NOT work", () => {
   const g = start({ jobId: "janitor", clothingWear: CONFIG.clothingLastsWeeks }, "factory");

@@ -28,6 +28,8 @@ test("createGame seeds one player with starting money and no time yet", () => {
   expect(p.housingId).toBeNull();
   expect(p.rentDue).toBe(0);
   expect(p.weeksRentOverdue).toBe(0);
+  expect(p.mealsStocked).toBe(0);
+  expect(p.lotteryTicket).toBe(false);
   expect(p.enrolledCourse).toBeNull();
   expect(p.courseProgress).toBe(0);
   expect(p.completedCourses).toEqual([]);

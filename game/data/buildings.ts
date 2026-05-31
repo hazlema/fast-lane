@@ -36,7 +36,7 @@ export const BUILDINGS: Building[] = [
   { id: "frosty", name: "Frosty Burger", hitBoxId: "Frosty-Burger", node: "frosty",
     services: [{ kind: "shop", itemIds: ["burger"] }, { kind: "workplace" }] },
   { id: "offrack", name: "Off the Rack", hitBoxId: "Off-the-Rack", node: "offrack",
-    services: [{ kind: "shop", itemIds: ["suit"] }, { kind: "workplace" }] },
+    services: [{ kind: "shop", itemIds: ["casual", "suit"] }, { kind: "workplace" }] },
   { id: "electronics", name: "Electronics", hitBoxId: "Electronics", node: "electronics",
     services: [{ kind: "shop", itemIds: ["tv"] }, { kind: "workplace" }] },
   { id: "university", name: "University", hitBoxId: "University", node: "university",
@@ -48,7 +48,7 @@ export const BUILDINGS: Building[] = [
   { id: "bank", name: "Bank", hitBoxId: "Bank", node: "bank",
     services: [{ kind: "bank" }, { kind: "workplace" }] },
   { id: "tryandsave", name: "Try and Save", hitBoxId: "Try-and-Save", node: "tryandsave",
-    services: [{ kind: "workplace" }, { kind: "shop", itemIds: ["burger", "suit"] }] },
+    services: [{ kind: "workplace" }, { kind: "shop", itemIds: ["burger8", "newspaper", "lottery"] }] },
 ];
 
 // Small fixture wired to testRing (n0..n5) for engine unit tests.

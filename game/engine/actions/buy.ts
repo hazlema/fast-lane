@@ -1,9 +1,12 @@
 // game/engine/actions/buy.ts
 import type { GameState, ItemId } from "../state";
 import type { World } from "../world";
+import type { LogEntry } from "../state";
 import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
 import { canAfford } from "../checks";
+import { makeRng } from "../rng";
+import { HEADLINES } from "../../data/items";
 
 export interface BuyAction {
   type: "buy";
@@ -22,15 +25,23 @@ export function buy(state: GameState, action: BuyAction, world: World): ApplyRes
   if (!item) return reject(state, `Unknown item: ${action.item}`);
   if (!canAfford(player, item.cost)) return reject(state, "You can't afford that.");
   if (item.timeCost > player.timeLeft) return reject(state, "Not enough time to shop.");
-  return ok(
-    updateCurrent(state, (p) => ({
-      ...p,
-      cash: p.cash - item.cost,
-      happiness: p.happiness + item.happinessGain,
-      timeLeft: p.timeLeft - item.timeCost,
-      inventory: [...p.inventory, action.item],
-      ateThisWeek: item.food ? true : p.ateThisWeek,        // a meal feeds you for the week
-      clothingWear: item.clothing ? 0 : p.clothingWear,     // new clothes are fresh
-    })),
-  );
+  const bought = updateCurrent(state, (p) => ({
+    ...p,
+    cash: p.cash - item.cost,
+    happiness: p.happiness + item.happinessGain,
+    timeLeft: p.timeLeft - item.timeCost,
+    inventory: [...p.inventory, action.item],
+    ateThisWeek: item.food ? true : p.ateThisWeek,           // a fresh meal feeds you this week
+    clothingWear: item.clothing ? 0 : p.clothingWear,        // new clothes are fresh
+    mealsStocked: p.mealsStocked + item.meals,               // frozen packs add to the stock
+    lotteryTicket: item.lottery ? true : p.lotteryTicket,    // a ticket rides on next turn's draw
+  }));
+
+  // A newspaper comes with a (pure-flavor) headline.
+  if (item.id === "newspaper") {
+    const headline = HEADLINES[Math.floor(makeRng(state.seed + state.week + player.inventory.length)() * HEADLINES.length)];
+    const log: LogEntry[] = [...bought.log, { week: bought.week, text: `📰 ${headline}` }];
+    return ok({ ...bought, log });
+  }
+  return ok(bought);
 }
