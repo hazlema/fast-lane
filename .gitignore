@@ -5,3 +5,4 @@ tools/generated/
 *~lock~
 ~$*
 *.af~*
+.playwright-mcp/

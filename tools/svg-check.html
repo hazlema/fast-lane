@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Board SVG Tester</title>
+<style>
+  :root { --ok:#2e9e4f; --bad:#d23; --warn:#c80; --ink:#1a2412; --panel:#f4f3ea; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: ui-sans-serif, system-ui, sans-serif; color:#1a2412; background:#2f3a22; }
+  header { background:#1a2412; color:#e8e6cf; padding:10px 16px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  header h1 { font-size:15px; margin:0; }
+  header .toggles { display:flex; gap:14px; font-size:13px; }
+  header label { display:flex; align-items:center; gap:5px; cursor:pointer; }
+  header .summary { margin-left:auto; font-size:13px; font-weight:600; }
+  .wrap { display:flex; height: calc(100vh - 46px); }
+  #stage { flex:1; overflow:auto; background:#2f3a22; padding:12px; }
+  #stage svg { width:100%; height:auto; display:block; background:#0003; border-radius:6px; }
+  aside { width:380px; background:var(--panel); overflow:auto; padding:14px; border-left:3px solid #1a2412; }
+  aside h2 { font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:#555; margin:18px 0 6px; }
+  aside h2:first-child { margin-top:0; }
+  .row { display:flex; align-items:center; gap:8px; font-size:12.5px; padding:3px 0; border-bottom:1px solid #0001; }
+  .row .badge { flex:none; width:16px; text-align:center; font-weight:700; }
+  .ok { color:var(--ok); } .bad { color:var(--bad); } .warn { color:var(--warn); }
+  .row code { background:#0000000d; padding:1px 4px; border-radius:3px; font-size:11.5px; }
+  .muted { color:#888; }
+  .checktop { font-size:13px; padding:8px 10px; border-radius:5px; margin-bottom:8px; font-weight:600; }
+  .checktop.pass { background:#dcf3e3; color:#176b33; }
+  .checktop.fail { background:#fbe0e0; color:#a01; }
+  .legend { font-size:11px; color:#666; margin-top:4px; }
+  .dist { font-size:11px; color:#999; }
+  button#reload { background:#3a5; color:#fff; border:0; padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🗺️ Board SVG Tester</h1>
+  <div class="toggles">
+    <label><input type="checkbox" id="t-wp" checked> Waypoints</label>
+    <label><input type="checkbox" id="t-hb" checked> Hit-boxes</label>
+    <label><input type="checkbox" id="t-bldg" checked> Buildings</label>
+  </div>
+  <button id="reload">Reload</button>
+  <div class="summary" id="summary">Loading…</div>
+</header>
+<div class="wrap">
+  <div id="stage">Loading board…</div>
+  <aside id="report"></aside>
+</div>
+
+<script>
+const SVG_NS = "http://www.w3.org/2000/svg";
+const TOLERANCE = 30; // SVG units: how far a waypoint may sit from its expected node
+
+const $ = (id) => document.getElementById(id);
+
+async function load() {
+  $("summary").textContent = "Loading…";
+  const [data, svgText] = await Promise.all([
+    fetch("/api/board-data").then(r => r.json()),
+    fetch("/board.svg").then(r => r.text()),
+  ]);
+
+  // Inline the SVG so we can measure real geometry and append overlays.
+  $("stage").innerHTML = svgText;
+  const svg = $("stage").querySelector("svg");
+  if (!svg) { $("stage").textContent = "Could not parse board.svg"; return; }
+
+  // Fresh overlay layer on top of everything.
+  svg.querySelector("#__overlay")?.remove();
+  const overlay = el("g", { id: "__overlay" });
+  const gWp = el("g", { id: "__wp" }), gHb = el("g", { id: "__hb" }), gBldg = el("g", { id: "__bldg" });
+  overlay.append(gHb, gBldg, gWp); // waypoints drawn last (on top)
+  svg.appendChild(overlay);
+
+  const checks = [];
+  analyzeWaypoints(svg, data, gWp, checks);
+  analyzeBuildings(svg, data, gHb, gBldg, checks);
+  renderReport(data, checks);
+  wireToggles();
+}
+
+// --- geometry helpers ---
+// Map an element's local geometry into the root SVG's viewBox coordinate system.
+// Using screen-CTMs (then inverting the root's) is robust to how the SVG is scaled
+// to fit the page — unlike getCTM(), which gave a wrong/compressed space here.
+function toRoot(node, svg) {
+  return svg.getScreenCTM().inverse().multiply(node.getScreenCTM());
+}
+function elCenter(node, svg) {
+  const b = node.getBBox();
+  const pt = svg.createSVGPoint();
+  pt.x = b.x + b.width / 2; pt.y = b.y + b.height / 2;
+  const p = pt.matrixTransform(toRoot(node, svg));
+  return { x: p.x, y: p.y };
+}
+function elBox(node, svg) {
+  const b = node.getBBox();
+  const m = toRoot(node, svg);
+  const corners = [[b.x, b.y], [b.x + b.width, b.y], [b.x, b.y + b.height], [b.x + b.width, b.y + b.height]]
+    .map(([x, y]) => { const pt = svg.createSVGPoint(); pt.x = x; pt.y = y; return pt.matrixTransform(m); });
+  const xs = corners.map(c => c.x), ys = corners.map(c => c.y);
+  const x = Math.min(...xs), y = Math.min(...ys);
+  return { x, y, w: Math.max(...xs) - x, h: Math.max(...ys) - y };
+}
+function dist(ax, ay, bx, by) { return Math.hypot(ax - bx, ay - by); }
+
+// --- waypoints: match each to the nearest game node by position ---
+function analyzeWaypoints(svg, data, layer, checks) {
+  const groups = [...svg.querySelectorAll("#Waypoints > g")];
+  const found = groups.map(g => {
+    const path = g.querySelector("path") || g;
+    const c = elCenter(path, svg);
+    return { id: g.id, x: c.x, y: c.y };
+  });
+
+  // Nearest game node for each waypoint.
+  const claimed = {};
+  for (const wp of found) {
+    let best = null;
+    for (const node of data.nodes) {
+      const xy = data.nodeXY[node];
+      const d = dist(wp.x, wp.y, xy.x, xy.y);
+      if (!best || d < best.d) best = { node, d };
+    }
+    wp.node = best.node; wp.dist = best.d;
+    wp.ring = data.nodes.indexOf(best.node);
+    (claimed[best.node] ||= []).push(wp);
+    drawWaypoint(layer, wp);
+  }
+
+  // Checks.
+  checks.push({
+    section: "Waypoints",
+    label: `Count is ${found.length} (expected ${data.nodes.length})`,
+    ok: found.length === data.nodes.length,
+  });
+  for (const wp of found.sort((a, b) => a.ring - b.ring)) {
+    const dupe = claimed[wp.node].length > 1;
+    checks.push({
+      section: "Waypoints",
+      label: `<code>${wp.id}</code> → #${wp.ring} <code>${wp.node}</code>`,
+      extra: `${Math.round(wp.dist)}px${dupe ? " · DUPLICATE node" : ""}`,
+      ok: wp.dist <= TOLERANCE && !dupe,
+      warn: wp.dist > TOLERANCE && wp.dist <= TOLERANCE * 2 && !dupe,
+    });
+  }
+  const unmatched = data.nodes.filter(n => !claimed[n]);
+  for (const n of unmatched) {
+    checks.push({ section: "Waypoints", label: `No waypoint near node <code>${n}</code>`, ok: false });
+  }
+}
+
+// --- buildings: each game building's hitBoxId group must exist & hold a hit-box ---
+function analyzeBuildings(svg, data, hbLayer, bldgLayer, checks) {
+  for (const b of data.buildings) {
+    const group = svg.getElementById(b.hitBoxId);
+    if (!group) {
+      checks.push({ section: "Buildings", label: `<code>${b.id}</code> group <code>${b.hitBoxId}</code> MISSING`, ok: false });
+      continue;
+    }
+    // A hit-box is a rect inside a "Hit-Box" sub-group (fall back to any rect).
+    const rect = group.querySelector('[id^="Hit-Box"] rect, [id^="Hit-Box"] path, rect');
+    const hasHit = !!rect;
+    if (rect) {
+      const box = elBox(rect, svg);
+      drawHitBox(hbLayer, box, b.id);
+      drawBuildingLabel(bldgLayer, box, b);
+    }
+    checks.push({
+      section: "Buildings",
+      label: `<code>${b.id}</code> ⇒ <code>${b.hitBoxId}</code>`,
+      extra: hasHit ? "hit-box ✓" : "no hit-box",
+      ok: hasHit,
+      warn: !hasHit,
+    });
+  }
+}
+
+// --- drawing ---
+function el(name, attrs) { const n = document.createElementNS(SVG_NS, name); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; }
+function drawWaypoint(layer, wp) {
+  layer.appendChild(el("circle", { cx: wp.x, cy: wp.y, r: 26, fill: wp.dist <= TOLERANCE ? "#1b8" : "#e22", "fill-opacity": .85, stroke: "#fff", "stroke-width": 4 }));
+  const t = el("text", { x: wp.x, y: wp.y + 11, "text-anchor": "middle", "font-size": 30, "font-weight": 700, fill: "#fff", "font-family": "sans-serif" });
+  t.textContent = wp.ring;
+  layer.appendChild(t);
+}
+function drawHitBox(layer, box, id) {
+  layer.appendChild(el("rect", { x: box.x, y: box.y, width: box.w, height: box.h, fill: "#39f", "fill-opacity": .12, stroke: "#39f", "stroke-width": 3, "stroke-dasharray": "10 8" }));
+}
+function drawBuildingLabel(layer, box, b) {
+  const x = box.x + 6, y = box.y + 28;
+  const bg = el("rect", { x: box.x, y: box.y, width: Math.max(box.w, 8 * b.id.length), height: 34, fill: "#1a2412", "fill-opacity": .72 });
+  const t = el("text", { x, y, "font-size": 26, "font-weight": 700, fill: "#ffd24a", "font-family": "sans-serif" });
+  t.textContent = b.id + (b.services.length ? " · " + b.services.join(",") : " · (display only)");
+  layer.append(bg, t);
+}
+
+// --- report panel ---
+function renderReport(data, checks) {
+  const fails = checks.filter(c => !c.ok && !c.warn).length;
+  const warns = checks.filter(c => c.warn).length;
+  $("summary").innerHTML = fails === 0
+    ? `<span style="color:#9f6">✓ ${checks.length - warns} OK${warns ? `, ${warns} warn` : ""}</span>`
+    : `<span style="color:#f99">✗ ${fails} failing</span>${warns ? `, ${warns} warn` : ""}`;
+
+  const sections = [...new Set(checks.map(c => c.section))];
+  let html = `<div class="checktop ${fails ? "fail" : "pass"}">${fails ? `${fails} check(s) failing` : "All structural checks pass"}${warns ? ` · ${warns} warning(s)` : ""}</div>`;
+  html += `<div class="legend">Tolerance: a waypoint must sit within ${TOLERANCE}px of its expected node. Green dot = matched, red = off. Ring # is the game's board index.</div>`;
+  for (const s of sections) {
+    html += `<h2>${s}</h2>`;
+    for (const c of checks.filter(c => c.section === s)) {
+      const cls = c.ok ? "ok" : c.warn ? "warn" : "bad";
+      const badge = c.ok ? "✓" : c.warn ? "!" : "✗";
+      html += `<div class="row"><span class="badge ${cls}">${badge}</span><span>${c.label}</span>${c.extra ? `<span class="dist" style="margin-left:auto">${c.extra}</span>` : ""}</div>`;
+    }
+  }
+  $("report").innerHTML = html;
+}
+
+function wireToggles() {
+  const map = { "t-wp": "#__wp", "t-hb": "#__hb", "t-bldg": "#__bldg" };
+  for (const id in map) {
+    const cb = $(id), g = document.querySelector(map[id]);
+    if (!cb || !g) continue;
+    const apply = () => { g.style.display = cb.checked ? "" : "none"; };
+    cb.onchange = apply; apply();
+  }
+}
+
+$("reload").onclick = load;
+load().catch(e => { $("stage").textContent = "Error: " + e.message; console.error(e); });
+</script>
+</body>
+</html>

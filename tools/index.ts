@@ -2,6 +2,8 @@ import path from "node:path";
 import { readdir, writeFile } from "node:fs/promises";
 import { generateAsset, slugify, SOURCE_DIR, CROPPED_DIR } from "./generate";
 import { runBatch, DEFAULTS, type BatchFile } from "./batch-core";
+import { BOARD, NODE_XY, BOARD_SIZE } from "../game/data/board";
+import { BUILDINGS } from "../game/data/buildings";
 
 const ROOT = import.meta.dir;
 const BATCH_FILE = path.join(ROOT, "batch.json");
@@ -36,6 +38,34 @@ Bun.serve({
     // Layout is the default page.
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/layout")) {
       return serveHtml();
+    }
+
+    // SVG structure tester: renders board.svg with overlays + validates it against game data.
+    if (req.method === "GET" && url.pathname === "/svg-check") {
+      return new Response(Bun.file(path.join(ROOT, "svg-check.html")), {
+        headers: { "content-type": "text/html; charset=utf-8" }
+      });
+    }
+    // Serve the board SVG for the tester.
+    if (req.method === "GET" && url.pathname === "/board.svg") {
+      return new Response(Bun.file(path.join(ROOT, "..", "assets", "board.svg")), {
+        headers: { "content-type": "image/svg+xml; charset=utf-8" }
+      });
+    }
+    // The game's board data, for the tester to validate the SVG against.
+    if (req.method === "GET" && url.pathname === "/api/board-data") {
+      return Response.json({
+        boardSize: BOARD_SIZE,
+        nodes: BOARD.nodes,
+        nodeXY: NODE_XY,
+        buildings: BUILDINGS.map((b) => ({
+          id: b.id,
+          name: b.name,
+          hitBoxId: b.hitBoxId,
+          node: b.node,
+          services: b.services.map((s) => s.kind)
+        }))
+      });
     }
 
     // List available source images for the picker.
