@@ -85,7 +85,7 @@
         {@const d = dis(a)}
         <ActionRow name={h.name}
           sub={player.housingId === id ? "current home" : ""}
-          badges={[{ text: `🏠 $${h.weeklyRent}/wk`, kind: "cost" }]}
+          badges={[{ text: `🏠 $${h.monthlyRent}/mo`, kind: "cost" }]}
           disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
       {/each}
 
