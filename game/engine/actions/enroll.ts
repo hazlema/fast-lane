@@ -2,7 +2,7 @@
 import type { GameState } from "../state";
 import type { CourseId } from "../../data/courses";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
 import { canAfford } from "../checks";
 
@@ -12,7 +12,8 @@ export interface EnrollAction {
 }
 
 export function enroll(state: GameState, action: EnrollAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only enroll while playing.");
+  const guard = requirePlaying(state, "enroll");
+  if (guard) return guard;
   const p = state.players[state.current];
   if (p.enrolledCourse) return reject(state, "You're already enrolled in a course.");
   const here = buildingAt(world.buildings, p.position);

@@ -1,7 +1,7 @@
 // game/engine/actions/bank.ts
 import type { GameState, Player } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt, hasService } from "../../data/buildings";
 
 export type BankOp = "deposit" | "withdraw" | "loan" | "repay";
@@ -13,7 +13,8 @@ export interface BankAction {
 }
 
 export function bank(state: GameState, action: BankAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only bank while playing.");
+  const guard = requirePlaying(state, "bank");
+  if (guard) return guard;
   const player = state.players[state.current];
   const here = buildingAt(world.buildings, player.position);
   if (!here || !hasService(here, "bank")) return reject(state, "No bank here.");

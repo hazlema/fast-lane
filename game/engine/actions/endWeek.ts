@@ -1,7 +1,7 @@
 // game/engine/actions/endWeek.ts
 import type { GameState, LogEntry } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject } from "../result";
+import { type ApplyResult, ok, requirePlaying } from "../result";
 import { accrueInterest, checkPromotion, decayHappiness } from "../economy";
 import { makeRng } from "../rng";
 import { nextIndex } from "../economyIndex";
@@ -14,7 +14,8 @@ export interface EndWeekAction {
 }
 
 export function endWeek(state: GameState, _action: EndWeekAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only end the week while playing.");
+  const guard = requirePlaying(state, "end the week");
+  if (guard) return guard;
 
   const i = state.current;
   const before = state.players[i];

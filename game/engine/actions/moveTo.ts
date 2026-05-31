@@ -2,7 +2,7 @@
 import type { GameState } from "../state";
 import type { NodeId } from "../../data/board";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { travelCost } from "../movement";
 
 export interface MoveToAction {
@@ -11,9 +11,8 @@ export interface MoveToAction {
 }
 
 export function moveTo(state: GameState, action: MoveToAction, world: World): ApplyResult {
-  if (state.phase !== "playing") {
-    return reject(state, "Can only move while playing.");
-  }
+  const guard = requirePlaying(state, "move");
+  if (guard) return guard;
   if (!world.graph.nodes.includes(action.node)) {
     return reject(state, `Unknown node: ${action.node}`);
   }

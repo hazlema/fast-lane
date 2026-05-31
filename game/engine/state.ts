@@ -40,8 +40,8 @@ export interface LogEntry {
   text: string;
 }
 
-// "weekEnd" has no setter yet — reserved for Plan 3 (UI settlement animation).
-export type Phase = "setup" | "playing" | "weekEnd" | "won";
+// The full state machine: set goals (setup) → play weeks (playing) → win (won).
+export type Phase = "setup" | "playing" | "won";
 
 export interface GameState {
   players: Player[];

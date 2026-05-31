@@ -1,7 +1,7 @@
 // game/engine/actions/work.ts
 import type { GameState } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
 import { isEmployed } from "../checks";
 import { wageFor } from "../wages";
@@ -11,7 +11,8 @@ export interface WorkAction {
 }
 
 export function work(state: GameState, _action: WorkAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only work while playing.");
+  const guard = requirePlaying(state, "work");
+  if (guard) return guard;
   const player = state.players[state.current];
   if (!isEmployed(player)) return reject(state, "You have no job.");
   const job = world.jobs[player.jobId!];

@@ -1,7 +1,7 @@
 // game/engine/actions/study.ts
 import type { GameState } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt, hasService } from "../../data/buildings";
 import { CONFIG } from "../../data/config";
 
@@ -10,7 +10,8 @@ export interface StudyAction {
 }
 
 export function study(state: GameState, _action: StudyAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only study while playing.");
+  const guard = requirePlaying(state, "study");
+  if (guard) return guard;
   const p = state.players[state.current];
   if (!p.enrolledCourse) return reject(state, "You're not enrolled in a course. Enroll first.");
   const enrolled = p.enrolledCourse; // non-null past the guard; stable for the closure below

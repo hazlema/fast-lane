@@ -1,7 +1,7 @@
 // game/engine/actions/applyForJob.ts
 import type { GameState, JobId, LogEntry } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
 import { isQualifiedFor, hasOpening, hasGoodWorkHistory } from "../checks";
 import { CONFIG } from "../../data/config";
@@ -12,7 +12,8 @@ export interface ApplyForJobAction {
 }
 
 export function applyForJob(state: GameState, action: ApplyForJobAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only apply while playing.");
+  const guard = requirePlaying(state, "apply");
+  if (guard) return guard;
   const player = state.players[state.current];
   const here = buildingAt(world.buildings, player.position);
   const hiring = here?.services.find((s) => s.kind === "hiring");

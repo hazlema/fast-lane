@@ -1,7 +1,7 @@
 // game/engine/actions/buy.ts
 import type { GameState, ItemId } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
 import { canAfford } from "../checks";
 
@@ -11,7 +11,8 @@ export interface BuyAction {
 }
 
 export function buy(state: GameState, action: BuyAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only shop while playing.");
+  const guard = requirePlaying(state, "shop");
+  if (guard) return guard;
   const player = state.players[state.current];
   const here = buildingAt(world.buildings, player.position);
   const shop = here?.services.find((s) => s.kind === "shop");

@@ -1,7 +1,7 @@
 // game/engine/actions/rent.ts
 import type { GameState, HousingId } from "../state";
 import type { World } from "../world";
-import { type ApplyResult, ok, reject, updateCurrent } from "../result";
+import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
 
 export interface RentAction {
@@ -10,7 +10,8 @@ export interface RentAction {
 }
 
 export function rent(state: GameState, action: RentAction, world: World): ApplyResult {
-  if (state.phase !== "playing") return reject(state, "Can only rent while playing.");
+  const guard = requirePlaying(state, "rent");
+  if (guard) return guard;
   const player = state.players[state.current];
   const here = buildingAt(world.buildings, player.position);
   const housing = here?.services.find((s) => s.kind === "housing");
