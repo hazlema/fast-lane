@@ -95,14 +95,16 @@ export const gameStore = {
   goHome(): void { screen = "home"; },
 
   // Walk to a building: the engine charges travel time instantly, then the
-  // token tweens along the Road path while the building's screen opens.
+  // token tweens along the Road path. The building's screen only opens once
+  // we ARRIVE — the dialog stays on its current content while travelling
+  // (a future travel animation/audio will play during the walk).
   async goTo(node: NodeId): Promise<void> {
     if (walking || game.phase !== "playing") return;
     const from = game.players[game.current].position;
     if (from === node) { this.openBuilding(node); return; }
     if (!this.dispatch({ type: "moveTo", node })) return; // rejected (e.g. no time)
-    this.openBuilding(node);
-    await this.walkRoad(from, node);
+    await this.walkRoad(from, node); // travel first…
+    this.openBuilding(node);         // …then open the building on arrival
   },
 
   openBuilding(node: NodeId): void { screen = node; },
