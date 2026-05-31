@@ -17,7 +17,7 @@ export interface Player {
   education: number;
   careerLevel: number;
   jobId: JobId | null;
-  experience: number;
+  experience: number; // progress toward promotion; consumed by Plan 2 career logic
   inventory: ItemId[];
   timeLeft: number;
   travelMultiplier: number;

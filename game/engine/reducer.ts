@@ -61,5 +61,12 @@ export function applyAction(state: GameState, action: Action, graph: BoardGraph)
       }));
       return { ok: true, state: next };
     }
+
+    default: {
+      // Exhaustiveness guard: if a new Action variant is added without a case,
+      // this becomes a compile error (and a safe runtime fallback meanwhile).
+      const _exhaustive: never = action;
+      return reject(state, `Unknown action: ${(_exhaustive as { type: string }).type}`);
+    }
   }
 }

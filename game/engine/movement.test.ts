@@ -18,6 +18,8 @@ test("travel multiplier discounts cost and rounds up", () => {
   expect(travelCost(testRing, "n0", "n3", 0.6)).toBe(9);
   // 2 hops × 5 = 10; ×0.6 = 6
   expect(travelCost(testRing, "n0", "n6", 0.6)).toBe(6);
+  // 1 hop × 5 = 5; ×0.3 = 1.5 → ceil → 2 (exercises the rounding-up policy)
+  expect(travelCost(testRing, "n0", "n1", 0.3)).toBe(2);
 });
 
 test("travel multiplier defaults to 1 when omitted", () => {

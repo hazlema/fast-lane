@@ -1,6 +1,6 @@
 // game/engine/board.test.ts
 import { test, expect } from "bun:test";
-import { hopsBetween, testRing, type BoardGraph } from "../data/board";
+import { hopsBetween, testRing } from "../data/board";
 
 test("testRing is an ordered loop of 8 nodes", () => {
   expect(testRing.nodes.length).toBe(8);
