@@ -15,6 +15,10 @@
       el.style.cursor = "pointer";
       el.addEventListener("click", () => { void gameStore.goTo(b.node); });
     }
+    // Hand the Road path to the store so the token can tween along it.
+    const road = container.querySelector<SVGPathElement>("#Road");
+    if (road) gameStore.attachRoad(road);
+    else console.warn("No #Road path found in board.svg");
   });
 
   const xpct = (x: number) => (x / BOARD_SIZE.width) * 100;
@@ -46,7 +50,6 @@
     border: 3px solid #fff;
     box-shadow: 0 3px 7px #0008;
     transform: translate(-50%, -50%);
-    transition: left 0.26s linear, top 0.26s linear;
     z-index: 5;
     pointer-events: none;
   }
