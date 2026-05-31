@@ -6,13 +6,15 @@ import { setGoals, type SetGoalsAction } from "./actions/setGoals";
 import { moveTo, type MoveToAction } from "./actions/moveTo";
 import { work, type WorkAction } from "./actions/work";
 import { applyForJob, type ApplyForJobAction } from "./actions/applyForJob";
-import { takeClass, type TakeClassAction } from "./actions/takeClass";
+import { enroll, type EnrollAction } from "./actions/enroll";
+import { study, type StudyAction } from "./actions/study";
 import { buy, type BuyAction } from "./actions/buy";
 import { bank, type BankAction } from "./actions/bank";
 import { rent, type RentAction } from "./actions/rent";
+import { payRent, type PayRentAction } from "./actions/payRent";
 import { endWeek, type EndWeekAction } from "./actions/endWeek";
 
-export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction | EndWeekAction;
+export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | EnrollAction | StudyAction | BuyAction | BankAction | RentAction | PayRentAction | EndWeekAction;
 
 export { type ApplyResult } from "./result";
 
@@ -26,14 +28,18 @@ export function applyAction(state: GameState, action: Action, world: World): App
       return work(state, action, world);
     case "applyForJob":
       return applyForJob(state, action, world);
-    case "takeClass":
-      return takeClass(state, action, world);
+    case "enroll":
+      return enroll(state, action, world);
+    case "study":
+      return study(state, action, world);
     case "buy":
       return buy(state, action, world);
     case "bank":
       return bank(state, action, world);
     case "rent":
       return rent(state, action, world);
+    case "payRent":
+      return payRent(state, action, world);
     case "endWeek":
       return endWeek(state, action, world);
     default: {

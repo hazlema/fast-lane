@@ -3,14 +3,14 @@
   import { gameStore } from "../stores/game.svelte";
   import { WORLD } from "../../data/world";
   import { JOBS } from "../../data/jobs";
-  import { COURSES } from "../../data/courses";
   import { ITEMS } from "../../data/items";
   import { HOUSING } from "../../data/housing";
-  import { CONFIG } from "../../data/config";
   import { wageFor } from "../../engine/wages";
   import type { Action } from "../../engine/reducer";
   import ActionRow from "./ActionRow.svelte";
   import BankPanel from "./BankPanel.svelte";
+  import EducationScreen from "./EducationScreen.svelte";
+  import HiringScreen from "./HiringScreen.svelte";
 
   let { buildingId }: { buildingId: string } = $props();
   const building = $derived(WORLD.buildings.find((b) => b.id === buildingId));
@@ -40,32 +40,17 @@
         {@const a = { type: "work" } as const}
         {@const d = dis(a)}
         <ActionRow name={`Work a shift — ${myJobHere.title}`}
-          badges={[{ text: `💵 +$${wageFor(myJobHere, player.careerLevel)}` }, { text: `⏳ ${myJobHere.timeCost}` }]}
+          badges={[{ text: `💵 +$${wageFor(myJobHere, player.careerLevel, gameStore.economyIndex)}` }, { text: `⏳ ${myJobHere.timeCost}` }]}
           disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
       {:else}
         <p class="empty">You don't work here. Get hired at the Employment Office.</p>
       {/if}
 
     {:else if svc.kind === "hiring"}
-      {#each svc.jobIds as id (id)}
-        {@const job = JOBS[id]}
-        {@const a = { type: "applyForJob", job: id } as const}
-        {@const d = dis(a)}
-        <ActionRow name={`Apply: ${job.title}`}
-          sub={job.requiredEducation > 0 ? `needs Edu ${job.requiredEducation}` : "no requirements"}
-          badges={[{ text: `💵 $${job.wage}/shift` }, { text: `⏳ ${CONFIG.applyJobTimeCost}` }]}
-          disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
-      {/each}
+      <HiringScreen jobIds={svc.jobIds} />
 
     {:else if svc.kind === "education"}
-      {#each svc.courseIds as id (id)}
-        {@const c = COURSES[id]}
-        {@const a = { type: "takeClass", course: id } as const}
-        {@const d = dis(a)}
-        <ActionRow name={c.name}
-          badges={[{ text: `📘 +${c.educationGain}` }, { text: `⏳ ${c.timeCost}` }, { text: `$${c.cost}`, kind: "cost" }]}
-          disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
-      {/each}
+      <EducationScreen courseIds={svc.courseIds} />
 
     {:else if svc.kind === "shop"}
       {#each svc.itemIds as id (id)}
@@ -79,13 +64,19 @@
       {/each}
 
     {:else if svc.kind === "housing"}
+      {@const pr = gameStore.preview({ type: "payRent" })}
+      <div class="rentbar">
+        <span>Rent due: <b>${player.rentDue}</b></span>
+        <button class="pay" disabled={!pr.ok} title={pr.ok ? "" : (pr.reason ?? "")}
+          onclick={() => gameStore.payRent()}>Pay Rent</button>
+      </div>
       {#each svc.housingIds as id (id)}
         {@const h = HOUSING[id]}
         {@const a = { type: "rent", unit: id } as const}
         {@const d = dis(a)}
         <ActionRow name={h.name}
-          sub={player.housingId === id ? "current home" : ""}
-          badges={[{ text: `🏠 $${h.weeklyRent}/wk`, kind: "cost" }]}
+          sub={player.housingId === id ? "current home" : "move in"}
+          badges={[{ text: `🏠 $${h.monthlyRent}/mo`, kind: "cost" }]}
           disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
       {/each}
 
@@ -101,4 +92,8 @@
   .hd .t { font-weight: 700; font-size: clamp(12px, 1.4vw, 15px); color: #2a2f1a; }
   .back { background: none; border: none; font-size: clamp(10px, 1.1vw, 12px); color: #4a90d9; cursor: pointer; }
   .empty { font-size: clamp(10px, 1.1vw, 12px); color: #8a8666; margin: 4px 0; }
+  .rentbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; font-size: clamp(10px, 1.1vw, 12px); color: #2a2f1a; }
+  .rentbar b { color: #b8860b; }
+  .pay { background: #4a90d9; color: #fff; border: none; border-radius: 6px; padding: 5px 10px; font-size: clamp(10px, 1.1vw, 12px); font-weight: 700; cursor: pointer; }
+  .pay:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>

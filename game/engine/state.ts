@@ -1,6 +1,7 @@
 // game/engine/state.ts
 import type { NodeId } from "../data/board";
 import { CONFIG } from "../data/config";
+import type { CourseId } from "../data/courses";
 
 export type Stat = "wealth" | "happiness" | "education" | "career";
 export type JobId = string;
@@ -19,8 +20,10 @@ export interface Player {
   careerLevel: number;
   jobId: JobId | null;
   experience: number; // progress toward promotion; consumed by Plan 2 career logic
+  enrolledCourse: CourseId | null; // current University course, null if none
+  courseProgress: number;          // study sessions completed toward graduation
   inventory: ItemId[];
-  weeklyRent: number;          // charged each week-end; 0 if no housing
+  rentDue: number;             // accrued unpaid rent (paid at the Rent Office)
   housingId: HousingId | null; // current rented place
   timeLeft: number;
   travelMultiplier: number;
@@ -39,6 +42,7 @@ export interface GameState {
   current: number;
   week: number;
   phase: Phase;
+  economyIndex: number;        // fluctuating inflation index (Mechanic 10)
   goals: Record<Stat, number>;
   seed: number;
   log: LogEntry[];
@@ -48,6 +52,7 @@ export function createGame(opts: {
   playerName: string;
   startNode: NodeId;
   seed: number;
+  startHousing?: HousingId; // if set, the player begins already renting this unit
 }): GameState {
   const player: Player = {
     id: "p0",
@@ -61,9 +66,11 @@ export function createGame(opts: {
     careerLevel: 0,
     jobId: null,
     experience: 0,
+    enrolledCourse: null,
+    courseProgress: 0,
     inventory: [],
-    weeklyRent: 0,
-    housingId: null,
+    rentDue: 0,
+    housingId: opts.startHousing ?? null,
     timeLeft: 0,
     travelMultiplier: 1,
   };
@@ -72,6 +79,7 @@ export function createGame(opts: {
     current: 0,
     week: 1,
     phase: "setup",
+    economyIndex: CONFIG.indexStart,
     goals: { ...CONFIG.defaultGoals },
     seed: opts.seed,
     log: [],

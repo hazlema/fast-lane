@@ -3,6 +3,14 @@
 export const CONFIG = {
   weeklyTimeBudget: 60, // time units available each week
   hopCost: 5,           // time units per waypoint hop traveled
+  weeksPerMonth: 4,    // a "month" is 4 weeks (rent + inflation cadence)
+
+  // Economy index (fluctuating inflation; Mechanic 10)
+  indexStart: 1.0,     // starting economic index
+  indexStepMax: 0.08,  // max +/- change per week
+  indexFloor: 0.5,     // cheapest economy (deflation)
+  indexCeil: 1.8,      // most expensive economy (high inflation)
+
   startingCash: 200,
   startingBank: 0,
 
@@ -13,6 +21,7 @@ export const CONFIG = {
   applyJobTimeCost: 5,         // time units to apply for a job
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
+  studySessionsToGraduate: 3,  // study visits to finish a course (Plan 6b)
   careerWageBonus: 0.25,       // +25% wage per career level
 
   defaultGoals: {

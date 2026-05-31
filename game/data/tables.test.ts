@@ -22,5 +22,5 @@ test("tables are non-empty and have sane positive costs", () => {
     expect(c.cost).toBeGreaterThanOrEqual(0);
     expect(c.educationGain).toBeGreaterThan(0);
   }
-  for (const h of Object.values(HOUSING)) expect(h.weeklyRent).toBeGreaterThanOrEqual(0);
+  for (const h of Object.values(HOUSING)) expect(h.monthlyRent).toBeGreaterThanOrEqual(0);
 });
