@@ -11,6 +11,7 @@
   import type { Action } from "../../engine/reducer";
   import ActionRow from "./ActionRow.svelte";
   import BankPanel from "./BankPanel.svelte";
+  import EducationScreen from "./EducationScreen.svelte";
 
   let { buildingId }: { buildingId: string } = $props();
   const building = $derived(WORLD.buildings.find((b) => b.id === buildingId));
@@ -58,14 +59,7 @@
       {/each}
 
     {:else if svc.kind === "education"}
-      {#each svc.courseIds as id (id)}
-        {@const c = COURSES[id]}
-        {@const a = { type: "takeClass", course: id } as const}
-        {@const d = dis(a)}
-        <ActionRow name={c.name}
-          badges={[{ text: `📘 +${c.educationGain}` }, { text: `⏳ ${c.timeCost}` }, { text: `$${c.cost}`, kind: "cost" }]}
-          disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
-      {/each}
+      <EducationScreen courseIds={svc.courseIds} />
 
     {:else if svc.kind === "shop"}
       {#each svc.itemIds as id (id)}
