@@ -40,7 +40,7 @@
         {@const a = { type: "work" } as const}
         {@const d = dis(a)}
         <ActionRow name={`Work a shift — ${myJobHere.title}`}
-          badges={[{ text: `💵 +$${wageFor(myJobHere, player.careerLevel)}` }, { text: `⏳ ${myJobHere.timeCost}` }]}
+          badges={[{ text: `💵 +$${wageFor(myJobHere, player.careerLevel, gameStore.economyIndex)}` }, { text: `⏳ ${myJobHere.timeCost}` }]}
           disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
       {:else}
         <p class="empty">You don't work here. Get hired at the Employment Office.</p>
