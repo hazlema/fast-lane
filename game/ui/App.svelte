@@ -1,12 +1,14 @@
 <script lang="ts">
   import Board from "./Board.svelte";
   import DialogPanel from "./DialogPanel.svelte";
+  import Feedback from "./Feedback.svelte";
 </script>
 
 <main>
   <div class="stage">
     <Board />
     <div class="panel"><DialogPanel /></div>
+    <Feedback />
   </div>
 </main>
 

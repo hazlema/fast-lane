@@ -33,6 +33,12 @@ let lastError = $state<string | null>(null);
 let tokenXY = $state<Pt>({ ...NODE_XY[loaded ? loaded.state.players[loaded.state.current].position : START_NODE] });
 let walking = $state(false);
 
+// Transient feedback signal (e.g. job-application result). The id lets the
+// overlay re-trigger its animation even when the same text repeats.
+type Notice = { id: number; tone: "good" | "bad"; text: string };
+let notice = $state<Notice | null>(null);
+let noticeSeq = 0;
+
 // Road path + per-node offsets, attached by Board.svelte once the SVG mounts.
 let roadPath: SVGPathElement | null = null;
 let roadLen = 0;
@@ -59,6 +65,10 @@ export const gameStore = {
   get screen(): Screen { return screen; },
   get economyIndex(): number { return game.economyIndex; },
   get month(): number { return monthOf(game.week); },
+  get notice(): Notice | null { return notice; },
+
+  // Raise a transient bit of feedback for the overlay to show.
+  pushNotice(tone: "good" | "bad", text: string): void { notice = { id: ++noticeSeq, tone, text }; },
 
   // Board.svelte calls this once with the SVG <path id="Road"> element.
   attachRoad(path: SVGPathElement): void {
