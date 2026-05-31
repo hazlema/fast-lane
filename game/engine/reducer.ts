@@ -6,8 +6,9 @@ import { setGoals, type SetGoalsAction } from "./actions/setGoals";
 import { moveTo, type MoveToAction } from "./actions/moveTo";
 import { work, type WorkAction } from "./actions/work";
 import { applyForJob, type ApplyForJobAction } from "./actions/applyForJob";
+import { takeClass, type TakeClassAction } from "./actions/takeClass";
 
-export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction;
+export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction;
 // More action variants are added to this union as their handlers land (buy, …).
 
 export { type ApplyResult } from "./result";
@@ -22,6 +23,8 @@ export function applyAction(state: GameState, action: Action, world: World): App
       return work(state, action, world);
     case "applyForJob":
       return applyForJob(state, action, world);
+    case "takeClass":
+      return takeClass(state, action, world);
     default: {
       const _exhaustive: never = action;
       return reject(state, `Unknown action: ${(_exhaustive as { type: string }).type}`);
