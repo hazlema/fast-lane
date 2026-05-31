@@ -7,13 +7,14 @@ import { moveTo, type MoveToAction } from "./actions/moveTo";
 import { work, type WorkAction } from "./actions/work";
 import { applyForJob, type ApplyForJobAction } from "./actions/applyForJob";
 import { takeClass, type TakeClassAction } from "./actions/takeClass";
+import { enroll, type EnrollAction } from "./actions/enroll";
 import { buy, type BuyAction } from "./actions/buy";
 import { bank, type BankAction } from "./actions/bank";
 import { rent, type RentAction } from "./actions/rent";
 import { payRent, type PayRentAction } from "./actions/payRent";
 import { endWeek, type EndWeekAction } from "./actions/endWeek";
 
-export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction | PayRentAction | EndWeekAction;
+export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | EnrollAction | BuyAction | BankAction | RentAction | PayRentAction | EndWeekAction;
 
 export { type ApplyResult } from "./result";
 
@@ -29,6 +30,8 @@ export function applyAction(state: GameState, action: Action, world: World): App
       return applyForJob(state, action, world);
     case "takeClass":
       return takeClass(state, action, world);
+    case "enroll":
+      return enroll(state, action, world);
     case "buy":
       return buy(state, action, world);
     case "bank":
