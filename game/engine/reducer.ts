@@ -10,9 +10,10 @@ import { takeClass, type TakeClassAction } from "./actions/takeClass";
 import { buy, type BuyAction } from "./actions/buy";
 import { bank, type BankAction } from "./actions/bank";
 import { rent, type RentAction } from "./actions/rent";
+import { payRent, type PayRentAction } from "./actions/payRent";
 import { endWeek, type EndWeekAction } from "./actions/endWeek";
 
-export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction | EndWeekAction;
+export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction | PayRentAction | EndWeekAction;
 
 export { type ApplyResult } from "./result";
 
@@ -34,6 +35,8 @@ export function applyAction(state: GameState, action: Action, world: World): App
       return bank(state, action, world);
     case "rent":
       return rent(state, action, world);
+    case "payRent":
+      return payRent(state, action, world);
     case "endWeek":
       return endWeek(state, action, world);
     default: {
