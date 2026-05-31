@@ -6,7 +6,7 @@ import { CONFIG } from "../../data/config";
 import { NODE_XY, ringPath, type NodeId } from "../../data/board";
 
 const START_NODE: NodeId = "tryandsave";
-const STEP_MS = 280; // per-hop walk duration
+const STEP_MS = 280; // per-hop walk duration; must exceed the token CSS transition in Board.svelte (0.26s) or hops visually skip
 
 function freshGame(): GameState {
   const g = createGame({ playerName: "You", startNode: START_NODE, seed: Date.now() >>> 0 });
