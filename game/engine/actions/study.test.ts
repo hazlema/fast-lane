@@ -9,13 +9,13 @@ function enrolledAtUniversity(over = {}) {
   let g = createGame({ playerName: "Al", startNode: "n3", seed: 1 }); // university = n3
   g = applyAction(g, { type: "setGoals", goals: g.goals }, TEST_WORLD).state;
   g = { ...g, players: [{ ...g.players[0], cash: 1000, ...over }] };
-  g = applyAction(g, { type: "enroll", course: "basics" }, TEST_WORLD).state;
+  g = applyAction(g, { type: "enroll", course: "juniorcollege" }, TEST_WORLD).state;
   return g;
 }
 
 test("study costs time and graduates after the configured sessions, granting exactly the course's education", () => {
   let g = enrolledAtUniversity();
-  const c = TEST_WORLD.courses.basics;
+  const c = TEST_WORLD.courses.juniorcollege;
   let t = g.players[0].timeLeft;
   for (let i = 0; i < CONFIG.studySessionsToGraduate; i++) {
     const r = applyAction(g, { type: "study" }, TEST_WORLD);
@@ -28,15 +28,16 @@ test("study costs time and graduates after the configured sessions, granting exa
   expect(p.education).toBe(c.educationGain); // exactly, after graduation
   expect(p.enrolledCourse).toBeNull();        // graduated → free to enroll again
   expect(p.courseProgress).toBe(0);
+  expect(p.completedCourses).toContain("juniorcollege"); // degree recorded
 });
 
 test("study accrues partial education before graduating", () => {
   let g = enrolledAtUniversity();
   g = applyAction(g, { type: "study" }, TEST_WORLD).state;
   const p = g.players[0];
-  expect(p.enrolledCourse).toBe("basics");           // still enrolled
+  expect(p.enrolledCourse).toBe("juniorcollege");    // still enrolled
   expect(p.education).toBeGreaterThan(0);             // partial credit
-  expect(p.education).toBeLessThan(TEST_WORLD.courses.basics.educationGain);
+  expect(p.education).toBeLessThan(TEST_WORLD.courses.juniorcollege.educationGain);
   expect(p.courseProgress).toBe(1);
 });
 

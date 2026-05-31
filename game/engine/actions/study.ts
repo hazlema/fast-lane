@@ -13,10 +13,11 @@ export function study(state: GameState, _action: StudyAction, world: World): App
   if (state.phase !== "playing") return reject(state, "Can only study while playing.");
   const p = state.players[state.current];
   if (!p.enrolledCourse) return reject(state, "You're not enrolled in a course. Enroll first.");
+  const enrolled = p.enrolledCourse; // non-null past the guard; stable for the closure below
   const here = buildingAt(world.buildings, p.position);
   if (!here || !hasService(here, "education")) return reject(state, "Study at the University.");
-  const course = world.courses[p.enrolledCourse];
-  if (!course) return reject(state, `Unknown course: ${p.enrolledCourse}`);
+  const course = world.courses[enrolled];
+  if (!course) return reject(state, `Unknown course: ${enrolled}`);
   if (course.timeCost > p.timeLeft) return reject(state, "Not enough time to study.");
 
   const sessions = CONFIG.studySessionsToGraduate;
@@ -34,6 +35,8 @@ export function study(state: GameState, _action: StudyAction, world: World): App
       timeLeft: pl.timeLeft - course.timeCost,
       enrolledCourse: graduating ? null : pl.enrolledCourse,
       courseProgress: graduating ? 0 : newProgress,
+      // On graduation, record the earned degree (it unlocks successors + gates jobs).
+      completedCourses: graduating ? [...pl.completedCourses, enrolled] : pl.completedCourses,
     })),
   );
 }

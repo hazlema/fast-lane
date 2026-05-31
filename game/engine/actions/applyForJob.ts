@@ -23,8 +23,15 @@ export function applyForJob(state: GameState, action: ApplyForJobAction, world: 
   }
   const job = world.jobs[action.job];
   if (!job) return reject(state, `Unknown job: ${action.job}`);
-  if (player.education < job.requiredEducation) {
-    return reject(state, "You need more education for that job.");
+  const missingDegree = job.requiredDegrees.find((d) => !player.completedCourses.includes(d));
+  if (missingDegree) {
+    return reject(state, `Requires the ${world.courses[missingDegree]?.name ?? missingDegree} degree.`);
+  }
+  if (player.experience < job.requiredExperience) {
+    return reject(state, "You need more experience for that job.");
+  }
+  if (player.dependability < job.requiredDependability) {
+    return reject(state, "You need a better dependability record for that job.");
   }
   if (CONFIG.applyJobTimeCost > player.timeLeft) {
     return reject(state, "Not enough time to apply.");

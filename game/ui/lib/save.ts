@@ -1,7 +1,7 @@
 // game/ui/lib/save.ts
 import type { GameState } from "../../engine/state";
 
-const VERSION = 3; // bumped for Plan 6b state shape (enrolledCourse, courseProgress)
+const VERSION = 4; // bumped for Plan 6b-2 (completedCourses, dependability)
 
 export interface SaveData {
   state: GameState;
