@@ -29,9 +29,11 @@ let lastError = $state<string | null>(null);
 let tokenXY = $state<Pt>({ ...NODE_XY[START_NODE] });
 let walking = $state(false);
 
-// Transient feedback signal (e.g. job-application result). The id lets the
-// overlay re-trigger its animation even when the same text repeats.
-type Notice = { id: number; tone: "good" | "bad"; text: string };
+// Transient feedback signal (e.g. job-application result, a purchase, a
+// newspaper headline). The id lets the overlay re-trigger even when the text
+// repeats. Tones: good = confetti, bad/news = centered dialog, info = toast.
+type NoticeTone = "good" | "bad" | "news" | "info";
+type Notice = { id: number; tone: NoticeTone; title: string; text: string };
 let notice = $state<Notice | null>(null);
 let noticeSeq = 0;
 
@@ -63,7 +65,23 @@ export const gameStore = {
   get notice(): Notice | null { return notice; },
 
   // Raise a transient bit of feedback for the overlay to show.
-  pushNotice(tone: "good" | "bad", text: string): void { notice = { id: ++noticeSeq, tone, text }; },
+  pushNotice(tone: NoticeTone, text: string, title = ""): void { notice = { id: ++noticeSeq, tone, text, title }; },
+
+  // Buy an item and show feedback: a toast for ordinary purchases, the headline
+  // popup for a newspaper.
+  buy(itemId: string): void {
+    const item = WORLD.items[itemId];
+    if (!this.dispatch({ type: "buy", item: itemId })) {
+      this.pushNotice("bad", lastError ?? "Couldn't buy that.", "No deal");
+      return;
+    }
+    if (itemId === "newspaper") {
+      const headline = [...game.log].reverse().find((e) => e.text.startsWith("📰"))?.text ?? "📰 Read all about it!";
+      this.pushNotice("news", headline.replace(/^📰\s*/, ""), "📰 Extra! Extra!");
+    } else {
+      this.pushNotice("info", `Bought ${item?.name ?? "item"}.`);
+    }
+  },
 
   // Board.svelte calls this once with the SVG <path id="Road"> element.
   attachRoad(path: SVGPathElement): void {

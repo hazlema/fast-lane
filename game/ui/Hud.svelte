@@ -27,6 +27,8 @@
     {#if rentDue > 0}<span class="chip rent">🏠 <b>${rentDue}</b></span>{/if}
     {#if player.debt > 0}<span class="chip debt">📉 <b>${player.debt}</b></span>{/if}
     {#if player.hungry}<span class="chip hungry" title="You didn't eat last week — time is docked this week. Eat to avoid it next week.">🍴 <b>hungry</b></span>{/if}
+    {#if player.ateThisWeek}<span class="chip fed" title="You've eaten this week — no hunger penalty next week.">🍽️ <b>fed</b></span>{/if}
+    {#if player.mealsStocked > 0}<span class="chip frozen" title="Frozen meals on hand — one is cooked automatically each week.">🧊 <b>{player.mealsStocked}</b></span>{/if}
     {#if !isClothed(player)}<span class="chip rags" title="Your clothes are worn out — buy new ones before you can work or study.">👕 <b>rags</b></span>{/if}
   </div>
   <div class="stats">
@@ -49,6 +51,8 @@
   .chip.rent b { color: #b8860b; }
   .chip.hungry { background: #fbeaea; } .chip.hungry b { color: #c22; }
   .chip.rags { background: #f3ecdb; } .chip.rags b { color: #b8860b; }
+  .chip.fed { background: #eaf6ea; } .chip.fed b { color: #2e8b3d; }
+  .chip.frozen { background: #e8f0fb; } .chip.frozen b { color: #3a6ea5; }
   .stats { display: flex; gap: 6px; }
   .stat { flex: 1; background: #fff; border-radius: 6px; padding: 4px 6px; }
   .lbl { font-size: clamp(8px, 0.9vw, 12px); color: #555; display: flex; justify-content: space-between; }

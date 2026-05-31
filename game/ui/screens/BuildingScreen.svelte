@@ -58,9 +58,9 @@
         {@const a = { type: "buy", item: id } as const}
         {@const d = dis(a)}
         <ActionRow name={it.name}
-          sub={it.clothing ? "clothing" : ""}
+          sub={it.clothing ? "clothing" : it.meals > 0 ? `${it.meals} frozen meals` : ""}
           badges={[...(it.happinessGain > 0 ? [{ text: `😀 +${it.happinessGain}` }] : []), { text: `⏳ ${it.timeCost}` }, { text: `$${it.cost}`, kind: "cost" }]}
-          disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
+          disabled={d.disabled} reason={d.reason} onact={() => gameStore.buy(id)} />
       {/each}
 
     {:else if svc.kind === "housing"}

@@ -1,6 +1,9 @@
 <!-- game/ui/Feedback.svelte -->
-<!-- Transient feedback over the whole stage: confetti for good news,
-     an auto-closing dialog (with the reason) for bad news. -->
+<!-- Transient feedback over the whole stage:
+     good  → confetti
+     bad   → centered dialog, red (e.g. job rejection)
+     news  → centered dialog, neutral (newspaper headline)
+     info  → brief bottom toast (e.g. a purchase) -->
 <script lang="ts">
   import { gameStore } from "./stores/game.svelte";
 
@@ -8,7 +11,8 @@
   const COLORS = ["#4a90d9", "#e6b800", "#e0533d", "#3fae5a", "#9b59b6", "#ff7aa2"];
 
   let confetti = $state<Piece[]>([]);
-  let dialog = $state<string | null>(null);
+  let dialog = $state<{ title: string; text: string; tone: string } | null>(null);
+  let toast = $state<string | null>(null);
   let seen = 0;
 
   function makeConfetti(): Piece[] {
@@ -29,9 +33,13 @@
     if (n.tone === "good") {
       confetti = makeConfetti();
       setTimeout(() => { confetti = []; }, 2400);
+    } else if (n.tone === "info") {
+      toast = n.text;
+      setTimeout(() => { toast = null; }, 1600);
     } else {
-      dialog = n.text;
-      setTimeout(() => { dialog = null; }, 3500);
+      dialog = { title: n.title || (n.tone === "bad" ? "No offer" : ""), text: n.text, tone: n.tone };
+      const me = n.id;
+      setTimeout(() => { if (seen === me) dialog = null; }, n.tone === "news" ? 4200 : 3500);
     }
   });
 </script>
@@ -46,12 +54,16 @@
 
 {#if dialog}
   <div class="dialog-wrap" onclick={() => (dialog = null)} role="presentation">
-    <div class="dialog">
-      <div class="title">No offer</div>
-      <div class="msg">{dialog}</div>
+    <div class="dialog" class:news={dialog.tone === "news"}>
+      {#if dialog.title}<div class="title">{dialog.title}</div>{/if}
+      <div class="msg">{dialog.text}</div>
       <div class="hint">(tap to dismiss)</div>
     </div>
   </div>
+{/if}
+
+{#if toast}
+  <div class="toast" aria-live="polite">{toast}</div>
 {/if}
 
 <style>
@@ -70,12 +82,23 @@
   .dialog-wrap { display: flex; align-items: center; justify-content: center; pointer-events: auto; }
   .dialog {
     background: #fff; border: 2px solid #cfc9ad; border-radius: 10px; padding: 14px 18px;
-    max-width: 70%; text-align: center; box-shadow: 0 6px 22px rgba(0,0,0,.3);
+    max-width: 76%; text-align: center; box-shadow: 0 6px 22px rgba(0,0,0,.3);
     font-family: ui-sans-serif, system-ui, sans-serif; color: #2a2f1a;
     animation: pop 0.18s ease-out;
   }
+  .dialog.news { border-color: #b9a86a; background: #fffdf2; }
   .dialog .title { font-weight: 800; font-size: clamp(13px, 1.6vw, 17px); color: #9a3b3b; margin-bottom: 4px; }
+  .dialog.news .title { color: #7a5c12; font-family: Georgia, serif; }
   .dialog .msg { font-size: clamp(11px, 1.3vw, 14px); }
+  .dialog.news .msg { font-family: Georgia, serif; font-style: italic; }
   .dialog .hint { font-size: clamp(8px, 0.9vw, 10px); color: #999; margin-top: 6px; }
   @keyframes pop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .toast {
+    position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 21;
+    background: rgba(26,36,18,.92); color: #fff; border-radius: 999px; padding: 6px 14px;
+    font-family: ui-sans-serif, system-ui, sans-serif; font-size: clamp(11px, 1.2vw, 13px); font-weight: 600;
+    box-shadow: 0 3px 12px rgba(0,0,0,.3); pointer-events: none; animation: toastin 0.18s ease-out;
+  }
+  @keyframes toastin { from { transform: translate(-50%, 8px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 </style>
