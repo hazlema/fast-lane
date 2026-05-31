@@ -1,14 +1,13 @@
 // game/engine/actions/endWeek.ts
-import type { GameState, Player, LogEntry } from "../state";
+import type { GameState, LogEntry } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject } from "../result";
-import { CONFIG } from "../../data/config";
 import { accrueInterest, checkPromotion, decayHappiness } from "../economy";
 import { makeRng } from "../rng";
 import { nextIndex } from "../economyIndex";
 import { isMonthEnd } from "../calendar";
 import { hasWon } from "../winCheck";
-import { isEmployed, isFed, shouldBeFired } from "../checks";
+import { startWeek } from "../week";
 
 export interface EndWeekAction {
   type: "endWeek";
@@ -41,34 +40,10 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   const afterPromo = checkPromotion(afterRent);
   const afterDecay = decayHappiness(afterPromo);
 
-  // 6. Return home (free): live at the node of the building matching housingId.
-  const homeNode = world.buildings.find((b) => b.id === afterDecay.housingId)?.node ?? afterDecay.position;
+  // 6. Roll into the new week: one checklist owns home/time/penalties/resets.
+  const { player: settled, events: weekStartNews } = startWeek(afterDecay, world);
 
-  // 7. Begin next week — start-of-week checks build the fresh time budget.
-  //    Add more conditions here as Plan 6c grows (clothing, sickness, …):
-  //      if (!hasFreshClothes(p)) ... ; if (sick(p)) timeUnits -= ... ; etc.
-  const fed = isFed(before); // did you eat during the week that just ended?
-  let timeUnits = CONFIG.weeklyTimeBudget;
-  if (!fed) timeUnits -= CONFIG.hungerTimePenalty; // hungry → lose time
-
-  // Attendance: an employed worker who skipped this week's shift accrues an
-  // absent week; enough in a row → fired.
-  const absent = isEmployed(before) && !before.workedThisWeek;
-  const weeksSinceWorked = absent ? before.weeksSinceWorked + 1 : 0;
-  const fired = shouldBeFired({ ...before, weeksSinceWorked });
-
-  const settled: Player = {
-    ...afterDecay,
-    position: homeNode,
-    timeLeft: timeUnits,
-    hungry: !fed,                                  // flag the hungry week for the HUD
-    ateThisWeek: false,                            // must eat again this week
-    workedThisWeek: false,                         // new week — show up again
-    jobId: fired ? null : afterDecay.jobId,        // skipped too long → let go
-    weeksSinceWorked: fired ? 0 : weeksSinceWorked, // fired → clean slate as unemployed
-  };
-
-  // News lines for whatever actually happened.
+  // News lines: settlement (this week) + how the new week opened (startWeek).
   const lines: string[] = [];
   const bankInterest = afterInterest.bank - before.bank;
   if (bankInterest > 0) lines.push(`Bank paid you $${bankInterest} interest.`);
@@ -80,9 +55,7 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   }
   const happinessLost = afterPromo.happiness - afterDecay.happiness;
   if (happinessLost > 0) lines.push(`Happiness drifted down ${happinessLost}.`);
-  if (!fed) lines.push(`You went hungry — lost ${CONFIG.hungerTimePenalty} time this week. Eat next time!`);
-  if (fired) lines.push("Fired — you stopped showing up. Find a new job at the Employment Office.");
-  else if (absent) lines.push("Your boss noticed you skipped work this week.");
+  lines.push(...weekStartNews);
   if (lines.length === 0) lines.push("A quiet weekend.");
 
   const log: LogEntry[] = [
