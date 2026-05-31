@@ -30,6 +30,18 @@ test("applying for a job you're not qualified for still costs time but doesn't h
   expect(r.state.log.some((e) => /not qualified/i.test(e.text))).toBe(true);
 });
 
+test("a qualified application for a specialised job costs time and either hires you or finds no opening", () => {
+  let g = atEmployment();
+  g = { ...g, players: [{ ...g.players[0], completedCourses: ["juniorcollege"] }] }; // qualifies for Clerk
+  const before = g.players[0];
+  const r = applyAction(g, { type: "applyForJob", job: "clerk" }, TEST_WORLD);
+  expect(r.ok).toBe(true);
+  expect(r.state.players[0].timeLeft).toBe(before.timeLeft - CONFIG.applyJobTimeCost); // time spent regardless
+  const hired = r.state.players[0].jobId === "clerk";
+  const noOpening = r.state.log.some((e) => /no openings/i.test(e.text));
+  expect(hired || noOpening).toBe(true); // hired, or told there were no openings — never silently nothing
+});
+
 test("applying is rejected away from a hiring building", () => {
   let g = atEmployment();
   g = { ...g, players: [{ ...g.players[0], position: "n4" }] }; // bank, no hiring

@@ -19,6 +19,7 @@ export const CONFIG = {
   loanInterestRate: 0.05,      // weekly interest charged on debt
   happinessDecayPerWeek: 5,    // happiness lost each week-end
   applyJobTimeCost: 1,         // time units to apply for a job
+  noOpeningChance: 0.3,        // chance a qualified application finds no opening (entry jobs always hire)
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)

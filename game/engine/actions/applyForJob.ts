@@ -3,11 +3,19 @@ import type { GameState, JobId, LogEntry } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent } from "../result";
 import { buildingAt } from "../../data/buildings";
+import { makeRng } from "../rng";
 import { CONFIG } from "../../data/config";
 
 export interface ApplyForJobAction {
   type: "applyForJob";
   job: JobId;
+}
+
+// Stable per-job offset so each job rolls its own (seed+week)-based opening.
+function hashJob(id: JobId): number {
+  let h = 0;
+  for (const ch of id) h = (h + ch.charCodeAt(0)) | 0;
+  return h;
 }
 
 export function applyForJob(state: GameState, action: ApplyForJobAction, world: World): ApplyResult {
@@ -28,24 +36,32 @@ export function applyForJob(state: GameState, action: ApplyForJobAction, world: 
     return reject(state, "Not enough time to apply.");
   }
 
-  // Applying always costs the time. Whether you're hired depends on your
-  // qualifications — apply for something you're not qualified for and you
-  // simply don't get it (and you've spent the time). That's on you.
+  // Applying always costs the time. You're hired only if you (a) meet the
+  // degree/experience/dependability bar AND (b) there's an opening. Apply for
+  // something you're not qualified for and you simply don't get it — that's on
+  // you. Even when qualified, a specialised job may have no opening this week
+  // (entry jobs with no degree requirement always hire).
   const missingDegree = job.requiredDegrees.find((d) => !player.completedCourses.includes(d));
   const qualified =
     !missingDegree &&
     player.experience >= job.requiredExperience &&
     player.dependability >= job.requiredDependability;
+  const hasOpening =
+    job.requiredDegrees.length === 0 ||
+    makeRng(state.seed + state.week * 31 + hashJob(action.job))() >= CONFIG.noOpeningChance;
+  const hired = qualified && hasOpening;
 
   const spent = updateCurrent(state, (p) => ({
     ...p,
     timeLeft: p.timeLeft - CONFIG.applyJobTimeCost,
-    jobId: qualified ? action.job : p.jobId,
+    jobId: hired ? action.job : p.jobId,
   }));
 
-  const text = qualified
+  const text = hired
     ? `Hired as ${job.title}!`
-    : `Applied for ${job.title} — not qualified, no offer.`;
+    : !qualified
+      ? `Applied for ${job.title} — not qualified, no offer.`
+      : `Applied for ${job.title} — qualified, but no openings right now.`;
   const log: LogEntry[] = [...spent.log, { week: spent.week, text }];
   return ok({ ...spent, log });
 }
