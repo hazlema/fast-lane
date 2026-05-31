@@ -57,6 +57,14 @@ test("repay cannot exceed debt or cash", () => {
   expect(r.reason).toMatch(/debt|cash|too much/i);
 });
 
+test("repay is rejected when it exceeds available cash", () => {
+  // amount is within the debt (100 <= 500) but more cash than on hand (100 > 30)
+  const g = atBank({ cash: 30, debt: 500 });
+  const r = applyAction(g, { type: "bank", op: "repay", amount: 100 }, WORLD);
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/cash/i);
+});
+
 test("non-positive amounts are rejected", () => {
   const g = atBank({ cash: 100 });
   const r = applyAction(g, { type: "bank", op: "deposit", amount: 0 }, WORLD);

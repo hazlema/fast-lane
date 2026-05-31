@@ -31,6 +31,7 @@ export interface LogEntry {
   text: string;
 }
 
+// "weekEnd" has no setter yet — reserved for Plan 3 (UI settlement animation).
 export type Phase = "setup" | "playing" | "weekEnd" | "won";
 
 export interface GameState {

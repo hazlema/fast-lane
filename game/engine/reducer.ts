@@ -13,7 +13,6 @@ import { rent, type RentAction } from "./actions/rent";
 import { endWeek, type EndWeekAction } from "./actions/endWeek";
 
 export type Action = SetGoalsAction | MoveToAction | WorkAction | ApplyForJobAction | TakeClassAction | BuyAction | BankAction | RentAction | EndWeekAction;
-// More action variants are added to this union as their handlers land (buy, …).
 
 export { type ApplyResult } from "./result";
 

@@ -38,3 +38,11 @@ test("buying is rejected away from a shop", () => {
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/shop|sell|here/i);
 });
+
+test("buying is rejected without enough time", () => {
+  let g = atShop();
+  g = { ...g, players: [{ ...g.players[0], timeLeft: 1 }] }; // burger costs 5 time
+  const r = applyAction(g, { type: "buy", item: "burger" }, WORLD);
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/time/i);
+});

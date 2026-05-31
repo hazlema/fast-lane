@@ -37,3 +37,11 @@ test("taking a class is rejected away from a university", () => {
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/education|university|here/i);
 });
+
+test("taking a class is rejected without enough time", () => {
+  let g = atUniversity(); // 1000 cash, so cash is not the blocker
+  g = { ...g, players: [{ ...g.players[0], timeLeft: 1 }] }; // basics costs 15 time
+  const r = applyAction(g, { type: "takeClass", course: "basics" }, WORLD);
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/time/i);
+});
