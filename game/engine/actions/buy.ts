@@ -3,6 +3,7 @@ import type { GameState, ItemId } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent } from "../result";
 import { buildingAt } from "../../data/buildings";
+import { canAfford } from "../checks";
 
 export interface BuyAction {
   type: "buy";
@@ -18,7 +19,7 @@ export function buy(state: GameState, action: BuyAction, world: World): ApplyRes
   if (!shop.itemIds.includes(action.item)) return reject(state, "That item is not sold here.");
   const item = world.items[action.item];
   if (!item) return reject(state, `Unknown item: ${action.item}`);
-  if (item.cost > player.cash) return reject(state, "You can't afford that.");
+  if (!canAfford(player, item.cost)) return reject(state, "You can't afford that.");
   if (item.timeCost > player.timeLeft) return reject(state, "Not enough time to shop.");
   return ok(
     updateCurrent(state, (p) => ({

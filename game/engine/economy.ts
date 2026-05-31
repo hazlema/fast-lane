@@ -1,6 +1,7 @@
 // game/engine/economy.ts
 import type { Player } from "./state";
 import { CONFIG } from "../data/config";
+import { isEmployed } from "./checks";
 
 // Weekly bank + loan interest.
 export function accrueInterest(p: Player): Player {
@@ -13,7 +14,7 @@ export function accrueInterest(p: Player): Player {
 
 // Promote one level if employed, experienced enough, and educated enough for the next level.
 export function checkPromotion(p: Player): Player {
-  if (!p.jobId) return p;
+  if (!isEmployed(p)) return p;
   const needEducation = CONFIG.educationPerCareerLevel * (p.careerLevel + 1);
   if (p.experience >= CONFIG.promotionExperience && p.education >= needEducation) {
     return { ...p, careerLevel: p.careerLevel + 1, experience: p.experience - CONFIG.promotionExperience };

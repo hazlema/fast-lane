@@ -3,19 +3,12 @@ import type { GameState, JobId, LogEntry } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent } from "../result";
 import { buildingAt } from "../../data/buildings";
-import { makeRng } from "../rng";
+import { isQualifiedFor, hasOpening } from "../checks";
 import { CONFIG } from "../../data/config";
 
 export interface ApplyForJobAction {
   type: "applyForJob";
   job: JobId;
-}
-
-// Stable per-job offset so each job rolls its own (seed+week)-based opening.
-function hashJob(id: JobId): number {
-  let h = 0;
-  for (const ch of id) h = (h + ch.charCodeAt(0)) | 0;
-  return h;
 }
 
 export function applyForJob(state: GameState, action: ApplyForJobAction, world: World): ApplyResult {
@@ -41,15 +34,8 @@ export function applyForJob(state: GameState, action: ApplyForJobAction, world: 
   // something you're not qualified for and you simply don't get it — that's on
   // you. Even when qualified, a specialised job may have no opening this week
   // (entry jobs with no degree requirement always hire).
-  const missingDegree = job.requiredDegrees.find((d) => !player.completedCourses.includes(d));
-  const qualified =
-    !missingDegree &&
-    player.experience >= job.requiredExperience &&
-    player.dependability >= job.requiredDependability;
-  const hasOpening =
-    job.requiredDegrees.length === 0 ||
-    makeRng(state.seed + state.week * 31 + hashJob(action.job))() >= CONFIG.noOpeningChance;
-  const hired = qualified && hasOpening;
+  const qualified = isQualifiedFor(player, job);
+  const hired = qualified && hasOpening(job, state.seed, state.week);
 
   const spent = updateCurrent(state, (p) => ({
     ...p,

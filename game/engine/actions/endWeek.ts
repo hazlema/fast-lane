@@ -8,6 +8,7 @@ import { makeRng } from "../rng";
 import { nextIndex } from "../economyIndex";
 import { isMonthEnd } from "../calendar";
 import { hasWon } from "../winCheck";
+import { isFed } from "../checks";
 
 export interface EndWeekAction {
   type: "endWeek";
@@ -46,7 +47,7 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   // 7. Begin next week — start-of-week checks build the fresh time budget.
   //    Add more conditions here as Plan 6c grows (clothing, sickness, …):
   //      if (!hasFreshClothes(p)) ... ; if (sick(p)) timeUnits -= ... ; etc.
-  const fed = before.ateThisWeek; // did you eat during the week that just ended?
+  const fed = isFed(before); // did you eat during the week that just ended?
   let timeUnits = CONFIG.weeklyTimeBudget;
   if (!fed) timeUnits -= CONFIG.hungerTimePenalty; // hungry → lose time
 

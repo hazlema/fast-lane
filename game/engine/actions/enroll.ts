@@ -4,6 +4,7 @@ import type { CourseId } from "../../data/courses";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent } from "../result";
 import { buildingAt } from "../../data/buildings";
+import { canAfford } from "../checks";
 
 export interface EnrollAction {
   type: "enroll";
@@ -23,6 +24,6 @@ export function enroll(state: GameState, action: EnrollAction, world: World): Ap
   if (p.completedCourses.includes(action.course)) return reject(state, `You've already earned the ${course.name} degree.`);
   const missing = course.requires.find((r) => !p.completedCourses.includes(r));
   if (missing) return reject(state, `Requires the ${world.courses[missing]?.name ?? missing} degree first.`);
-  if (course.cost > p.cash) return reject(state, "You can't afford the tuition.");
+  if (!canAfford(p, course.cost)) return reject(state, "You can't afford the tuition.");
   return ok(updateCurrent(state, (pl) => ({ ...pl, cash: pl.cash - course.cost, enrolledCourse: action.course, courseProgress: 0 })));
 }
