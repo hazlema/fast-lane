@@ -1,6 +1,7 @@
 // game/ui/stores/game.svelte.ts
 import { applyAction, type Action } from "../../engine/reducer";
-import { createGame, type GameState, type Player, type Stat } from "../../engine/state";
+import { newGame as createGame, step, setTrace } from "../../engine/loop";
+import { type GameState, type Player, type Stat } from "../../engine/state";
 import { WORLD } from "../../data/world";
 import { NODE_XY, type NodeId } from "../../data/board";
 import { monthOf } from "../../engine/calendar";
@@ -21,6 +22,12 @@ function newSetupGame(): GameState {
 // starts a fresh game at goal-setup so playtests aren't tainted by a stale
 // resumed save. (Clear any old save left over from earlier builds.)
 if (typeof localStorage !== "undefined") localStorage.removeItem("jones-save-v1");
+
+// In dev, trace every step to the console so you can watch the loop run live.
+if (import.meta.env.DEV) {
+  setTrace(({ week, phase, action, ok, reason }) =>
+    console.debug(`[wk ${week} ${phase}] ${action.type}${ok ? "" : ` ✗ ${reason}`}`));
+}
 
 let game = $state<GameState>(newSetupGame());
 let screen = $state<Screen>("goals");
@@ -76,13 +83,15 @@ export const gameStore = {
   },
 
   // Dry-run a reducer action without committing — used to disable invalid rows.
+  // Stays off the traced loop path (it fires on every render — pure peek).
   preview(action: Action) {
     return applyAction(game, action, WORLD);
   },
 
-  // Commit an action. Returns true on success; sets lastError on rejection.
+  // Commit an action through the loop's single step(). Returns true on success;
+  // sets lastError on rejection.
   dispatch(action: Action): boolean {
-    const r = applyAction(game, action, WORLD);
+    const r = step(game, action, WORLD);
     if (r.ok) { game = r.state; lastError = null; }
     else { lastError = r.reason ?? "Not allowed."; }
     return r.ok;
