@@ -20,11 +20,14 @@ test("applying for a job you qualify for sets jobId and costs time", () => {
   expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget - CONFIG.applyJobTimeCost);
 });
 
-test("applying is rejected without the required degree", () => {
-  const g = atEmployment(); // no degrees earned
+test("applying for a job you're not qualified for still costs time but doesn't hire you", () => {
+  const g = atEmployment(); // no degrees, no experience
+  const before = g.players[0];
   const r = applyAction(g, { type: "applyForJob", job: "engineer" }, TEST_WORLD); // needs Engineering + Junior College
-  expect(r.ok).toBe(false);
-  expect(r.reason).toMatch(/degree/i);
+  expect(r.ok).toBe(true);                          // the application went through
+  expect(r.state.players[0].jobId).toBeNull();      // but you weren't hired
+  expect(r.state.players[0].timeLeft).toBe(before.timeLeft - CONFIG.applyJobTimeCost); // time spent anyway
+  expect(r.state.log.some((e) => /not qualified/i.test(e.text))).toBe(true);
 });
 
 test("applying is rejected away from a hiring building", () => {

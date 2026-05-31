@@ -1,5 +1,5 @@
 // game/engine/actions/applyForJob.ts
-import type { GameState, JobId } from "../state";
+import type { GameState, JobId, LogEntry } from "../state";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent } from "../result";
 import { buildingAt } from "../../data/buildings";
@@ -23,24 +23,29 @@ export function applyForJob(state: GameState, action: ApplyForJobAction, world: 
   }
   const job = world.jobs[action.job];
   if (!job) return reject(state, `Unknown job: ${action.job}`);
-  const missingDegree = job.requiredDegrees.find((d) => !player.completedCourses.includes(d));
-  if (missingDegree) {
-    return reject(state, `Requires the ${world.courses[missingDegree]?.name ?? missingDegree} degree.`);
-  }
-  if (player.experience < job.requiredExperience) {
-    return reject(state, "You need more experience for that job.");
-  }
-  if (player.dependability < job.requiredDependability) {
-    return reject(state, "You need a better dependability record for that job.");
-  }
+  // You must have the time to even attempt the application.
   if (CONFIG.applyJobTimeCost > player.timeLeft) {
     return reject(state, "Not enough time to apply.");
   }
-  return ok(
-    updateCurrent(state, (p) => ({
-      ...p,
-      jobId: action.job,
-      timeLeft: p.timeLeft - CONFIG.applyJobTimeCost,
-    })),
-  );
+
+  // Applying always costs the time. Whether you're hired depends on your
+  // qualifications — apply for something you're not qualified for and you
+  // simply don't get it (and you've spent the time). That's on you.
+  const missingDegree = job.requiredDegrees.find((d) => !player.completedCourses.includes(d));
+  const qualified =
+    !missingDegree &&
+    player.experience >= job.requiredExperience &&
+    player.dependability >= job.requiredDependability;
+
+  const spent = updateCurrent(state, (p) => ({
+    ...p,
+    timeLeft: p.timeLeft - CONFIG.applyJobTimeCost,
+    jobId: qualified ? action.job : p.jobId,
+  }));
+
+  const text = qualified
+    ? `Hired as ${job.title}!`
+    : `Applied for ${job.title} — not qualified, no offer.`;
+  const log: LogEntry[] = [...spent.log, { week: spent.week, text }];
+  return ok({ ...spent, log });
 }
