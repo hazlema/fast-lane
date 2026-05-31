@@ -14,14 +14,14 @@ export function nodeOffsets<K extends string>(
   xy: Record<K, Pt>,
   sampleAt: Sampler,
   totalLength: number,
-  samples = 720,
+  samples = 720, // scan resolution: higher = more precise node→offset match
 ): Record<K, number> {
   const out = {} as Record<K, number>;
   for (const id of nodeIds) {
     const target = xy[id];
     let bestLen = 0;
     let bestD = Infinity;
-    for (let s = 0; s <= samples; s++) {
+    for (let s = 0; s < samples; s++) {
       const len = (s / samples) * totalLength;
       const p = sampleAt(len);
       const dx = p.x - target.x;
@@ -43,6 +43,7 @@ export function shorterArc(fromOff: number, toOff: number, total: number): numbe
   return d;
 }
 
+// Fold any offset (including negatives) back into the [0, total) range.
 export function wrap(off: number, total: number): number {
   return ((off % total) + total) % total;
 }

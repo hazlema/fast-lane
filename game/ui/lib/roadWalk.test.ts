@@ -29,10 +29,16 @@ test("shorterArc picks the shorter direction and signs it", () => {
   expect(shorterArc(35, 5, 40)).toBe(10);    // wrap forward past the seam
   expect(shorterArc(5, 35, 40)).toBe(-10);   // backward is shorter
   expect(shorterArc(0, 10, 40)).toBe(10);    // plain forward
+  expect(shorterArc(0, 20, 40)).toBe(20);    // tie at half-loop → forward
 });
 
 test("wrap keeps an offset within [0, total)", () => {
   expect(wrap(45, 40)).toBe(5);
   expect(wrap(-5, 40)).toBe(35);
   expect(wrap(10, 40)).toBe(10);
+});
+
+test("nodeOffsets maps a node on the seam to offset ~0", () => {
+  const off = nodeOffsets(["origin"], { origin: { x: 0, y: 0 } }, square, 40, 400);
+  expect(off.origin).toBeLessThan(0.5);
 });
