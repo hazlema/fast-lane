@@ -6,7 +6,7 @@ import { NODE_XY, type NodeId } from "../../data/board";
 import { monthOf } from "../../engine/calendar";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
 
-const START_NODE: NodeId = "tryandsave";
+const START_NODE: NodeId = "lowcost"; // you begin at home (you start renting Low Cost Housing)
 const WALK_MS_PER_HALF = 2200; // time to traverse half the loop; scaled by arc length
 
 // Screen is "goals" | "home" | "won" | a building id (NodeId === building id).
