@@ -1,8 +1,8 @@
 // game/data/config.ts
 // Central tunables. Adjusting the economy = editing this file, not logic.
 export const CONFIG = {
-  weeklyTimeBudget: 60, // time units available each week
-  hopCost: 5,           // time units per waypoint hop traveled
+  weeklyTimeBudget: 8,  // action units available each week (small: ~2 work shifts + a couple errands)
+  hopCost: 1,           // time units per waypoint hop traveled (travel time scales with distance)
   weeksPerMonth: 4,    // a "month" is 4 weeks (rent + inflation cadence)
 
   // Economy index (fluctuating inflation; Mechanic 10)
@@ -18,7 +18,7 @@ export const CONFIG = {
   bankInterestRate: 0.02,      // weekly interest earned on savings
   loanInterestRate: 0.05,      // weekly interest charged on debt
   happinessDecayPerWeek: 5,    // happiness lost each week-end
-  applyJobTimeCost: 5,         // time units to apply for a job
+  applyJobTimeCost: 1,         // time units to apply for a job
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 3,  // study visits to finish a course (Plan 6b)

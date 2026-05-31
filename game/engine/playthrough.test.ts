@@ -15,7 +15,7 @@ function run(start: ReturnType<typeof createGame>, actions: Action[]) {
   return g;
 }
 
-// Route fits the 60-unit weekly budget: study 15×3 + move(n3→n2) 5 + apply 5 = 55.
+// Route fits the weekly budget (each action 1 unit): study ×3 + move(n3→n2, 1 hop) + apply = 5.
 test("a productive week reaches a win against easy goals", () => {
   let g = createGame({ playerName: "Al", startNode: "n3", seed: 7 }); // start at university (n3)
   // Easy goals: happiness target 0 (it decays at week-end); no career required.
@@ -26,9 +26,9 @@ test("a productive week reaches a win against easy goals", () => {
 
   g = run(g, [
     { type: "enroll", course: "juniorcollege" }, // n3: pay 50 tuition, lock in Junior College
-    { type: "study" },                       // +partial edu, -15 time
-    { type: "study" },                       // +partial edu, -15 time
-    { type: "study" },                       // graduates Junior College → education 20, -15 time
+    { type: "study" },                       // +partial edu, -1 time
+    { type: "study" },                       // +partial edu, -1 time
+    { type: "study" },                       // graduates Junior College → education 20, -1 time
     { type: "moveTo", node: "n2" },          // to employment office (1 hop)
     { type: "applyForJob", job: "clerk" },   // Clerk requires the Junior College degree ✓
   ]);

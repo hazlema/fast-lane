@@ -15,12 +15,12 @@ export interface Course {
 
 export const COURSES: Record<CourseId, Course> = {
   // Roots
-  juniorcollege: { id: "juniorcollege", name: "Junior College", cost: 50,  timeCost: 15, educationGain: 20, requires: [] },
-  tradeschool:   { id: "tradeschool",   name: "Trade School",   cost: 50,  timeCost: 15, educationGain: 20, requires: [] },
+  juniorcollege: { id: "juniorcollege", name: "Junior College", cost: 50,  timeCost: 1, educationGain: 20, requires: [] },
+  tradeschool:   { id: "tradeschool",   name: "Trade School",   cost: 50,  timeCost: 1, educationGain: 20, requires: [] },
   // Junior College branch
-  busadmin:      { id: "busadmin",      name: "Business Administration", cost: 120, timeCost: 20, educationGain: 25, requires: ["juniorcollege"] },
-  academic:      { id: "academic",      name: "Academic",       cost: 120, timeCost: 20, educationGain: 25, requires: ["juniorcollege"] },
+  busadmin:      { id: "busadmin",      name: "Business Administration", cost: 120, timeCost: 1, educationGain: 25, requires: ["juniorcollege"] },
+  academic:      { id: "academic",      name: "Academic",       cost: 120, timeCost: 1, educationGain: 25, requires: ["juniorcollege"] },
   // Trade School branch
-  preeng:        { id: "preeng",        name: "Pre-Engineering", cost: 120, timeCost: 20, educationGain: 25, requires: ["tradeschool"] },
-  engineering:   { id: "engineering",   name: "Engineering",    cost: 250, timeCost: 25, educationGain: 35, requires: ["preeng"] },
+  preeng:        { id: "preeng",        name: "Pre-Engineering", cost: 120, timeCost: 1, educationGain: 25, requires: ["tradeschool"] },
+  engineering:   { id: "engineering",   name: "Engineering",    cost: 250, timeCost: 1, educationGain: 35, requires: ["preeng"] },
 };

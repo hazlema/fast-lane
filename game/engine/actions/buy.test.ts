@@ -41,7 +41,7 @@ test("buying is rejected away from a shop", () => {
 
 test("buying is rejected without enough time", () => {
   let g = atShop();
-  g = { ...g, players: [{ ...g.players[0], timeLeft: 1 }] }; // burger costs 5 time
+  g = { ...g, players: [{ ...g.players[0], timeLeft: 0 }] }; // buying costs 1 time
   const r = applyAction(g, { type: "buy", item: "burger" }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/time/i);

@@ -44,7 +44,7 @@ test("applying for a job not offered here is rejected", () => {
 
 test("applying is rejected without enough time", () => {
   let g = atEmployment(); // janitor needs no education, so time is the only blocker
-  g = { ...g, players: [{ ...g.players[0], timeLeft: 1 }] }; // applying costs applyJobTimeCost (5)
+  g = { ...g, players: [{ ...g.players[0], timeLeft: 0 }] }; // applying costs applyJobTimeCost (1)
   const r = applyAction(g, { type: "applyForJob", job: "janitor" }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/time/i);

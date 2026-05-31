@@ -51,7 +51,7 @@ test("study is rejected when not enrolled", () => {
 
 test("study is rejected without enough time", () => {
   const g = enrolledAtUniversity({ });
-  const low = { ...g, players: [{ ...g.players[0], timeLeft: 1 }] };
+  const low = { ...g, players: [{ ...g.players[0], timeLeft: 0 }] }; // studying costs 1 unit
   const r = applyAction(low, { type: "study" }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/time/i);

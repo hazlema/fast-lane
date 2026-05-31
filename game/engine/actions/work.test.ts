@@ -41,7 +41,7 @@ test("work is rejected when not at the job's building", () => {
 
 test("work is rejected without enough time", () => {
   let g = employedAtFactory();
-  g = { ...g, players: [{ ...g.players[0], timeLeft: 1 }] };
+  g = { ...g, players: [{ ...g.players[0], timeLeft: 0 }] }; // a shift costs 1 unit
   const r = applyAction(g, { type: "work" }, TEST_WORLD);
   expect(r.ok).toBe(false);
   expect(r.reason).toMatch(/time/i);

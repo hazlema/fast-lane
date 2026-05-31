@@ -15,11 +15,11 @@ export interface Job {
 
 export const JOBS: Record<JobId, Job> = {
   // Entry — always hireable.
-  janitor:  { id: "janitor",  title: "Janitor",     buildingId: "factory",    wage: 80,  timeCost: 15, requiredDegrees: [], requiredExperience: 0, requiredDependability: 0 },
+  janitor:  { id: "janitor",  title: "Janitor",     buildingId: "factory",    wage: 80,  timeCost: 1, requiredDegrees: [], requiredExperience: 0, requiredDependability: 0 },
   // One degree.
-  clerk:    { id: "clerk",    title: "Store Clerk", buildingId: "tryandsave", wage: 120, timeCost: 15, requiredDegrees: ["juniorcollege"], requiredExperience: 0, requiredDependability: 0 },
+  clerk:    { id: "clerk",    title: "Store Clerk", buildingId: "tryandsave", wage: 120, timeCost: 1, requiredDegrees: ["juniorcollege"], requiredExperience: 0, requiredDependability: 0 },
   // Two degrees — Trade track payoff.
-  engineer: { id: "engineer", title: "Engineer",    buildingId: "factory",    wage: 220, timeCost: 20, requiredDegrees: ["engineering", "juniorcollege"], requiredExperience: 20, requiredDependability: 20 },
+  engineer: { id: "engineer", title: "Engineer",    buildingId: "factory",    wage: 220, timeCost: 1, requiredDegrees: ["engineering", "juniorcollege"], requiredExperience: 20, requiredDependability: 20 },
   // Two degrees — Business track payoff.
-  broker:   { id: "broker",   title: "Broker",      buildingId: "tryandsave", wage: 220, timeCost: 20, requiredDegrees: ["busadmin", "academic"], requiredExperience: 25, requiredDependability: 25 },
+  broker:   { id: "broker",   title: "Broker",      buildingId: "tryandsave", wage: 220, timeCost: 1, requiredDegrees: ["busadmin", "academic"], requiredExperience: 25, requiredDependability: 25 },
 };
