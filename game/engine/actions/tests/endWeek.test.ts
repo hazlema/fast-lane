@@ -27,7 +27,7 @@ test("not eating this week docks next week's time and logs it", () => {
   expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget - CONFIG.hungerTimePenalty);
   expect(r.state.players[0].hungry).toBe(true);       // the new week is flagged hungry (HUD chip ⟺ penalty)
   expect(r.state.players[0].ateThisWeek).toBe(false); // reset — must eat again next week
-  expect(r.state.log.some((e) => /hungry/i.test(e.text))).toBe(true);
+  expect(r.state.log.some((e) => /eat/i.test(e.text))).toBe(true);
 });
 
 test("eating this week means a full time budget next week", () => {

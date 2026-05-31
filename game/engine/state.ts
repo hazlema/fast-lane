@@ -40,8 +40,11 @@ export interface LogEntry {
   text: string;
 }
 
-// The full state machine: set goals (setup) → play weeks (playing) → win (won).
-export type Phase = "setup" | "playing" | "won";
+// The game-loop state machine (see engine/loop.ts):
+//   setup → startTurn → playing → endTurn → (won | back to startTurn)
+// "startTurn"/"endTurn" are transient — gameLoop processes them and settles on
+// "playing" or "won"; the game never rests in them.
+export type Phase = "setup" | "startTurn" | "playing" | "endTurn" | "won";
 
 export interface GameState {
   players: Player[];
