@@ -46,11 +46,20 @@ Bun.serve({
         headers: { "content-type": "text/html; charset=utf-8" }
       });
     }
-    // Serve the board SVG for the tester.
+    // Serve a board SVG for the tester. ?file=board2.svg lets us validate a new
+    // export without overwriting the known-good board.svg; defaults to board.svg.
+    // Sanitized to a basename within assets/, .svg only.
     if (req.method === "GET" && url.pathname === "/board.svg") {
-      return new Response(Bun.file(path.join(ROOT, "..", "assets", "board.svg")), {
-        headers: { "content-type": "image/svg+xml; charset=utf-8" }
-      });
+      const requested = url.searchParams.get("file") || "board.svg";
+      const name = path.basename(requested);
+      if (!name.toLowerCase().endsWith(".svg")) {
+        return new Response("Only .svg files", { status: 400 });
+      }
+      const file = Bun.file(path.join(ROOT, "..", "assets", name));
+      if (!(await file.exists())) {
+        return new Response(`Not found: assets/${name}`, { status: 404 });
+      }
+      return new Response(file, { headers: { "content-type": "image/svg+xml; charset=utf-8" } });
     }
     // The game's board data, for the tester to validate the SVG against.
     if (req.method === "GET" && url.pathname === "/api/board-data") {

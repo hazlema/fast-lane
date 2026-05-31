@@ -56,10 +56,15 @@ const $ = (id) => document.getElementById(id);
 
 async function load() {
   $("summary").textContent = "Loading…";
-  const [data, svgText] = await Promise.all([
+  // ?file=board2.svg validates a new export without touching board.svg.
+  const fileName = new URLSearchParams(location.search).get("file") || "board.svg";
+  const [data, svgRes] = await Promise.all([
     fetch("/api/board-data").then(r => r.json()),
-    fetch("/board.svg").then(r => r.text()),
+    fetch("/board.svg" + location.search),
   ]);
+  if (!svgRes.ok) { $("stage").textContent = await svgRes.text(); $("summary").textContent = "load failed"; return; }
+  const svgText = await svgRes.text();
+  document.querySelector("header h1").textContent = "🗺️ Board SVG Tester — " + fileName;
 
   // Inline the SVG so we can measure real geometry and append overlays.
   $("stage").innerHTML = svgText;
