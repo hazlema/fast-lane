@@ -30,6 +30,7 @@ export interface Player {
   completedCourses: CourseId[];     // degrees earned (university tech tree)
   inventory: ItemId[];
   rentDue: number;             // accrued unpaid rent (paid at the Rent Office)
+  weeksRentOverdue: number;    // consecutive weeks rent has gone unpaid → eviction
   housingId: HousingId | null; // current rented place
   timeLeft: number;
   travelMultiplier: number;
@@ -41,10 +42,10 @@ export interface LogEntry {
 }
 
 // The game-loop state machine (see engine/loop.ts):
-//   setup → startTurn → playing → endTurn → (won | back to startTurn)
+//   setup → startTurn → playing → endTurn → (won | lost | back to startTurn)
 // "startTurn"/"endTurn" are transient — gameLoop processes them and settles on
-// "playing" or "won"; the game never rests in them.
-export type Phase = "setup" | "startTurn" | "playing" | "endTurn" | "won";
+// "playing", "won", or "lost"; the game never rests in the transient ones.
+export type Phase = "setup" | "startTurn" | "playing" | "endTurn" | "won" | "lost";
 
 export interface GameState {
   players: Player[];
@@ -85,6 +86,7 @@ export function createGame(opts: {
     completedCourses: [],
     inventory: [],
     rentDue: 0,
+    weeksRentOverdue: 0,
     housingId: opts.startHousing ?? null,
     timeLeft: 0,
     travelMultiplier: 1,

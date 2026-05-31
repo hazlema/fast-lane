@@ -105,6 +105,28 @@ test("an employee who never shows up gets fired", () => {
   expect(g.log.some((e) => /fired/i.test(e.text))).toBe(true);
 });
 
+// — Rent & eviction ————————————————————————————————————————————————————
+
+test("never paying rent gets you evicted — game over", () => {
+  let g = start({ housingId: "lowcost" }); // renting, but you never pay
+  let guard = 0;
+  while (g.phase === "playing" && guard++ < 30) g = act(g, { type: "endWeek" }).state;
+  expect(g.phase).toBe("lost");
+  expect(g.log.some((e) => /evict/i.test(e.text))).toBe(true);
+});
+
+test("paying the rent each time it's due keeps you housed", () => {
+  let g = start({ housingId: "lowcost" });
+  for (let i = 0; i < 12 && g.phase === "playing"; i++) {
+    if (you(g).rentDue > 0) {
+      g = { ...g, players: [{ ...you(g), position: "rentoffice", cash: 9999 }] };
+      g = act(g, { type: "payRent" }).state;
+    }
+    g = act(g, { type: "endWeek" }).state;
+  }
+  expect(g.phase).toBe("playing"); // 12 weeks, rent always paid → never evicted
+});
+
 test("showing up every week keeps your job", () => {
   let g = start({ jobId: "janitor" }, "factory");
   for (let i = 0; i <= CONFIG.fireAfterWeeks; i++) {

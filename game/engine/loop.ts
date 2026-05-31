@@ -12,7 +12,7 @@ import type { GameState, Player } from "./state";
 import { createGame } from "./state";
 import type { World } from "./world";
 import { CONFIG } from "../data/config";
-import { isEmployed, isFed, shouldBeFired } from "./checks";
+import { isEmployed, isFed, shouldBeFired, shouldBeEvicted } from "./checks";
 import { accrueInterest, checkPromotion, decayHappiness } from "./economy";
 import { makeRng } from "./rng";
 import { nextIndex } from "./economyIndex";
@@ -63,8 +63,16 @@ export function startTurn(state: GameState, world: World): GameState {
   if (fired) news.push("Fired — you stopped showing up. Find a new job at the Employment Office.");
   else if (skippedWork) news.push("Your boss noticed you skipped work this week.");
 
-  // Rent hangs over you until it's paid.
-  if (you.rentDue > 0) news.push(`Rent due: $${you.rentDue} — pay it at the Rent Office.`);
+  // Rent hangs over you. Fall too far behind and you're evicted — game over.
+  const weeksRentOverdue = you.rentDue > 0 ? you.weeksRentOverdue + 1 : 0;
+  const evicted = shouldBeEvicted({ ...you, weeksRentOverdue });
+  if (evicted) {
+    news.push(`Evicted! You fell too far behind on rent ($${you.rentDue}). Game over.`);
+  } else if (you.rentDue > 0) {
+    news.push(weeksRentOverdue >= CONFIG.evictAfterWeeks
+      ? `FINAL NOTICE: rent $${you.rentDue} overdue — pay now or you're evicted next week!`
+      : `Rent due: $${you.rentDue} — pay it at the Rent Office.`);
+  }
 
   // Ready to play: home, fresh time, flags reset for the new week.
   const home = world.buildings.find((b) => b.id === you.housingId)?.node ?? you.position;
@@ -77,9 +85,10 @@ export function startTurn(state: GameState, world: World): GameState {
     workedThisWeek: false,
     jobId: fired ? null : you.jobId,
     weeksSinceWorked: fired ? 0 : weeksSinceWorked,
+    weeksRentOverdue,
   };
 
-  return addNews(setPlayer({ ...state, phase: "playing" }, ready), news);
+  return addNews(setPlayer({ ...state, phase: evicted ? "lost" : "playing" }, ready), news);
 }
 
 // END OF TURN — settle the week's economy, then win or roll into the next turn.

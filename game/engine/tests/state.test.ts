@@ -27,6 +27,7 @@ test("createGame seeds one player with starting money and no time yet", () => {
   expect(p.timeLeft).toBe(0); // time is granted when goals are set (week begins)
   expect(p.housingId).toBeNull();
   expect(p.rentDue).toBe(0);
+  expect(p.weeksRentOverdue).toBe(0);
   expect(p.enrolledCourse).toBeNull();
   expect(p.courseProgress).toBe(0);
   expect(p.completedCourses).toEqual([]);

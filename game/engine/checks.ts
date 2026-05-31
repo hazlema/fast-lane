@@ -33,6 +33,10 @@ export const hasGoodWorkHistory = (p: Player): boolean => p.weeksSinceWorked <= 
 export const shouldBeFired = (p: Player): boolean =>
   isEmployed(p) && p.weeksSinceWorked > CONFIG.fireAfterWeeks;
 
+/** Has rent gone unpaid long enough to be evicted (game over)? */
+export const shouldBeEvicted = (p: Player): boolean =>
+  p.weeksRentOverdue > CONFIG.evictAfterWeeks;
+
 // --- Hiring --------------------------------------------------------------
 
 /** Degrees the job demands that you haven't earned yet. */

@@ -5,6 +5,7 @@
   import GoalsScreen from "./screens/GoalsScreen.svelte";
   import HomeScreen from "./screens/HomeScreen.svelte";
   import WinScreen from "./screens/WinScreen.svelte";
+  import GameOverScreen from "./screens/GameOverScreen.svelte";
   import BuildingScreen from "./screens/BuildingScreen.svelte";
 
   const screen = $derived(gameStore.screen);
@@ -19,6 +20,8 @@
       <HomeScreen />
     {:else if screen === "won"}
       <WinScreen />
+    {:else if screen === "lost"}
+      <GameOverScreen />
     {:else}
       <BuildingScreen buildingId={screen} />
     {/if}

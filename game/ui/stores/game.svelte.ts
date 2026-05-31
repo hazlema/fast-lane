@@ -10,7 +10,7 @@ import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
 const START_NODE: NodeId = "lowcost"; // you begin at home (you start renting Low Cost Housing)
 const WALK_MS_PER_HALF = 2200; // time to traverse half the loop; scaled by arc length
 
-// Screen is "goals" | "home" | "won" | a building id (NodeId === building id).
+// Screen is "goals" | "home" | "won" | "lost" | a building id (NodeId === building id).
 type Screen = string;
 
 function newSetupGame(): GameState {
@@ -144,7 +144,7 @@ export const gameStore = {
 
   endWeek(): void {
     if (this.dispatch({ type: "endWeek" })) {
-      screen = game.phase === "won" ? "won" : "home";
+      screen = game.phase === "won" ? "won" : game.phase === "lost" ? "lost" : "home";
       // The engine returned the player home; snap the token there to match.
       tokenXY = { ...NODE_XY[game.players[game.current].position] };
       persist(); // autosave at each week-end
