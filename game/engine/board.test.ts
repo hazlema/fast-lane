@@ -2,6 +2,7 @@
 import { test, expect } from "bun:test";
 import { hopsBetween, testRing } from "../data/board";
 import { BOARD, NODE_XY, BOARD_SIZE } from "../data/board";
+import { ringPath } from "../data/board";
 
 test("testRing is an ordered loop of 8 nodes", () => {
   expect(testRing.nodes.length).toBe(8);
@@ -44,4 +45,21 @@ test("NODE_XY has a coordinate for every board node, within the board", () => {
     expect(xy.y).toBeGreaterThanOrEqual(0);
     expect(xy.y).toBeLessThanOrEqual(BOARD_SIZE.height);
   }
+});
+
+test("ringPath returns just the node when from === to", () => {
+  expect(ringPath(BOARD, "highsec", "highsec")).toEqual(["highsec"]);
+});
+
+test("ringPath walks the shorter (forward) arc, inclusive", () => {
+  expect(ringPath(BOARD, "highsec", "pawn")).toEqual(["highsec", "rentoffice", "lowcost", "pawn"]);
+});
+
+test("ringPath walks backward when that is shorter", () => {
+  // highsec(0) -> tryandsave(12): backward is 1 hop
+  expect(ringPath(BOARD, "highsec", "tryandsave")).toEqual(["highsec", "tryandsave"]);
+});
+
+test("ringPath length matches hopsBetween + 1", () => {
+  expect(ringPath(BOARD, "highsec", "electronics").length).toBe(hopsBetween(BOARD, "highsec", "electronics") + 1);
 });
