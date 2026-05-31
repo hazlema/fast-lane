@@ -37,7 +37,7 @@ export const BUILDINGS: Building[] = [
     services: [{ kind: "shop", itemIds: ["burger"] }] },
   { id: "offrack", name: "Off the Rack", hitBoxId: "Off-the-Rack", node: "offrack",
     services: [{ kind: "shop", itemIds: ["suit"] }] },
-  { id: "electronics", name: "Electronics", hitBoxId: "Electricty", node: "electronics",
+  { id: "electronics", name: "Electronics", hitBoxId: "Electronics", node: "electronics",
     services: [{ kind: "shop", itemIds: ["tv"] }] },
   { id: "university", name: "University", hitBoxId: "University", node: "university",
     services: [{ kind: "education", courseIds: ["basics", "business", "engineering"] }] },
