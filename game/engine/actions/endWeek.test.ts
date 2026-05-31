@@ -25,6 +25,7 @@ test("not eating this week docks next week's time and logs it", () => {
   const g = playing({ ateThisWeek: false });
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget - CONFIG.hungerTimePenalty);
+  expect(r.state.players[0].hungry).toBe(true);       // the new week is flagged hungry (HUD chip ⟺ penalty)
   expect(r.state.players[0].ateThisWeek).toBe(false); // reset — must eat again next week
   expect(r.state.log.some((e) => /hungry/i.test(e.text))).toBe(true);
 });
@@ -33,6 +34,7 @@ test("eating this week means a full time budget next week", () => {
   const g = playing({ ateThisWeek: true });
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget);
+  expect(r.state.players[0].hungry).toBe(false); // not penalized → no HUD chip
 });
 
 test("endWeek accrues interest and decays happiness (no weekly rent anymore)", () => {

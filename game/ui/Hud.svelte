@@ -25,7 +25,7 @@
     <span class="chip">🏦 <b>${player.bank}</b></span>
     {#if rentDue > 0}<span class="chip rent">🏠 <b>${rentDue}</b></span>{/if}
     {#if player.debt > 0}<span class="chip debt">📉 <b>${player.debt}</b></span>{/if}
-    {#if !player.ateThisWeek}<span class="chip hungry" title="You haven't eaten — buy food or lose time next week">🍴 <b>hungry</b></span>{/if}
+    {#if player.hungry}<span class="chip hungry" title="You didn't eat last week — time is docked this week. Eat to avoid it next week.">🍴 <b>hungry</b></span>{/if}
   </div>
   <div class="stats">
     {#each stats as s (s.key)}

@@ -22,6 +22,7 @@ export interface Player {
   experience: number; // progress toward promotion; consumed by Plan 2 career logic
   dependability: number;            // reliability record; rises with work, gates hiring
   ateThisWeek: boolean;             // bought a meal this week? (else a hunger time penalty next week)
+  hungry: boolean;                  // is THIS week docked because you didn't eat last week?
   enrolledCourse: CourseId | null;  // current University course, null if none
   courseProgress: number;           // study sessions completed toward graduation
   completedCourses: CourseId[];     // degrees earned (university tech tree)
@@ -70,7 +71,8 @@ export function createGame(opts: {
     jobId: null,
     experience: 0,
     dependability: 0,
-    ateThisWeek: false, // must eat each week from the start (skip a week → time penalty the next)
+    ateThisWeek: true, // auto-fed only at game start (week 1); every later week you must eat
+    hungry: false,     // week 1 isn't penalized
     enrolledCourse: null,
     courseProgress: 0,
     completedCourses: [],

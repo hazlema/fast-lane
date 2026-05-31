@@ -43,17 +43,19 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   // 6. Return home (free): live at the node of the building matching housingId.
   const homeNode = world.buildings.find((b) => b.id === afterDecay.housingId)?.node ?? afterDecay.position;
 
-  // 7. Hunger: if you didn't eat this week, next week's time budget is docked.
-  const hungry = !before.ateThisWeek;
-  const hungerPenalty = hungry ? CONFIG.hungerTimePenalty : 0;
+  // 7. Begin next week — start-of-week checks build the fresh time budget.
+  //    Add more conditions here as Plan 6c grows (clothing, sickness, …):
+  //      if (!hasFreshClothes(p)) ... ; if (sick(p)) timeUnits -= ... ; etc.
+  const fed = before.ateThisWeek; // did you eat during the week that just ended?
+  let timeUnits = CONFIG.weeklyTimeBudget;
+  if (!fed) timeUnits -= CONFIG.hungerTimePenalty; // hungry → lose time
 
-  // 8. Reset for the new week: return home, refill time (less any hunger
-  //    penalty), and require eating again.
   const settled: Player = {
     ...afterDecay,
     position: homeNode,
-    timeLeft: CONFIG.weeklyTimeBudget - hungerPenalty,
-    ateThisWeek: false,
+    timeLeft: timeUnits,
+    hungry: !fed,         // flag the hungry week for the HUD
+    ateThisWeek: false,   // must eat again this week
   };
 
   // News lines for whatever actually happened.
@@ -68,7 +70,7 @@ export function endWeek(state: GameState, _action: EndWeekAction, world: World):
   }
   const happinessLost = afterPromo.happiness - afterDecay.happiness;
   if (happinessLost > 0) lines.push(`Happiness drifted down ${happinessLost}.`);
-  if (hungry) lines.push(`You went hungry — lost ${CONFIG.hungerTimePenalty} time this week. Eat next time!`);
+  if (!fed) lines.push(`You went hungry — lost ${CONFIG.hungerTimePenalty} time this week. Eat next time!`);
   if (lines.length === 0) lines.push("A quiet weekend.");
 
   const log: LogEntry[] = [
