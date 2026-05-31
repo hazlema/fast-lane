@@ -129,6 +129,8 @@ export const gameStore = {
   endWeek(): void {
     if (this.dispatch({ type: "endWeek" })) {
       screen = game.phase === "won" ? "won" : "home";
+      // The engine returned the player home; snap the token there to match.
+      tokenXY = { ...NODE_XY[game.players[game.current].position] };
       persist(); // autosave at each week-end
     }
   },
