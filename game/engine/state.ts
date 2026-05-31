@@ -73,8 +73,8 @@ export function createGame(opts: {
     jobId: null,
     experience: 0,
     dependability: 0,
-    ateThisWeek: true, // auto-fed only at game start (week 1); every later week you must eat
-    hungry: false,     // week 1 isn't penalized
+    ateThisWeek: true, // starting item: a meal that satisfies the first preflight; after that you must eat
+    hungry: false,     // not docked going in
     workedThisWeek: false,
     weeksSinceWorked: 0,
     enrolledCourse: null,

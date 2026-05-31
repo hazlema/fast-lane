@@ -14,7 +14,8 @@ export function setGoals(state: GameState, action: SetGoalsAction, world: World)
     return reject(state, "Goals can only be set during setup.");
   }
   const started: GameState = { ...state, goals: { ...action.goals }, phase: "playing" };
-  // Week 1 runs the same start-of-week checklist (nothing to penalize), then
-  // gets the one free meal — the only week you're fed automatically.
-  return ok(updateCurrent(started, (p) => ({ ...startWeek(p, world).player, ateThisWeek: true })));
+  // Enter the loop and run the first start-of-turn preflight. createGame already
+  // handed the player a meal (a starting item), so this preflight passes with a
+  // full budget — no special case. Don't eat this week and next week gets docked.
+  return ok(updateCurrent(started, (p) => startWeek(p, world).player));
 }
