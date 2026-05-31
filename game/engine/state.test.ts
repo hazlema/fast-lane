@@ -31,6 +31,7 @@ test("createGame seeds one player with starting money and no time yet", () => {
   expect(p.courseProgress).toBe(0);
   expect(p.completedCourses).toEqual([]);
   expect(p.dependability).toBe(0);
+  expect(p.ateThisWeek).toBe(true); // start the first week fed
   expect(g.economyIndex).toBe(CONFIG.indexStart);
 });
 

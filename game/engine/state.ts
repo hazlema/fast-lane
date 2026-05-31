@@ -21,6 +21,7 @@ export interface Player {
   jobId: JobId | null;
   experience: number; // progress toward promotion; consumed by Plan 2 career logic
   dependability: number;            // reliability record; rises with work, gates hiring
+  ateThisWeek: boolean;             // bought a meal this week? (else a hunger time penalty next week)
   enrolledCourse: CourseId | null;  // current University course, null if none
   courseProgress: number;           // study sessions completed toward graduation
   completedCourses: CourseId[];     // degrees earned (university tech tree)
@@ -69,6 +70,7 @@ export function createGame(opts: {
     jobId: null,
     experience: 0,
     dependability: 0,
+    ateThisWeek: true, // start the first week fed
     enrolledCourse: null,
     courseProgress: 0,
     completedCourses: [],

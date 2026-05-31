@@ -13,12 +13,26 @@ function playing(over: Partial<ReturnType<typeof createGame>["players"][number]>
 }
 
 test("endWeek advances the week and refills time", () => {
-  const g = playing({ timeLeft: 3 });
+  const g = playing({ timeLeft: 3 }); // player starts fed → no hunger penalty
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   expect(r.ok).toBe(true);
   expect(r.state.week).toBe(2);
   expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget);
   expect(r.state.phase).toBe("playing");
+});
+
+test("not eating this week docks next week's time and logs it", () => {
+  const g = playing({ ateThisWeek: false });
+  const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
+  expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget - CONFIG.hungerTimePenalty);
+  expect(r.state.players[0].ateThisWeek).toBe(false); // reset — must eat again next week
+  expect(r.state.log.some((e) => /hungry/i.test(e.text))).toBe(true);
+});
+
+test("eating this week means a full time budget next week", () => {
+  const g = playing({ ateThisWeek: true });
+  const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
+  expect(r.state.players[0].timeLeft).toBe(CONFIG.weeklyTimeBudget);
 });
 
 test("endWeek accrues interest and decays happiness (no weekly rent anymore)", () => {

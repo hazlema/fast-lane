@@ -24,6 +24,16 @@ test("buying adds the item, raises happiness, costs cash and time", () => {
   expect(p.timeLeft).toBe(before.timeLeft - item.timeCost);
 });
 
+test("buying food counts as eating this week; non-food doesn't", () => {
+  let g = atShop();
+  // Start the week not yet fed.
+  g = { ...g, players: [{ ...g.players[0], ateThisWeek: false }] };
+  const afterTv = applyAction(g, { type: "buy", item: "suit" }, TEST_WORLD); // suit isn't food
+  expect(afterTv.state.players[0].ateThisWeek).toBe(false);
+  const afterBurger = applyAction(g, { type: "buy", item: "burger" }, TEST_WORLD); // burger is food
+  expect(afterBurger.state.players[0].ateThisWeek).toBe(true);
+});
+
 test("buying is rejected without enough cash", () => {
   const g = atShop(5); // tv costs 300
   const r = applyAction(g, { type: "buy", item: "tv" }, TEST_WORLD);

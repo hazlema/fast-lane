@@ -25,6 +25,7 @@
     <span class="chip">🏦 <b>${player.bank}</b></span>
     {#if rentDue > 0}<span class="chip rent">🏠 <b>${rentDue}</b></span>{/if}
     {#if player.debt > 0}<span class="chip debt">📉 <b>${player.debt}</b></span>{/if}
+    {#if !player.ateThisWeek}<span class="chip hungry" title="You haven't eaten — buy food or lose time next week">🍴 <b>hungry</b></span>{/if}
   </div>
   <div class="stats">
     {#each stats as s (s.key)}
@@ -44,6 +45,7 @@
   .chip b { color: #1a2412; }
   .chip.debt b { color: #c22; }
   .chip.rent b { color: #b8860b; }
+  .chip.hungry { background: #fbeaea; } .chip.hungry b { color: #c22; }
   .stats { display: flex; gap: 6px; }
   .stat { flex: 1; background: #fff; border-radius: 6px; padding: 4px 6px; }
   .lbl { font-size: clamp(8px, 0.9vw, 12px); color: #555; display: flex; justify-content: space-between; }

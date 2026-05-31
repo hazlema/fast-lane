@@ -20,6 +20,7 @@ export const CONFIG = {
   happinessDecayPerWeek: 5,    // happiness lost each week-end
   applyJobTimeCost: 1,         // time units to apply for a job
   noOpeningChance: 0.3,        // chance a qualified application finds no opening (entry jobs always hire)
+  hungerTimePenalty: 5,        // time units lost next week if you didn't eat this week
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)
