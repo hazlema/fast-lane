@@ -3,15 +3,14 @@
   import { gameStore } from "../stores/game.svelte";
   import { WORLD } from "../../data/world";
   import { JOBS } from "../../data/jobs";
-  import { COURSES } from "../../data/courses";
   import { ITEMS } from "../../data/items";
   import { HOUSING } from "../../data/housing";
-  import { CONFIG } from "../../data/config";
   import { wageFor } from "../../engine/wages";
   import type { Action } from "../../engine/reducer";
   import ActionRow from "./ActionRow.svelte";
   import BankPanel from "./BankPanel.svelte";
   import EducationScreen from "./EducationScreen.svelte";
+  import HiringScreen from "./HiringScreen.svelte";
 
   let { buildingId }: { buildingId: string } = $props();
   const building = $derived(WORLD.buildings.find((b) => b.id === buildingId));
@@ -48,15 +47,7 @@
       {/if}
 
     {:else if svc.kind === "hiring"}
-      {#each svc.jobIds as id (id)}
-        {@const job = JOBS[id]}
-        {@const a = { type: "applyForJob", job: id } as const}
-        {@const d = dis(a)}
-        <ActionRow name={`Apply: ${job.title}`}
-          sub={job.requiredEducation > 0 ? `needs Edu ${job.requiredEducation}` : "no requirements"}
-          badges={[{ text: `💵 $${job.wage}/shift` }, { text: `⏳ ${CONFIG.applyJobTimeCost}` }]}
-          disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
-      {/each}
+      <HiringScreen jobIds={svc.jobIds} />
 
     {:else if svc.kind === "education"}
       <EducationScreen courseIds={svc.courseIds} />
