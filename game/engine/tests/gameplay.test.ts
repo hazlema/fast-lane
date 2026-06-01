@@ -287,6 +287,20 @@ test("only the special is discounted — other items are full price", () => {
   expect(before - you(g2).cash).toBe(ITEMS[other].cost); // full price
 });
 
+// — Housing / leases ———————————————————————————————————————————————————
+
+test("you can move into a different unit at the Rent Office", () => {
+  const r = act(start({ housingId: "lowcost" }, "rentoffice"), { type: "rent", unit: "highsec" });
+  expect(r.ok).toBe(true);
+  expect(you(r.state).housingId).toBe("highsec");
+});
+
+test("you can't re-sign the lease you already hold", () => {
+  const r = act(start({ housingId: "lowcost" }, "rentoffice"), { type: "rent", unit: "lowcost" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/already live/i);
+});
+
 // — Computer side-income ———————————————————————————————————————————————
 
 test("a computer earns passive income each week", () => {

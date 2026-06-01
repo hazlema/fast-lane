@@ -207,6 +207,16 @@ export const gameStore = {
     if (this.dispatch({ type: "payRent" })) persist();
   },
 
+  // Sign a lease (move in), with a toast.
+  rentUnit(id: string): void {
+    const h = WORLD.housing[id];
+    if (this.dispatch({ type: "rent", unit: id })) {
+      this.pushNotice("info", `Moved into ${h?.name ?? "your new place"} — rent $${h?.monthlyRent}/mo.`, "New lease");
+    } else {
+      this.pushNotice("bad", lastError ?? "Couldn't sign that lease.", "No deal");
+    }
+  },
+
   newGame(): void {
     game = newSetupGame();
     screen = "goals";

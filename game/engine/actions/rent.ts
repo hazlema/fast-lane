@@ -17,6 +17,7 @@ export function rent(state: GameState, action: RentAction, world: World): ApplyR
   const housing = here?.services.find((s) => s.kind === "housing");
   if (!housing || housing.kind !== "housing") return reject(state, "No rentals here.");
   if (!housing.housingIds.includes(action.unit)) return reject(state, "That unit is not available here.");
+  if (player.housingId === action.unit) return reject(state, "You already live here.");
   const unit = world.housing[action.unit];
   if (!unit) return reject(state, `Unknown housing: ${action.unit}`);
   return ok(updateCurrent(state, (p) => ({ ...p, housingId: action.unit })));

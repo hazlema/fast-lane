@@ -93,6 +93,7 @@
 
     {:else if svc.kind === "housing"}
       {@const pr = gameStore.preview({ type: "payRent" })}
+      <p class="lease">Current lease: <b>{player.housingId ? HOUSING[player.housingId].name : "none"}</b>{player.housingId ? ` — $${HOUSING[player.housingId].monthlyRent}/mo` : ""}</p>
       <div class="rentbar">
         <span>Rent due: <b>${player.rentDue}</b></span>
         <button class="pay" disabled={!pr.ok} title={pr.ok ? "" : (pr.reason ?? "")}
@@ -105,7 +106,7 @@
         <ActionRow name={h.name}
           sub={player.housingId === id ? "current home" : "move in"}
           badges={[{ text: `🏠 $${h.monthlyRent}/mo`, kind: "cost" }]}
-          disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
+          disabled={d.disabled} reason={d.reason} onact={() => gameStore.rentUnit(id)} />
       {/each}
 
     {:else if svc.kind === "home"}
@@ -145,6 +146,8 @@
   .empty { font-size: clamp(10px, 1.1vw, 12px); color: #8a8666; margin: 4px 0; }
   .special { font-size: clamp(10px, 1.1vw, 13px); color: #b8400b; background: #fff3e0; border-radius: 6px; padding: 5px 8px; margin: 0 0 6px; }
   .special b { color: #8a2f08; }
+  .lease { font-size: clamp(10px, 1.1vw, 13px); color: #2a2f1a; margin: 0 0 6px; }
+  .lease b { color: #1a2412; }
   .rentbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; font-size: clamp(10px, 1.1vw, 12px); color: #2a2f1a; }
   .rentbar b { color: #b8860b; }
   .pay { background: #4a90d9; color: #fff; border: none; border-radius: 6px; padding: 5px 10px; font-size: clamp(10px, 1.1vw, 12px); font-weight: 700; cursor: pointer; }
