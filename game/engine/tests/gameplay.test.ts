@@ -276,6 +276,20 @@ test("never paying rent gets you evicted — game over", () => {
   expect(g.log.some((e) => /evict/i.test(e.text))).toBe(true);
 });
 
+test("paying what you can each week keeps you housed — no eviction while paying", () => {
+  // Rent outpaces your cash, so you only ever make partial payments — but you
+  // pay something every week. A good-faith payer must NOT be evicted.
+  let g = start({ housingId: "lowcost", inventory: ["fridge"], mealsStocked: 99 });
+  for (let i = 0; i < 16 && g.phase === "playing"; i++) {
+    if (you(g).rentDue > 0) {
+      g = { ...g, players: [{ ...you(g), position: "rentoffice", cash: 30 }] }; // only $30 on hand
+      g = act(g, { type: "payRent" }).state; // partial payment
+    }
+    g = act(g, { type: "endWeek" }).state;
+  }
+  expect(g.phase).toBe("playing"); // kept paying → never evicted
+});
+
 test("paying the rent each time it's due keeps you housed", () => {
   let g = start({ housingId: "lowcost" });
   for (let i = 0; i < 12 && g.phase === "playing"; i++) {

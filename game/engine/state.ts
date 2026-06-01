@@ -35,7 +35,8 @@ export interface Player {
   mealsStocked: number;        // frozen meals on hand — one is cooked a week to stay fed
   lotteryTicket: boolean;      // holding a ticket for next turn's lottery draw
   rentDue: number;             // accrued unpaid rent (paid at the Rent Office)
-  weeksRentOverdue: number;    // consecutive weeks rent has gone unpaid → eviction
+  paidRentThisWeek: boolean;   // made a rent payment this week? (resets the overdue clock)
+  weeksRentOverdue: number;    // consecutive weeks WITHOUT a rent payment → eviction
   housingId: HousingId | null; // current rented place
   timeLeft: number;
   travelMultiplier: number;
@@ -96,6 +97,7 @@ export function createGame(opts: {
     mealsStocked: 0,
     lotteryTicket: false,
     rentDue: 0,
+    paidRentThisWeek: false,
     weeksRentOverdue: 0,
     housingId: opts.startHousing ?? null,
     timeLeft: 0,

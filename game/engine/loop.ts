@@ -120,8 +120,10 @@ export function startTurn(state: GameState, world: World): GameState {
     news.push("Your clothes are getting threadbare — replace them soon.");
   }
 
-  // Rent hangs over you. Fall too far behind and you're evicted — game over.
-  const weeksRentOverdue = you.rentDue > 0 ? you.weeksRentOverdue + 1 : 0;
+  // Rent hangs over you. The overdue clock advances only on a week you paid
+  // NOTHING — make any payment and it resets, like work attendance. Fall too
+  // far behind (zero payments) and you're evicted — game over.
+  const weeksRentOverdue = you.rentDue > 0 && !you.paidRentThisWeek ? you.weeksRentOverdue + 1 : 0;
   const evicted = shouldBeEvicted({ ...you, weeksRentOverdue });
   if (evicted) {
     news.push(`Evicted! You fell too far behind on rent ($${you.rentDue}). Game over.`);
@@ -149,6 +151,7 @@ export function startTurn(state: GameState, world: World): GameState {
     jobId: fired ? null : you.jobId,
     weeksSinceWorked: fired ? 0 : weeksSinceWorked,
     weeksRentOverdue,
+    paidRentThisWeek: false, // fresh week, no payment yet
     clothingWear,
   };
 

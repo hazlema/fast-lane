@@ -18,5 +18,5 @@ export function payRent(state: GameState, _action: PayRentAction, world: World):
   if (p.rentDue <= 0) return reject(state, "No rent is due.");
   const pay = Math.min(p.rentDue, p.cash);
   if (pay <= 0) return reject(state, "Not enough cash to pay rent.");
-  return ok(updateCurrent(state, (pl) => ({ ...pl, cash: pl.cash - pay, rentDue: pl.rentDue - pay })));
+  return ok(updateCurrent(state, (pl) => ({ ...pl, cash: pl.cash - pay, rentDue: pl.rentDue - pay, paidRentThisWeek: true })));
 }
