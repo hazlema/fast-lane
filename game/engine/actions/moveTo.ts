@@ -4,6 +4,7 @@ import type { NodeId } from "../../data/board";
 import type { World } from "../world";
 import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { travelCost } from "../movement";
+import { ownsCar } from "../checks";
 
 export interface MoveToAction {
   type: "moveTo";
@@ -17,7 +18,9 @@ export function moveTo(state: GameState, action: MoveToAction, world: World): Ap
     return reject(state, `Unknown node: ${action.node}`);
   }
   const player = state.players[state.current];
-  const cost = travelCost(world.graph, player.position, action.node, player.travelMultiplier);
+  // A Tesla means free travel — every trip costs 0 time.
+  const mult = ownsCar(player) ? 0 : player.travelMultiplier;
+  const cost = travelCost(world.graph, player.position, action.node, mult);
   if (cost > player.timeLeft) {
     return reject(state, "Not enough time to travel there.");
   }

@@ -50,6 +50,8 @@ export const CONFIG = {
   crisisLayoffChance: 0.25,    // base weekly layoff odds in a crisis (÷ job tier — good jobs rarely fired)
   crisisPayCutChance: 0.5,     // weekly odds of a pay-cut (demotion) in a crisis, if not laid off
   computerIncome: 30,          // passive cash a computer earns each week (a home business)
+  teslaIncome: 80,             // weekly robotaxi income once you own a Tesla
+  carJobWageMin: 120,          // the dealership won't finance a Tesla unless your job pays at least this/shift
   discountPercents: [20, 25, 30, 35, 40], // the Discount Store's weekly special is one of these % off
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level

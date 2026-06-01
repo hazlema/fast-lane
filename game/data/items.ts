@@ -23,6 +23,7 @@ export const ITEMS: Record<ItemId, Item> = {
   stereo:    { id: "stereo",    name: "Stereo",               cost: 1000, timeCost: 1, happinessGain: 10, clothing: false, food: false, meals: 0, lottery: false },
   fridge:    { id: "fridge",    name: "Refrigerator",         cost: 2000, timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: false },
   computer:  { id: "computer",  name: "Computer",             cost: 2500, timeCost: 1, happinessGain: 15, clothing: false, food: false, meals: 0, lottery: false },
+  tesla:     { id: "tesla",     name: "Tesla",                cost: 5000, timeCost: 1, happinessGain: 20, clothing: false, food: false, meals: 0, lottery: false },
   suit:      { id: "suit",      name: "Business Suit",        cost: 500, timeCost: 1, happinessGain: 5,  clothing: true,  food: false, meals: 0, lottery: false },
   casual:    { id: "casual",    name: "Casual Clothes",       cost: 100,  timeCost: 1, happinessGain: 1,  clothing: true,  food: false, meals: 0, lottery: false },
 };

@@ -1,7 +1,7 @@
 // game/engine/checks.test.ts
 import { test, expect } from "bun:test";
 import { createGame } from "../state";
-import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired, isMuggerSafe, ownsFridge, isPawnable, isSick } from "../checks";
+import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired, isMuggerSafe, ownsFridge, isPawnable, isSick, ownsCar, canFinanceCar, isDurable } from "../checks";
 import { JOBS } from "../../data/jobs";
 import { ITEMS } from "../../data/items";
 import { CONFIG } from "../../data/config";
@@ -40,6 +40,18 @@ test("ownsFridge reflects fridge in inventory (6d spoilage hook)", () => {
 test("isSick reflects sickWeeks remaining", () => {
   expect(isSick(player({ sickWeeks: 2 }))).toBe(true);
   expect(isSick(player({ sickWeeks: 0 }))).toBe(false);
+});
+
+test("ownsCar reflects a Tesla in inventory; it's a one-only durable", () => {
+  expect(ownsCar(player({ inventory: ["tesla"] }))).toBe(true);
+  expect(ownsCar(player({ inventory: ["computer"] }))).toBe(false);
+  expect(isDurable(ITEMS.tesla)).toBe(true);
+});
+
+test("canFinanceCar needs a job that pays well enough (no burger flippers)", () => {
+  expect(canFinanceCar(player({ jobId: "cook" }), JOBS.cook)).toBe(false);   // $60/shift
+  expect(canFinanceCar(player({ jobId: "clerk" }), JOBS.clerk)).toBe(true);  // $120/shift
+  expect(canFinanceCar(player({ jobId: null }), null)).toBe(false);          // unemployed
 });
 
 test("isPawnable accepts durables, rejects food/tickets/frozen packs", () => {

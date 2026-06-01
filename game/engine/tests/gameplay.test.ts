@@ -287,6 +287,30 @@ test("only the special is discounted — other items are full price", () => {
   expect(before - you(g2).cash).toBe(ITEMS[other].cost); // full price
 });
 
+// — Tesla: free travel + robotaxi income ———————————————————————————————
+
+test("a Tesla makes travel free — trips cost no time", () => {
+  let g = start({ inventory: ["tesla"] }, "lowcost");
+  const t = you(g).timeLeft;
+  g = act(g, { type: "moveTo", node: "bank" }).state; // a multi-hop trip
+  expect(you(g).timeLeft).toBe(t); // 0 time charged
+});
+
+test("without a Tesla, travel still costs time", () => {
+  let g = start({}, "lowcost");
+  const t = you(g).timeLeft;
+  g = act(g, { type: "moveTo", node: "bank" }).state;
+  expect(you(g).timeLeft).toBeLessThan(t);
+});
+
+test("a Tesla earns weekend robotaxi income", () => {
+  let g = start({ inventory: ["tesla"], housingId: null }, "lowcost"); // no rent noise
+  const cash = you(g).cash;
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).cash).toBe(cash + CONFIG.teslaIncome);
+  expect(g.log.some((e) => /Tesla earned/i.test(e.text))).toBe(true);
+});
+
 // — Housing / leases ———————————————————————————————————————————————————
 
 test("you can move into a different unit at the Rent Office", () => {

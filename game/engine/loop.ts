@@ -12,7 +12,7 @@ import type { GameState, Player } from "./state";
 import { createGame } from "./state";
 import type { World } from "./world";
 import { CONFIG } from "../data/config";
-import { isEmployed, isFed, shouldBeFired, shouldBeEvicted, ownsFridge, ownsComputer } from "./checks";
+import { isEmployed, isFed, shouldBeFired, shouldBeEvicted, ownsFridge, ownsComputer, ownsCar } from "./checks";
 import { accrueInterest, checkPromotion, decayHappiness } from "./economy";
 import { makeRng } from "./rng";
 import { nextIndex } from "./economyIndex";
@@ -178,13 +178,19 @@ export function endTurn(state: GameState, world: World): GameState {
     : afterInterest;
   if (afterComputer.cash > afterInterest.cash) news.push(`💻 Your computer brought in $${CONFIG.computerIncome} this week.`);
 
+  // A Tesla moonlights as a robotaxi on the weekend.
+  const afterCar = ownsCar(afterComputer)
+    ? { ...afterComputer, cash: afterComputer.cash + CONFIG.teslaIncome }
+    : afterComputer;
+  if (afterCar.cash > afterComputer.cash) news.push(`🚕 Your Tesla earned $${CONFIG.teslaIncome} giving rides this weekend.`);
+
   // Monthly rent at a month boundary.
-  let afterRent = afterComputer;
-  if (isMonthEnd(state.week) && afterComputer.housingId) {
-    const unit = world.housing[afterComputer.housingId];
+  let afterRent = afterCar;
+  if (isMonthEnd(state.week) && afterCar.housingId) {
+    const unit = world.housing[afterCar.housingId];
     if (unit) {
       const due = Math.round(unit.monthlyRent * economyIndex);
-      afterRent = { ...afterComputer, rentDue: afterComputer.rentDue + due };
+      afterRent = { ...afterCar, rentDue: afterCar.rentDue + due };
       // No news line here — startTurn reminds you of the balance every week
       // until it's paid (this month's charge included).
     }

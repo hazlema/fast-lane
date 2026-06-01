@@ -4,7 +4,7 @@ import type { World } from "../world";
 import type { LogEntry } from "../state";
 import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
-import { canAfford, isDurable } from "../checks";
+import { canAfford, isDurable, canFinanceCar } from "../checks";
 import { makeRng } from "../rng";
 import { weeklyDeal, salePrice } from "../market";
 import { HEADLINES } from "../../data/items";
@@ -25,6 +25,10 @@ export function buy(state: GameState, action: BuyAction, world: World): ApplyRes
   const item = world.items[action.item];
   if (!item) return reject(state, `Unknown item: ${action.item}`);
   if (isDurable(item) && player.inventory.includes(item.id)) return reject(state, "You already own one.");
+  // A Tesla needs financing: proof of a steady, well-paying job (no burger flippers).
+  if (item.id === "tesla" && !canFinanceCar(player, player.jobId ? world.jobs[player.jobId] : null)) {
+    return reject(state, "The dealership needs proof of a steady, well-paying job to finance a Tesla.");
+  }
 
   // Discount Store: this item may be this week's rotating special, at a % off.
   let price = item.cost;
