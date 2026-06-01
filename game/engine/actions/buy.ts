@@ -6,6 +6,7 @@ import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../
 import { buildingAt } from "../../data/buildings";
 import { canAfford, isDurable } from "../checks";
 import { makeRng } from "../rng";
+import { weeklyDeal, salePrice } from "../market";
 import { HEADLINES } from "../../data/items";
 
 export interface BuyAction {
@@ -24,11 +25,19 @@ export function buy(state: GameState, action: BuyAction, world: World): ApplyRes
   const item = world.items[action.item];
   if (!item) return reject(state, `Unknown item: ${action.item}`);
   if (isDurable(item) && player.inventory.includes(item.id)) return reject(state, "You already own one.");
-  if (!canAfford(player, item.cost)) return reject(state, "You can't afford that.");
+
+  // Discount Store: this item may be this week's rotating special, at a % off.
+  let price = item.cost;
+  if (here!.services.some((s) => s.kind === "discount")) {
+    const deal = weeklyDeal(state.seed, state.week, shop.itemIds);
+    if (deal && deal.item === action.item) price = salePrice(item.cost, deal.percent);
+  }
+
+  if (!canAfford(player, price)) return reject(state, "You can't afford that.");
   if (item.timeCost > player.timeLeft) return reject(state, "Not enough time to shop.");
   const bought = updateCurrent(state, (p) => ({
     ...p,
-    cash: p.cash - item.cost,
+    cash: p.cash - price,
     happiness: p.happiness + item.happinessGain,
     timeLeft: p.timeLeft - item.timeCost,
     inventory: [...p.inventory, action.item],

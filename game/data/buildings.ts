@@ -13,7 +13,8 @@ export type Service =
   | { kind: "bank" }                             // deposit/withdraw/loan/repay
   | { kind: "housing"; housingIds: HousingId[] } // rent these places here
   | { kind: "pawn" }                             // sell inventory items back for cash
-  | { kind: "home" };                            // your residence — relax here for happiness
+  | { kind: "home" }                             // your residence — relax here for happiness
+  | { kind: "discount" };                        // runs a rotating weekly special on its shop items
 
 export type ServiceKind = Service["kind"];
 
@@ -34,7 +35,7 @@ export const BUILDINGS: Building[] = [
   { id: "pawn", name: "Pawn Shop", hitBoxId: "Pawn-Shop", node: "pawn",
     services: [{ kind: "shop", itemIds: ["tv_used"] }, { kind: "pawn" }, { kind: "workplace" }] },
   { id: "discount", name: "Discount Store", hitBoxId: "Discount-Store", node: "discount",
-    services: [{ kind: "shop", itemIds: ["tv", "suit"] }, { kind: "workplace" }] },
+    services: [{ kind: "discount" }, { kind: "shop", itemIds: ["tv", "stereo", "suit", "casual"] }, { kind: "workplace" }] },
   { id: "frosty", name: "Frosty Burger", hitBoxId: "Frosty-Burger", node: "frosty",
     services: [{ kind: "shop", itemIds: ["burger"] }, { kind: "workplace" }] },
   { id: "offrack", name: "Off the Rack", hitBoxId: "Off-the-Rack", node: "offrack",

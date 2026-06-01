@@ -7,6 +7,7 @@
   import { HOUSING } from "../../data/housing";
   import { CONFIG } from "../../data/config";
   import { isPawnable } from "../../engine/checks";
+  import { weeklyDeal, salePrice } from "../../engine/market";
   import { wageFor } from "../../engine/wages";
   import type { Action } from "../../engine/reducer";
   import ActionRow from "./ActionRow.svelte";
@@ -24,6 +25,14 @@
   );
 
   const dis = (a: Action) => { const r = gameStore.preview(a); return { disabled: !r.ok, reason: r.reason ?? "" }; };
+
+  // This week's rotating special, if this building runs one (the Discount Store).
+  const deal = $derived(
+    building?.services.some((s) => s.kind === "discount")
+      ? weeklyDeal(gameStore.state.seed, gameStore.state.week,
+          (building.services.find((s) => s.kind === "shop") as { itemIds: string[] } | undefined)?.itemIds ?? [])
+      : null,
+  );
 
   // Group the pawnable items you're carrying into one row each (with a count).
   function pawnLots(inv: string[]): { id: string; count: number }[] {
@@ -64,14 +73,21 @@
     {:else if svc.kind === "education"}
       <EducationScreen courseIds={svc.courseIds} />
 
+    {:else if svc.kind === "discount"}
+      {#if deal}
+        <p class="special">🔖 This week's special: <b>{ITEMS[deal.item].name}</b> — {deal.percent}% off!</p>
+      {/if}
+
     {:else if svc.kind === "shop"}
       {#each svc.itemIds as id (id)}
         {@const it = ITEMS[id]}
         {@const a = { type: "buy", item: id } as const}
         {@const d = dis(a)}
+        {@const onSale = deal?.item === id}
+        {@const price = onSale ? salePrice(it.cost, deal!.percent) : it.cost}
         <ActionRow name={it.name}
           sub={it.clothing ? "clothing" : it.meals > 0 ? `${it.meals} frozen meals` : ""}
-          badges={[...(it.happinessGain > 0 ? [{ text: `😀 +${it.happinessGain}` }] : []), { text: `⏳ ${it.timeCost}` }, { text: `$${it.cost}`, kind: "cost" }]}
+          badges={[...(onSale ? [{ text: `🔖 −${deal!.percent}%` }] : []), ...(it.happinessGain > 0 ? [{ text: `😀 +${it.happinessGain}` }] : []), { text: `⏳ ${it.timeCost}` }, { text: `$${price}`, kind: "cost" }]}
           disabled={d.disabled} reason={d.reason} onact={() => gameStore.buy(id)} />
       {/each}
 
@@ -127,6 +143,8 @@
   .hd .t { font-weight: 700; font-size: clamp(12px, 1.4vw, 15px); color: #2a2f1a; }
   .back { background: none; border: none; font-size: clamp(10px, 1.1vw, 12px); color: #4a90d9; cursor: pointer; }
   .empty { font-size: clamp(10px, 1.1vw, 12px); color: #8a8666; margin: 4px 0; }
+  .special { font-size: clamp(10px, 1.1vw, 13px); color: #b8400b; background: #fff3e0; border-radius: 6px; padding: 5px 8px; margin: 0 0 6px; }
+  .special b { color: #8a2f08; }
   .rentbar { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; font-size: clamp(10px, 1.1vw, 12px); color: #2a2f1a; }
   .rentbar b { color: #b8860b; }
   .pay { background: #4a90d9; color: #fff; border: none; border-radius: 6px; padding: 5px 10px; font-size: clamp(10px, 1.1vw, 12px); font-weight: 700; cursor: pointer; }

@@ -50,6 +50,7 @@ export const CONFIG = {
   crisisLayoffChance: 0.25,    // base weekly layoff odds in a crisis (÷ job tier — good jobs rarely fired)
   crisisPayCutChance: 0.5,     // weekly odds of a pay-cut (demotion) in a crisis, if not laid off
   computerIncome: 30,          // passive cash a computer earns each week (a home business)
+  discountPercents: [20, 25, 30, 35, 40], // the Discount Store's weekly special is one of these % off
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)

@@ -12,6 +12,7 @@ import type { GameState, Player } from "../state";
 import { WORLD } from "../../data/world";
 import { CONFIG } from "../../data/config";
 import { ITEMS } from "../../data/items";
+import { weeklyDeal, salePrice } from "../market";
 
 // A real-board game in "playing", with the player standing at `node` (node id
 // === building id on the real board) and any fields overridden.
@@ -261,6 +262,29 @@ test("living in High Security means you're never mugged", () => {
     g = act(g, { type: "endWeek" }).state;
   }
   expect(g.log.some((e) => e.text.startsWith("🚨"))).toBe(false);
+});
+
+// — Discount Store weekly special ——————————————————————————————————————
+
+const DISCOUNT_POOL = ["tv", "stereo", "suit", "casual"];
+
+test("the Discount Store's weekly special is cheaper there", () => {
+  let g = start({ cash: 99999 }, "discount");
+  const deal = weeklyDeal(g.seed, g.week, DISCOUNT_POOL)!;
+  const before = you(g).cash;
+  g = act(g, { type: "buy", item: deal.item }).state;
+  const paid = before - you(g).cash;
+  expect(paid).toBe(salePrice(ITEMS[deal.item].cost, deal.percent));
+  expect(paid).toBeLessThan(ITEMS[deal.item].cost);
+});
+
+test("only the special is discounted — other items are full price", () => {
+  const g = start({ cash: 99999 }, "discount");
+  const deal = weeklyDeal(g.seed, g.week, DISCOUNT_POOL)!;
+  const other = DISCOUNT_POOL.find((id) => id !== deal.item)!;
+  const before = you(g).cash;
+  const g2 = act(g, { type: "buy", item: other }).state;
+  expect(before - you(g2).cash).toBe(ITEMS[other].cost); // full price
 });
 
 // — Computer side-income ———————————————————————————————————————————————
