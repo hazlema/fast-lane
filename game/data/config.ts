@@ -32,9 +32,12 @@ export const CONFIG = {
   highSecHappiness: 3,         // weekly happiness bonus for living in High Security
   pawnSellFraction: 0.5,       // fraction of an item's cost the pawn shop pays back
 
-  // Weekend events (Mechanic 9) — a seeded roll each week-end
-  weekendEventChance: 0.5,     // chance any weekend event happens on a given week
+  // Weekend events (Mechanic 9) — each rolls its own independent per-week chance
+  muggerChance: 0.02,          // weekly chance of a mugging (rare — and you can bank to dodge it)
+  muggerStartsAfterWeek: 20,   // no muggers until after this week (early-game grace)
+  concertChance: 0.2,          // weekly chance of a concert
   concertHappiness: 10,        // happiness from a weekend concert
+  windfallChance: 0.1,         // weekly chance of a lucky cash find
   windfallMin: 50,             // smallest lucky-find cash windfall
   windfallMax: 150,            // largest lucky-find cash windfall
   promotionExperience: 5,      // work shifts of experience needed per promotion

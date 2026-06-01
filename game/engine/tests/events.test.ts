@@ -2,6 +2,7 @@
 import { test, expect } from "bun:test";
 import { rollWeekendEvent } from "../events";
 import { createGame } from "../state";
+import { CONFIG } from "../../data/config";
 
 const p = (over: Partial<ReturnType<typeof createGame>["players"][number]> = {}) => ({
   ...createGame({ playerName: "A", startNode: "n0", seed: 1 }).players[0],
@@ -15,6 +16,13 @@ test("rollWeekendEvent is deterministic for the same inputs", () => {
 test("a High Security resident is never mugged", () => {
   for (let w = 1; w <= 300; w++) {
     const r = rollWeekendEvent(p({ cash: 500, housingId: "highsec" }), 7, w);
+    if (r) expect(r.news).not.toMatch(/mugger/i);
+  }
+});
+
+test("no mugger during the early-game grace (through week muggerStartsAfterWeek)", () => {
+  for (let w = 1; w <= CONFIG.muggerStartsAfterWeek; w++) {
+    const r = rollWeekendEvent(p({ cash: 1000, housingId: "lowcost" }), 7, w);
     if (r) expect(r.news).not.toMatch(/mugger/i);
   }
 });
