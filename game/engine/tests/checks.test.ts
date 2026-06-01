@@ -1,8 +1,9 @@
 // game/engine/checks.test.ts
 import { test, expect } from "bun:test";
 import { createGame } from "../state";
-import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired } from "../checks";
+import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired, isMuggerSafe, ownsFridge, isPawnable } from "../checks";
 import { JOBS } from "../../data/jobs";
+import { ITEMS } from "../../data/items";
 import { CONFIG } from "../../data/config";
 
 const player = (over: Partial<ReturnType<typeof createGame>["players"][number]> = {}) => ({
@@ -23,6 +24,25 @@ test("isFed mirrors ateThisWeek", () => {
 test("canAfford compares cash to a cost", () => {
   expect(canAfford(player({ cash: 100 }), 100)).toBe(true);
   expect(canAfford(player({ cash: 99 }), 100)).toBe(false);
+});
+
+test("isMuggerSafe only in High Security (6d mugger hook)", () => {
+  expect(isMuggerSafe(player({ housingId: "highsec" }))).toBe(true);
+  expect(isMuggerSafe(player({ housingId: "lowcost" }))).toBe(false);
+  expect(isMuggerSafe(player({ housingId: null }))).toBe(false);
+});
+
+test("ownsFridge reflects fridge in inventory (6d spoilage hook)", () => {
+  expect(ownsFridge(player({ inventory: ["fridge"] }))).toBe(true);
+  expect(ownsFridge(player({ inventory: ["tv"] }))).toBe(false);
+});
+
+test("isPawnable accepts durables, rejects food/tickets/frozen packs", () => {
+  expect(isPawnable(ITEMS.tv)).toBe(true);
+  expect(isPawnable(ITEMS.suit)).toBe(true);
+  expect(isPawnable(ITEMS.burger)).toBe(false);   // food
+  expect(isPawnable(ITEMS.lottery)).toBe(false);  // ticket
+  expect(isPawnable(ITEMS.burger8)).toBe(false);  // frozen meals
 });
 
 test("missingDegrees lists only the degrees not yet earned", () => {

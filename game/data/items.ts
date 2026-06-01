@@ -19,6 +19,9 @@ export const ITEMS: Record<ItemId, Item> = {
   newspaper: { id: "newspaper", name: "Daily Newspaper",      cost: 1,   timeCost: 1, happinessGain: 2,  clothing: false, food: false, meals: 0, lottery: false },
   lottery:   { id: "lottery",   name: "Lottery Ticket",       cost: 10,  timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: true  },
   tv:        { id: "tv",        name: "Television",           cost: 300, timeCost: 1, happinessGain: 25, clothing: false, food: false, meals: 0, lottery: false },
+  tv_used:   { id: "tv_used",   name: "Used Television",      cost: 150, timeCost: 1, happinessGain: 12, clothing: false, food: false, meals: 0, lottery: false },
+  stereo:    { id: "stereo",    name: "Stereo",               cost: 120, timeCost: 1, happinessGain: 10, clothing: false, food: false, meals: 0, lottery: false },
+  fridge:    { id: "fridge",    name: "Refrigerator",         cost: 250, timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: false },
   suit:      { id: "suit",      name: "Business Suit",        cost: 200, timeCost: 1, happinessGain: 5,  clothing: true,  food: false, meals: 0, lottery: false },
   casual:    { id: "casual",    name: "Casual Clothes",       cost: 80,  timeCost: 1, happinessGain: 1,  clothing: true,  food: false, meals: 0, lottery: false },
 };

@@ -11,6 +11,7 @@
 // read in applyForJob / endWeek).
 import type { Player } from "./state";
 import type { Job } from "../data/jobs";
+import type { Item } from "../data/items";
 import type { CourseId } from "../data/courses";
 import { CONFIG } from "../data/config";
 import { makeRng } from "./rng";
@@ -39,6 +40,15 @@ export const shouldBeFired = (p: Player): boolean =>
 /** Has rent gone unpaid long enough to be evicted (game over)? */
 export const shouldBeEvicted = (p: Player): boolean =>
   p.weeksRentOverdue > CONFIG.evictAfterWeeks;
+
+/** Living in High Security shields un-banked cash from the (6d) mugger event. */
+export const isMuggerSafe = (p: Player): boolean => p.housingId === "highsec";
+
+/** Own a refrigerator? Lets frozen groceries keep — the (6d) spoilage hook. */
+export const ownsFridge = (p: Player): boolean => p.inventory.includes("fridge");
+
+/** Will the pawn shop buy this back? Durable goods only — not food/tickets/frozen packs. */
+export const isPawnable = (item: Item): boolean => !item.food && !item.lottery && item.meals === 0;
 
 // --- Hiring --------------------------------------------------------------
 

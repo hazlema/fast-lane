@@ -5,6 +5,7 @@ import { type GameState, type Player, type Stat } from "../../engine/state";
 import { WORLD } from "../../data/world";
 import { NODE_XY, type NodeId } from "../../data/board";
 import { monthOf } from "../../engine/calendar";
+import { CONFIG } from "../../data/config";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
 
 const START_NODE: NodeId = "lowcost"; // you begin at home (you start renting Low Cost Housing)
@@ -80,6 +81,28 @@ export const gameStore = {
       this.pushNotice("news", headline.replace(/^📰\s*/, ""), "📰 Extra! Extra!");
     } else {
       this.pushNotice("info", `Bought ${item?.name ?? "item"}.`);
+    }
+  },
+
+  // Pawn an item for cash, with a toast.
+  sell(itemId: string): void {
+    const item = WORLD.items[itemId];
+    const refund = item ? Math.round(item.cost * CONFIG.pawnSellFraction) : 0;
+    if (this.dispatch({ type: "sell", item: itemId })) {
+      this.pushNotice("info", `Pawned ${item?.name ?? "item"} for $${refund}.`);
+    } else {
+      this.pushNotice("bad", lastError ?? "Couldn't sell that.", "No deal");
+    }
+  },
+
+  // Relax at home for a happiness lift, with a toast.
+  relax(): void {
+    const hasTv = this.player.inventory.includes("tv") || this.player.inventory.includes("tv_used");
+    const gain = CONFIG.relaxHappiness + (hasTv ? CONFIG.relaxTvBonus : 0);
+    if (this.dispatch({ type: "relax" })) {
+      this.pushNotice("info", `Relaxed at home. 😀 +${gain} happiness.`);
+    } else {
+      this.pushNotice("bad", lastError ?? "Couldn't relax.", "Not now");
     }
   },
 

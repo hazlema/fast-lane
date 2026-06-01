@@ -11,6 +11,7 @@ import { applyAction, type Action } from "../reducer";
 import type { GameState, Player } from "../state";
 import { WORLD } from "../../data/world";
 import { CONFIG } from "../../data/config";
+import { ITEMS } from "../../data/items";
 
 // A real-board game in "playing", with the player standing at `node` (node id
 // === building id on the real board) and any fields overridden.
@@ -158,6 +159,56 @@ test("clothes age one week at a time", () => {
   let g = start({ housingId: null, clothingWear: 0 }); // no housing → no rent noise
   g = act(g, { type: "endWeek" }).state;
   expect(you(g).clothingWear).toBe(1);
+});
+
+// — Home: relax & the High Security perk ———————————————————————————————
+
+test("relaxing at home lifts happiness and costs a time unit", () => {
+  let g = start({ happiness: 0 }, "lowcost"); // you rent Low Cost Housing
+  const t = you(g).timeLeft;
+  g = act(g, { type: "relax" }).state;
+  expect(you(g).happiness).toBe(CONFIG.relaxHappiness);
+  expect(you(g).timeLeft).toBe(t - 1);
+});
+
+test("a TV makes relaxing at home more enjoyable", () => {
+  const g = act(start({ happiness: 0, inventory: ["tv"] }, "lowcost"), { type: "relax" }).state;
+  expect(you(g).happiness).toBe(CONFIG.relaxHappiness + CONFIG.relaxTvBonus);
+});
+
+test("you can NOT relax at a home you don't rent", () => {
+  const r = act(start({ housingId: "lowcost" }, "highsec"), { type: "relax" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/don't live here/i);
+});
+
+test("living in High Security gives a weekly happiness bonus", () => {
+  let g = start({ housingId: "highsec", happiness: 100 }, "highsec");
+  g = act(g, { type: "endWeek" }).state;
+  // −happinessDecayPerWeek, +highSecHappiness
+  expect(you(g).happiness).toBe(100 - CONFIG.happinessDecayPerWeek + CONFIG.highSecHappiness);
+  expect(g.log.some((e) => /High Security/i.test(e.text))).toBe(true);
+});
+
+// — Pawn shop & Electronics ————————————————————————————————————————————
+
+test("the pawn shop buys a durable back for half its cost", () => {
+  let g = start({ inventory: ["tv"], cash: 0 }, "pawn");
+  g = act(g, { type: "sell", item: "tv" }).state;
+  expect(you(g).cash).toBe(Math.round(ITEMS.tv.cost * CONFIG.pawnSellFraction));
+  expect(you(g).inventory).not.toContain("tv");
+});
+
+test("the pawn shop will NOT buy food", () => {
+  const r = act(start({ inventory: ["burger"] }, "pawn"), { type: "sell", item: "burger" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/won't buy/i);
+});
+
+test("Electronics sells a fridge — the 6d spoilage hook", () => {
+  let g = start({ cash: 999 }, "electronics");
+  g = act(g, { type: "buy", item: "fridge" }).state;
+  expect(you(g).inventory).toContain("fridge");
 });
 
 // — Showing up for work ————————————————————————————————————————————————

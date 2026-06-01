@@ -157,8 +157,16 @@ export function endTurn(state: GameState, world: World): GameState {
   const happinessLost = afterPromo.happiness - afterDecay.happiness;
   if (happinessLost > 0) news.push(`The weekly grind wore you down — happiness −${happinessLost}. Buy something you enjoy to lift it.`);
 
+  // High Security living: a little weekly happiness for the premium rent.
+  const afterPerk = afterDecay.housingId === "highsec"
+    ? { ...afterDecay, happiness: afterDecay.happiness + CONFIG.highSecHappiness }
+    : afterDecay;
+  if (afterPerk.happiness > afterDecay.happiness) {
+    news.push(`High Security living lifts your spirits — happiness +${CONFIG.highSecHappiness}.`);
+  }
+
   const settled = addNews(
-    { ...setPlayer(state, afterDecay), week: state.week + 1, economyIndex },
+    { ...setPlayer(state, afterPerk), week: state.week + 1, economyIndex },
     news,
   );
 

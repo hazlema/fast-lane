@@ -27,6 +27,10 @@ export const CONFIG = {
   clothingLastsWeeks: 8,       // weeks clothes stay wearable; past this you're in rags (can't work/study)
   lotteryWinChance: 0.12,      // chance a lottery ticket wins at next turn's draw
   lotteryMaxPrize: 400,        // top prize ($100..this, in $100 steps)
+  relaxHappiness: 3,           // happiness from relaxing at home (per time unit)
+  relaxTvBonus: 4,             // extra happiness when relaxing if you own a TV
+  highSecHappiness: 3,         // weekly happiness bonus for living in High Security
+  pawnSellFraction: 0.5,       // fraction of an item's cost the pawn shop pays back
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)

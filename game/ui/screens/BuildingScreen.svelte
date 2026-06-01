@@ -5,6 +5,8 @@
   import { JOBS } from "../../data/jobs";
   import { ITEMS } from "../../data/items";
   import { HOUSING } from "../../data/housing";
+  import { CONFIG } from "../../data/config";
+  import { isPawnable } from "../../engine/checks";
   import { wageFor } from "../../engine/wages";
   import type { Action } from "../../engine/reducer";
   import ActionRow from "./ActionRow.svelte";
@@ -22,6 +24,16 @@
   );
 
   const dis = (a: Action) => { const r = gameStore.preview(a); return { disabled: !r.ok, reason: r.reason ?? "" }; };
+
+  // Group the pawnable items you're carrying into one row each (with a count).
+  function pawnLots(inv: string[]): { id: string; count: number }[] {
+    const counts = new Map<string, number>();
+    for (const id of inv) {
+      const it = ITEMS[id];
+      if (it && isPawnable(it)) counts.set(id, (counts.get(id) ?? 0) + 1);
+    }
+    return [...counts].map(([id, count]) => ({ id, count }));
+  }
 </script>
 
 <div class="screen">
@@ -78,6 +90,29 @@
           sub={player.housingId === id ? "current home" : "move in"}
           badges={[{ text: `🏠 $${h.monthlyRent}/mo`, kind: "cost" }]}
           disabled={d.disabled} reason={d.reason} onact={() => gameStore.dispatch(a)} />
+      {/each}
+
+    {:else if svc.kind === "home"}
+      {@const a = { type: "relax" } as const}
+      {@const d = dis(a)}
+      {@const hasTv = player.inventory.includes("tv") || player.inventory.includes("tv_used")}
+      {@const gain = CONFIG.relaxHappiness + (hasTv ? CONFIG.relaxTvBonus : 0)}
+      <ActionRow name="Relax at home"
+        sub={hasTv ? "watch some TV" : "put your feet up"}
+        badges={[{ text: `😀 +${gain}` }, { text: `⏳ 1` }]}
+        disabled={d.disabled} reason={d.reason} onact={() => gameStore.relax()} />
+
+    {:else if svc.kind === "pawn"}
+      {#each pawnLots(player.inventory) as lot (lot.id)}
+        {@const it = ITEMS[lot.id]}
+        {@const a = { type: "sell", item: lot.id } as const}
+        {@const d = dis(a)}
+        <ActionRow name={`Sell ${it.name}${lot.count > 1 ? ` ×${lot.count}` : ""}`}
+          sub="pawn for cash"
+          badges={[{ text: `💵 +$${Math.round(it.cost * CONFIG.pawnSellFraction)}` }, { text: `⏳ 1` }]}
+          disabled={d.disabled} reason={d.reason} onact={() => gameStore.sell(lot.id)} />
+      {:else}
+        <p class="empty">Nothing to pawn — come back with goods to sell.</p>
       {/each}
 
     {:else if svc.kind === "bank"}

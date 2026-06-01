@@ -11,7 +11,9 @@ export type Service =
   | { kind: "education"; courseIds: CourseId[] }  // take these courses here
   | { kind: "shop"; itemIds: ItemId[] }          // buy these items here
   | { kind: "bank" }                             // deposit/withdraw/loan/repay
-  | { kind: "housing"; housingIds: HousingId[] }; // rent these places here
+  | { kind: "housing"; housingIds: HousingId[] } // rent these places here
+  | { kind: "pawn" }                             // sell inventory items back for cash
+  | { kind: "home" };                            // your residence — relax here for happiness
 
 export type ServiceKind = Service["kind"];
 
@@ -25,12 +27,12 @@ export interface Building {
 
 // The real board: 13 buildings, one per ring node (node id === building id).
 export const BUILDINGS: Building[] = [
-  { id: "highsec", name: "High Security Apartments", hitBoxId: "High-Security", node: "highsec", services: [] },
+  { id: "highsec", name: "High Security Apartments", hitBoxId: "High-Security", node: "highsec", services: [{ kind: "home" }] },
   { id: "rentoffice", name: "Rent Office", hitBoxId: "Rent-Office", node: "rentoffice",
     services: [{ kind: "housing", housingIds: ["lowcost", "highsec"] }, { kind: "workplace" }] },
-  { id: "lowcost", name: "Low Cost Housing", hitBoxId: "Low-Cost", node: "lowcost", services: [] },
+  { id: "lowcost", name: "Low Cost Housing", hitBoxId: "Low-Cost", node: "lowcost", services: [{ kind: "home" }] },
   { id: "pawn", name: "Pawn Shop", hitBoxId: "Pawn-Shop", node: "pawn",
-    services: [{ kind: "shop", itemIds: ["tv"] }, { kind: "workplace" }] },
+    services: [{ kind: "shop", itemIds: ["tv_used"] }, { kind: "pawn" }, { kind: "workplace" }] },
   { id: "discount", name: "Discount Store", hitBoxId: "Discount-Store", node: "discount",
     services: [{ kind: "shop", itemIds: ["tv", "suit"] }, { kind: "workplace" }] },
   { id: "frosty", name: "Frosty Burger", hitBoxId: "Frosty-Burger", node: "frosty",
@@ -38,7 +40,7 @@ export const BUILDINGS: Building[] = [
   { id: "offrack", name: "Off the Rack", hitBoxId: "Off-the-Rack", node: "offrack",
     services: [{ kind: "shop", itemIds: ["casual", "suit"] }, { kind: "workplace" }] },
   { id: "electronics", name: "Electronics", hitBoxId: "Electronics", node: "electronics",
-    services: [{ kind: "shop", itemIds: ["tv"] }, { kind: "workplace" }] },
+    services: [{ kind: "shop", itemIds: ["tv", "stereo", "fridge"] }, { kind: "workplace" }] },
   { id: "university", name: "University", hitBoxId: "University", node: "university",
     services: [{ kind: "education", courseIds: ["juniorcollege", "tradeschool", "busadmin", "academic", "preeng", "engineering"] }, { kind: "workplace" }] },
   { id: "employment", name: "Employment Office", hitBoxId: "Employment-Office", node: "employment",
