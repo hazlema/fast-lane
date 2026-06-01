@@ -237,6 +237,12 @@ test("Electronics sells a fridge — the 6d spoilage hook", () => {
   expect(you(g).inventory).toContain("fridge");
 });
 
+test("you can't buy a second fridge — durables are one per customer", () => {
+  const r = act(start({ cash: 99999, inventory: ["fridge"] }, "electronics"), { type: "buy", item: "fridge" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/already own/i);
+});
+
 // — Weekend events —————————————————————————————————————————————————————
 
 test("weekends bring the occasional event to the news", () => {

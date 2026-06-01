@@ -4,7 +4,7 @@ import type { World } from "../world";
 import type { LogEntry } from "../state";
 import { type ApplyResult, ok, reject, updateCurrent, requirePlaying } from "../result";
 import { buildingAt } from "../../data/buildings";
-import { canAfford } from "../checks";
+import { canAfford, isDurable } from "../checks";
 import { makeRng } from "../rng";
 import { HEADLINES } from "../../data/items";
 
@@ -23,6 +23,7 @@ export function buy(state: GameState, action: BuyAction, world: World): ApplyRes
   if (!shop.itemIds.includes(action.item)) return reject(state, "That item is not sold here.");
   const item = world.items[action.item];
   if (!item) return reject(state, `Unknown item: ${action.item}`);
+  if (isDurable(item) && player.inventory.includes(item.id)) return reject(state, "You already own one.");
   if (!canAfford(player, item.cost)) return reject(state, "You can't afford that.");
   if (item.timeCost > player.timeLeft) return reject(state, "Not enough time to shop.");
   const bought = updateCurrent(state, (p) => ({

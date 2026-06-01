@@ -53,6 +53,13 @@ export const ownsFridge = (p: Player): boolean => p.inventory.includes("fridge")
 /** Will the pawn shop buy this back? Durable goods only — not food/tickets/frozen packs. */
 export const isPawnable = (item: Item): boolean => !item.food && !item.lottery && item.meals === 0;
 
+// One-per-customer durables: appliances you own, not repeatable buys (newspaper,
+// clothes, food). Buying a second is rejected (see buy.ts).
+const DURABLE_ITEMS = new Set(["tv", "tv_used", "stereo", "fridge", "computer"]);
+
+/** Is this a one-only durable good (an appliance you can't sensibly own twice)? */
+export const isDurable = (item: Item): boolean => DURABLE_ITEMS.has(item.id);
+
 // --- Hiring --------------------------------------------------------------
 
 /** Degrees the job demands that you haven't earned yet. */
