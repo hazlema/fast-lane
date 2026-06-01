@@ -8,7 +8,8 @@
     "ui:dev": "vite",
     "ui:build": "vite build",
     "ui:check": "svelte-check --tsconfig ./game/ui/tsconfig.json",
-    "test:logic": "bun test game/engine/tests/gameplay.test.ts"
+    "test:logic": "bun test game/engine/tests/gameplay.test.ts",
+    "sim": "bun tools/sim/run.ts"
   },
   "dependencies": {
     "openai": "latest"
