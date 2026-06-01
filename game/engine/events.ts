@@ -22,10 +22,10 @@ export const WEEKEND_EVENTS: WeekendEvent[] = [
     id: "mugger",
     weight: 2,
     eligible: (p) => p.cash > 0 && !isMuggerSafe(p),
-    apply: (p) => {
-      const loss = Math.round(p.cash * CONFIG.muggerLossFraction);
-      return { player: { ...p, cash: p.cash - loss }, news: `🚨 A mugger took $${loss}! Bank your cash to stay safe.` };
-    },
+    apply: (p) => ({
+      player: { ...p, cash: 0 },
+      news: `🚨 A mugger cleaned you out — lost $${p.cash}! Keep your cash in the bank.`,
+    }),
   },
   {
     id: "concert",

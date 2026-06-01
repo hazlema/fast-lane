@@ -34,7 +34,6 @@ export const CONFIG = {
 
   // Weekend events (Mechanic 9) — a seeded roll each week-end
   weekendEventChance: 0.5,     // chance any weekend event happens on a given week
-  muggerLossFraction: 0.5,     // share of un-banked cash a mugger takes (bank it to stay safe!)
   concertHappiness: 10,        // happiness from a weekend concert
   windfallMin: 50,             // smallest lucky-find cash windfall
   windfallMax: 150,            // largest lucky-find cash windfall

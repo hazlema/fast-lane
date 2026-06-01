@@ -2,7 +2,6 @@
 import { test, expect } from "bun:test";
 import { rollWeekendEvent } from "../events";
 import { createGame } from "../state";
-import { CONFIG } from "../../data/config";
 
 const p = (over: Partial<ReturnType<typeof createGame>["players"][number]> = {}) => ({
   ...createGame({ playerName: "A", startNode: "n0", seed: 1 }).players[0],
@@ -39,14 +38,14 @@ test("every weekend event can occur for an eligible player", () => {
   expect(seen).toEqual(new Set(["mugger", "concert", "windfall"]));
 });
 
-test("the mugger takes a cut of un-banked cash", () => {
+test("the mugger cleans out ALL your un-banked cash", () => {
   let mugging = null as ReturnType<typeof rollWeekendEvent>;
   for (let w = 1; w <= 300 && !mugging; w++) {
     const r = rollWeekendEvent(p({ cash: 1000, housingId: "lowcost" }), 7, w);
     if (r && /mugger/i.test(r.news)) mugging = r;
   }
   expect(mugging).not.toBeNull();
-  expect(mugging!.player.cash).toBe(1000 - Math.round(1000 * CONFIG.muggerLossFraction));
+  expect(mugging!.player.cash).toBe(0); // banked savings are safe; cash on hand is gone
 });
 
 test("a quiet weekend returns null", () => {
