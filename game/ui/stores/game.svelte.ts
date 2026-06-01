@@ -204,7 +204,16 @@ export const gameStore = {
   },
 
   payRent(): void {
-    if (this.dispatch({ type: "payRent" })) persist();
+    const cashBefore = this.player.cash;
+    if (this.dispatch({ type: "payRent" })) {
+      const paid = cashBefore - this.player.cash;
+      const remaining = this.player.rentDue;
+      if (remaining > 0) this.pushNotice("info", `Paid $${paid} — $${remaining} rent still due.`, "Partial payment");
+      else this.pushNotice("good", `Rent paid in full ($${paid}).`, "Rent paid");
+      persist();
+    } else {
+      this.pushNotice("bad", lastError ?? "Couldn't pay rent.", "No payment");
+    }
   },
 
   // Sign a lease (move in), with a toast.
