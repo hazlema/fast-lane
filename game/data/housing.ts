@@ -8,6 +8,6 @@ export interface Housing {
 }
 
 export const HOUSING: Record<HousingId, Housing> = {
-  lowcost:  { id: "lowcost",  name: "Low Cost Housing", monthlyRent: 40 },
-  highsec:  { id: "highsec",  name: "High Security Apartments", monthlyRent: 120 },
+  lowcost:  { id: "lowcost",  name: "Low Cost Housing", monthlyRent: 250 },
+  highsec:  { id: "highsec",  name: "High Security Apartments", monthlyRent: 500 },
 };
