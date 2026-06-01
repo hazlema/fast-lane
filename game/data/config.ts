@@ -31,6 +31,13 @@ export const CONFIG = {
   relaxTvBonus: 4,             // extra happiness when relaxing if you own a TV
   highSecHappiness: 3,         // weekly happiness bonus for living in High Security
   pawnSellFraction: 0.5,       // fraction of an item's cost the pawn shop pays back
+
+  // Weekend events (Mechanic 9) — a seeded roll each week-end
+  weekendEventChance: 0.5,     // chance any weekend event happens on a given week
+  muggerLossFraction: 0.5,     // share of un-banked cash a mugger takes (bank it to stay safe!)
+  concertHappiness: 10,        // happiness from a weekend concert
+  windfallMin: 50,             // smallest lucky-find cash windfall
+  windfallMax: 150,            // largest lucky-find cash windfall
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)

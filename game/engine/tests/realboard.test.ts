@@ -29,7 +29,9 @@ test("a player can study a degree on the real board and win easy goals", () => {
   let g = createGame({ playerName: "Al", startNode: "university", seed: 3 });
   g = applyAction(g, {
     type: "setGoals",
-    goals: { wealth: 100, happiness: 0, education: 20, career: 0 },
+    // wealth goal 0 → the win can't be drained by a weekend mugging (wealth never
+    // dips below 0 without debt); this test is about the multi-week study loop.
+    goals: { wealth: 0, happiness: 0, education: 20, career: 0 },
   }, WORLD).state;
 
   g = studyToGraduate(g, "juniorcollege"); // spans several 20-unit weeks
@@ -38,5 +40,5 @@ test("a player can study a degree on the real board and win easy goals", () => {
 
   const r = applyAction(g, { type: "endWeek" }, WORLD);
   expect(r.ok).toBe(true);
-  expect(r.state.phase).toBe("won"); // wealth 150, education 20, happiness 0, career 0
+  expect(r.state.phase).toBe("won"); // education 20, others at/over goal → win
 });

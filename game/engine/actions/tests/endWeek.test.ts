@@ -54,7 +54,8 @@ test("working keeps your job safe — attendance resets", () => {
 });
 
 test("endWeek accrues interest and decays happiness (no weekly rent anymore)", () => {
-  const g = playing({ cash: 500, bank: 1000, debt: 0, happiness: 50 });
+  // seed 2 → a quiet week-1 weekend, so the settlement math is isolated from events.
+  const g = { ...playing({ cash: 500, bank: 1000, debt: 0, happiness: 50 }), seed: 2 };
   const r = applyAction(g, { type: "endWeek" }, TEST_WORLD);
   const p = r.state.players[0];
   expect(p.bank).toBe(1020);     // +2% of 1000

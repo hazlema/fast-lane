@@ -188,6 +188,14 @@ export const gameStore = {
       screen = game.phase === "won" ? "won" : game.phase === "lost" ? "lost" : "home";
       // The engine returned the player home; snap the token there to match.
       tokenXY = { ...NODE_XY[game.players[game.current].position] };
+      // Surface a weekend event (mugger/concert/windfall) as a popup.
+      if (game.phase === "playing") {
+        const ev = [...game.log].reverse().find((e) => e.week === game.week && /^[🚨🎵💰]/u.test(e.text));
+        if (ev) {
+          const bad = ev.text.startsWith("🚨");
+          this.pushNotice(bad ? "bad" : "good", ev.text.replace(/^\S+\s*/u, ""), bad ? "Watch out!" : "Lucky weekend!");
+        }
+      }
       persist(); // autosave at each week-end
     }
   },

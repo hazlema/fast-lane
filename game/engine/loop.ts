@@ -17,6 +17,7 @@ import { accrueInterest, checkPromotion, decayHappiness } from "./economy";
 import { makeRng } from "./rng";
 import { nextIndex } from "./economyIndex";
 import { isMonthEnd } from "./calendar";
+import { rollWeekendEvent } from "./events";
 import { hasWon } from "./winCheck";
 
 /** Start a fresh game in the "setup" phase (grants starting items). */
@@ -165,8 +166,13 @@ export function endTurn(state: GameState, world: World): GameState {
     news.push(`High Security living lifts your spirits — happiness +${CONFIG.highSecHappiness}.`);
   }
 
+  // The weekend: a seeded chance something happens (mugger, concert, windfall…).
+  const event = rollWeekendEvent(afterPerk, state.seed, state.week);
+  const afterEvent = event ? event.player : afterPerk;
+  if (event) news.push(event.news);
+
   const settled = addNews(
-    { ...setPlayer(state, afterPerk), week: state.week + 1, economyIndex },
+    { ...setPlayer(state, afterEvent), week: state.week + 1, economyIndex },
     news,
   );
 

@@ -106,6 +106,7 @@ test("a frozen 8-pack keeps you fed for weeks without buying again", () => {
   g = act(g, { type: "endWeek" }).state; // no fresh meal → cook a frozen one
   expect(you(g).hungry).toBe(false);
   expect(you(g).mealsStocked).toBe(7);
+  expect(g.log.some((e) => /cooked a frozen/i.test(e.text))).toBe(true); // the flavor we love
 });
 
 test("a newspaper lifts happiness and prints a headline", () => {
@@ -183,7 +184,8 @@ test("you can NOT relax at a home you don't rent", () => {
 });
 
 test("living in High Security gives a weekly happiness bonus", () => {
-  let g = start({ housingId: "highsec", happiness: 100 }, "highsec");
+  // seed 2 → a quiet week-1 weekend, isolating the perk from weekend events.
+  let g = { ...start({ housingId: "highsec", happiness: 100 }, "highsec"), seed: 2 };
   g = act(g, { type: "endWeek" }).state;
   // −happinessDecayPerWeek, +highSecHappiness
   expect(you(g).happiness).toBe(100 - CONFIG.happinessDecayPerWeek + CONFIG.highSecHappiness);
@@ -209,6 +211,26 @@ test("Electronics sells a fridge — the 6d spoilage hook", () => {
   let g = start({ cash: 999 }, "electronics");
   g = act(g, { type: "buy", item: "fridge" }).state;
   expect(you(g).inventory).toContain("fridge");
+});
+
+// — Weekend events —————————————————————————————————————————————————————
+
+test("weekends bring the occasional event to the news", () => {
+  let g = start({ housingId: null, cash: 500, happiness: 0 }); // no rent → no eviction noise
+  for (let i = 0; i < 20; i++) g = act(g, { type: "endWeek" }).state;
+  expect(g.log.some((e) => /^[🚨🎵💰]/u.test(e.text))).toBe(true);
+});
+
+test("living in High Security means you're never mugged", () => {
+  let g = start({ housingId: "highsec", cash: 500 });
+  for (let i = 0; i < 15 && g.phase === "playing"; i++) {
+    if (you(g).rentDue > 0) {
+      g = { ...g, players: [{ ...you(g), position: "rentoffice", cash: 9999 }] };
+      g = act(g, { type: "payRent" }).state;
+    }
+    g = act(g, { type: "endWeek" }).state;
+  }
+  expect(g.log.some((e) => e.text.startsWith("🚨"))).toBe(false);
 });
 
 // — Showing up for work ————————————————————————————————————————————————

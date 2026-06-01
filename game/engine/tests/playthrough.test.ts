@@ -24,11 +24,14 @@ test("a multi-week run reaches a win against easy goals", () => {
     type: "setGoals",
     goals: { wealth: 100, happiness: 0, education: 20, career: 0 },
   }, TEST_WORLD).state;
+  // High Security → mugger-safe, so weekend events can only help (windfall/concert),
+  // never drain the cash this win depends on.
+  g = { ...g, players: [{ ...g.players[0], housingId: "highsec" }] };
 
   g = studyToGraduate(g, "juniorcollege");
   expect(g.players[0].completedCourses).toContain("juniorcollege");
-  expect(g.players[0].education).toBe(20); // graduated → full education granted
-  expect(g.players[0].cash).toBe(150);     // 200 − 50 tuition (no work)
+  expect(g.players[0].education).toBe(20);                // graduated → full education granted
+  expect(g.players[0].cash).toBeGreaterThanOrEqual(150);  // 200 − 50 tuition (a windfall may add more)
 
   // Settle the week → the easy goals are met (wealth 150, education 20,
   // happiness 0, career 0) → win.
