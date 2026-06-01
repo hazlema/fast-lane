@@ -18,6 +18,7 @@ import { makeRng } from "./rng";
 import { nextIndex } from "./economyIndex";
 import { isMonthEnd } from "./calendar";
 import { rollWeekendEvent } from "./events";
+import { rollCrisis } from "./crisis";
 import { hasWon } from "./winCheck";
 
 /** Start a fresh game in the "setup" phase (grants starting items). */
@@ -203,8 +204,13 @@ export function endTurn(state: GameState, world: World): GameState {
   const afterEvent = event ? event.player : afterPerk;
   if (event) news.push(event.news);
 
+  // An economic crisis (index at an extreme) can lay you off or cut your pay.
+  const crisis = rollCrisis(afterEvent, economyIndex, state.seed, state.week);
+  const afterCrisis = crisis ? crisis.player : afterEvent;
+  if (crisis) news.push(crisis.news);
+
   const settled = addNews(
-    { ...setPlayer(state, afterEvent), week: state.week + 1, economyIndex },
+    { ...setPlayer(state, afterCrisis), week: state.week + 1, economyIndex },
     news,
   );
 

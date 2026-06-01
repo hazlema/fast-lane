@@ -190,11 +190,13 @@ export const gameStore = {
       tokenXY = { ...NODE_XY[game.players[game.current].position] };
       // Surface a weekend event / falling sick as a popup.
       if (game.phase === "playing") {
-        const ev = [...game.log].reverse().find((e) => e.week === game.week && /^[🚨🎵💰🤢]/u.test(e.text));
+        const ev = [...game.log].reverse().find((e) => e.week === game.week && /^[🚨🎵💰🤢🏭📉]/u.test(e.text));
         if (ev) {
-          const bad = ev.text.startsWith("🚨") || ev.text.startsWith("🤢");
-          const title = ev.text.startsWith("🤢") ? "Food poisoning!" : bad ? "Watch out!" : "Lucky weekend!";
-          this.pushNotice(bad ? "bad" : "good", ev.text.replace(/^\S+\s*/u, ""), title);
+          const good = ev.text.startsWith("🎵") || ev.text.startsWith("💰");
+          const title = ev.text.startsWith("🤢") ? "Food poisoning!"
+            : ev.text.startsWith("🏭") || ev.text.startsWith("📉") ? "Hard times"
+            : good ? "Lucky weekend!" : "Watch out!";
+          this.pushNotice(good ? "good" : "bad", ev.text.replace(/^\S+\s*/u, ""), title);
         }
       }
       persist(); // autosave at each week-end

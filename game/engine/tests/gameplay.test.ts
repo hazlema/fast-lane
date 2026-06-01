@@ -257,6 +257,19 @@ test("living in High Security means you're never mugged", () => {
   expect(g.log.some((e) => e.text.startsWith("🚨"))).toBe(false);
 });
 
+// — Economic crisis ————————————————————————————————————————————————————
+
+test("a deep economic crisis hits the employed (layoff or pay-cut)", () => {
+  let g = start({ jobId: "janitor", careerLevel: 3, housingId: null }, "factory"); // no rent noise
+  g = { ...g, economyIndex: CONFIG.indexFloor }; // deflationary crisis (walk stays ≤ crisisLowBand)
+  let hit = false;
+  for (let i = 0; i < 4 && !hit; i++) {
+    g = act(g, { type: "endWeek" }).state;
+    if (g.log.some((e) => /laid off|pay grade/i.test(e.text))) hit = true;
+  }
+  expect(hit).toBe(true);
+});
+
 // — Showing up for work ————————————————————————————————————————————————
 
 test("an employee who never shows up gets fired", () => {
