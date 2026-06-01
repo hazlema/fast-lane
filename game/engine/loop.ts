@@ -12,7 +12,7 @@ import type { GameState, Player } from "./state";
 import { createGame } from "./state";
 import type { World } from "./world";
 import { CONFIG } from "../data/config";
-import { isEmployed, isFed, shouldBeFired, shouldBeEvicted } from "./checks";
+import { isEmployed, isFed, shouldBeFired, shouldBeEvicted, ownsFridge } from "./checks";
 import { accrueInterest, checkPromotion, decayHappiness } from "./economy";
 import { makeRng } from "./rng";
 import { nextIndex } from "./economyIndex";
@@ -50,22 +50,48 @@ export function startTurn(state: GameState, world: World): GameState {
   const you = state.players[state.current];
   const news: string[] = [];
   let time = CONFIG.weeklyTimeBudget;
+  let cash = you.cash;
+  let debt = you.debt;
+  let sickWeeks = you.sickWeeks;
 
-  // You have to eat — a fresh meal, or cook one from your frozen stock; else go hungry.
+  // You have to eat — a fresh meal, or cook one from your frozen stock; else go
+  // hungry. Frozen groceries only keep if you own a fridge: with no fridge they
+  // spoil, and eating one gives you food poisoning (a doctor's bill + sickness).
   let mealsStocked = you.mealsStocked;
   let fed = isFed(you);
-  if (!fed && mealsStocked > 0) {
+  if (mealsStocked > 0 && !ownsFridge(you)) {
+    if (!fed) {
+      fed = true;                          // you ate the spoiled burger…
+      sickWeeks = CONFIG.sicknessWeeks;    // …and it made you sick
+      const paid = Math.min(cash, CONFIG.doctorBill);
+      cash -= paid;
+      debt += CONFIG.doctorBill - paid;    // can't cover it → you owe the doctor
+      news.push(`🤢 No fridge — your frozen burger spoiled and made you sick. Doctor's bill $${CONFIG.doctorBill}.`);
+    } else {
+      news.push("Your frozen burgers spoiled without a fridge — buy one to keep them.");
+    }
+    mealsStocked = 0; // nothing keeps without a fridge
+  } else if (!fed && mealsStocked > 0) {
     mealsStocked -= 1;
     fed = true;
     news.push("You cooked a frozen Frosty Burger.");
   }
-  if (!fed) {
-    news.push("You have to eat! Lost 5 time this week.");
+
+  // Sickness or hunger docks your time for the week — sickness supersedes hunger.
+  let sick = false;
+  let hungry = false;
+  if (sickWeeks > 0) {
+    time -= CONFIG.sicknessTimePenalty;
+    sick = true;
+    sickWeeks -= 1; // a week of recovery
+    news.push(`🤒 You're under the weather — lost ${CONFIG.sicknessTimePenalty} time this week.`);
+  } else if (!fed) {
+    hungry = true;
     time -= CONFIG.hungerTimePenalty;
+    news.push("You have to eat! Lost 5 time this week.");
   }
 
   // Lottery: a ticket bought last turn is drawn now.
-  let cash = you.cash;
   let lotteryTicket = you.lotteryTicket;
   if (lotteryTicket) {
     const draw = makeRng(state.seed + state.week * 97 + 7);
@@ -111,8 +137,11 @@ export function startTurn(state: GameState, world: World): GameState {
     ...you,
     position: home,
     cash,
+    debt,
     timeLeft: time,
-    hungry: !fed,
+    hungry,
+    sick,
+    sickWeeks,
     ateThisWeek: false,
     workedThisWeek: false,
     mealsStocked,

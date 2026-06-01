@@ -30,6 +30,7 @@
     {#if player.ateThisWeek}<span class="chip fed" title="You've eaten this week — no hunger penalty next week.">🍽️ <b>fed</b></span>{/if}
     {#if player.mealsStocked > 0}<span class="chip frozen" title="Frozen meals on hand — one is cooked automatically each week.">🧊 <b>{player.mealsStocked}</b></span>{/if}
     {#if !isClothed(player)}<span class="chip rags" title="Your clothes are worn out — buy new ones before you can work or study.">👕 <b>rags</b></span>{/if}
+    {#if player.sick}<span class="chip sick" title="Food poisoning — time is docked while you recover. Buy a fridge to keep frozen food fresh.">🤒 <b>sick</b></span>{/if}
   </div>
   <div class="stats">
     {#each stats as s (s.key)}
@@ -53,6 +54,7 @@
   .chip.rags { background: #f3ecdb; } .chip.rags b { color: #b8860b; }
   .chip.fed { background: #eaf6ea; } .chip.fed b { color: #2e8b3d; }
   .chip.frozen { background: #e8f0fb; } .chip.frozen b { color: #3a6ea5; }
+  .chip.sick { background: #ece6f3; } .chip.sick b { color: #7a4fb0; }
   .stats { display: flex; gap: 6px; }
   .stat { flex: 1; background: #fff; border-radius: 6px; padding: 4px 6px; }
   .lbl { font-size: clamp(8px, 0.9vw, 12px); color: #555; display: flex; justify-content: space-between; }

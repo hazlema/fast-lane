@@ -27,6 +27,9 @@ export const isFed = (p: Player): boolean => p.ateThisWeek;
 /** Are your clothes still wearable? (past CONFIG.clothingLastsWeeks → in rags) */
 export const isClothed = (p: Player): boolean => p.clothingWear < CONFIG.clothingLastsWeeks;
 
+/** Are you sick this week? (food poisoning from spoiled groceries — docks time) */
+export const isSick = (p: Player): boolean => p.sickWeeks > 0;
+
 /** Can you cover a cash cost right now? */
 export const canAfford = (p: Player, cost: number): boolean => p.cash >= cost;
 

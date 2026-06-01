@@ -1,7 +1,7 @@
 // game/engine/checks.test.ts
 import { test, expect } from "bun:test";
 import { createGame } from "../state";
-import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired, isMuggerSafe, ownsFridge, isPawnable } from "../checks";
+import { isEmployed, isFed, canAfford, missingDegrees, isQualifiedFor, hasOpening, hasGoodWorkHistory, shouldBeFired, isMuggerSafe, ownsFridge, isPawnable, isSick } from "../checks";
 import { JOBS } from "../../data/jobs";
 import { ITEMS } from "../../data/items";
 import { CONFIG } from "../../data/config";
@@ -35,6 +35,11 @@ test("isMuggerSafe only in High Security (6d mugger hook)", () => {
 test("ownsFridge reflects fridge in inventory (6d spoilage hook)", () => {
   expect(ownsFridge(player({ inventory: ["fridge"] }))).toBe(true);
   expect(ownsFridge(player({ inventory: ["tv"] }))).toBe(false);
+});
+
+test("isSick reflects sickWeeks remaining", () => {
+  expect(isSick(player({ sickWeeks: 2 }))).toBe(true);
+  expect(isSick(player({ sickWeeks: 0 }))).toBe(false);
 });
 
 test("isPawnable accepts durables, rejects food/tickets/frozen packs", () => {

@@ -23,6 +23,8 @@ export interface Player {
   dependability: number;            // reliability record; rises with work, gates hiring
   ateThisWeek: boolean;             // bought a meal this week? (else a hunger time penalty next week)
   hungry: boolean;                  // is THIS week docked because you didn't eat last week?
+  sick: boolean;                    // is THIS week docked by sickness? (HUD chip)
+  sickWeeks: number;                // weeks of sickness remaining (food poisoning) — docks time
   workedThisWeek: boolean;          // worked a shift this week? (attendance)
   weeksSinceWorked: number;         // consecutive weeks employed-but-absent → poor work history → fired
   clothingWear: number;             // weeks your clothes have been worn; past CONFIG.clothingLastsWeeks → in rags
@@ -82,6 +84,8 @@ export function createGame(opts: {
     dependability: 0,
     ateThisWeek: true, // starting item: a meal that satisfies the first preflight; after that you must eat
     hungry: false,     // not docked going in
+    sick: false,       // not sick this week
+    sickWeeks: 0,      // healthy to start
     workedThisWeek: false,
     weeksSinceWorked: 0,
     clothingWear: 0, // you start decently dressed

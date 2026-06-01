@@ -21,6 +21,9 @@ export const CONFIG = {
   applyJobTimeCost: 1,         // time units to apply for a job
   noOpeningChance: 0.3,        // chance a qualified application finds no opening (entry jobs always hire)
   hungerTimePenalty: 5,        // time units lost next week if you didn't eat this week
+  sicknessTimePenalty: 8,      // time units lost each week you're sick (supersedes hunger)
+  sicknessWeeks: 2,            // weeks a bout of food-poisoning sickness lasts
+  doctorBill: 50,              // auto-charged when you fall sick (cash first, remainder → debt)
   maxWeeksAbsent: 1,           // consecutive weeks you can skip work before your record turns "poor" (blocks new hires)
   fireAfterWeeks: 4,           // skip more than this many weeks in a row → your boss fires you
   evictAfterWeeks: 3,          // weeks rent can stay overdue before you're evicted (game over)

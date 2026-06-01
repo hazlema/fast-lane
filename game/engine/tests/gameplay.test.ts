@@ -99,14 +99,38 @@ test("with Trade School + Pre-Engineering done, you CAN enroll in Engineering", 
 
 // — Try and Save: groceries, newspaper, lottery —————————————————————————
 
-test("a frozen 8-pack keeps you fed for weeks without buying again", () => {
-  let g = start({ cash: 999 }, "tryandsave");
+test("with a fridge, a frozen 8-pack keeps you fed for weeks without buying again", () => {
+  let g = start({ cash: 999, inventory: ["fridge"] }, "tryandsave"); // fridge keeps them fresh
   g = act(g, { type: "buy", item: "burger8" }).state;
   expect(you(g).mealsStocked).toBe(8);
   g = act(g, { type: "endWeek" }).state; // no fresh meal → cook a frozen one
   expect(you(g).hungry).toBe(false);
+  expect(you(g).sick).toBe(false);
   expect(you(g).mealsStocked).toBe(7);
   expect(g.log.some((e) => /cooked a frozen/i.test(e.text))).toBe(true); // the flavor we love
+});
+
+test("without a fridge, frozen burgers spoil and give you food poisoning + a bill", () => {
+  let g = start({ cash: 999 }, "tryandsave"); // no fridge
+  g = act(g, { type: "buy", item: "burger8" }).state;
+  const cashBefore = you(g).cash;
+  g = act(g, { type: "endWeek" }).state; // spoils → sick → doctor bill
+  expect(you(g).mealsStocked).toBe(0);          // nothing keeps without a fridge
+  expect(you(g).sick).toBe(true);
+  expect(you(g).sickWeeks).toBeGreaterThan(0);
+  expect(you(g).cash).toBe(cashBefore - CONFIG.doctorBill); // doctor billed
+  expect(g.log.some((e) => /spoiled|sick/i.test(e.text))).toBe(true);
+});
+
+test("sickness docks time, then you recover after sicknessWeeks", () => {
+  // sick going in; a fridge + stock keeps you fed so ONLY sickness docks time.
+  let g = start({ sickWeeks: CONFIG.sicknessWeeks, inventory: ["fridge"], mealsStocked: 5 }, "lowcost");
+  g = act(g, { type: "endWeek" }).state; // first recovery week
+  expect(you(g).sick).toBe(true);
+  expect(you(g).timeLeft).toBe(CONFIG.weeklyTimeBudget - CONFIG.sicknessTimePenalty);
+  for (let i = 0; i < CONFIG.sicknessWeeks; i++) g = act(g, { type: "endWeek" }).state;
+  expect(you(g).sick).toBe(false);
+  expect(you(g).sickWeeks).toBe(0);
 });
 
 test("a newspaper lifts happiness and prints a headline", () => {
@@ -208,7 +232,7 @@ test("the pawn shop will NOT buy food", () => {
 });
 
 test("Electronics sells a fridge — the 6d spoilage hook", () => {
-  let g = start({ cash: 999 }, "electronics");
+  let g = start({ cash: 9999 }, "electronics");
   g = act(g, { type: "buy", item: "fridge" }).state;
   expect(you(g).inventory).toContain("fridge");
 });
