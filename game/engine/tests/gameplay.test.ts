@@ -263,6 +263,23 @@ test("living in High Security means you're never mugged", () => {
   expect(g.log.some((e) => e.text.startsWith("🚨"))).toBe(false);
 });
 
+// — Computer side-income ———————————————————————————————————————————————
+
+test("a computer earns passive income each week", () => {
+  let g = start({ inventory: ["computer"], housingId: null }, "lowcost"); // no rent noise
+  const cashBefore = you(g).cash;
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).cash).toBe(cashBefore + CONFIG.computerIncome);
+  expect(g.log.some((e) => /computer brought in/i.test(e.text))).toBe(true);
+});
+
+test("no computer, no passive income", () => {
+  let g = start({ housingId: null }, "lowcost");
+  const cashBefore = you(g).cash;
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).cash).toBe(cashBefore); // unchanged (no interest/income sources)
+});
+
 // — Economic crisis ————————————————————————————————————————————————————
 
 test("a deep economic crisis hits the employed (layoff or pay-cut)", () => {

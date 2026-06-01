@@ -49,6 +49,7 @@ export const CONFIG = {
   crisisHighBand: 1.5,         // index at/above this = a runaway-inflation crisis
   crisisLayoffChance: 0.25,    // base weekly layoff odds in a crisis (÷ job tier — good jobs rarely fired)
   crisisPayCutChance: 0.5,     // weekly odds of a pay-cut (demotion) in a crisis, if not laid off
+  computerIncome: 30,          // passive cash a computer earns each week (a home business)
   promotionExperience: 5,      // work shifts of experience needed per promotion
   educationPerCareerLevel: 20, // education required to reach each next career level
   studySessionsToGraduate: 30, // study visits to finish a degree (school is a long grind; each study = 1 unit, spans weeks)

@@ -50,6 +50,9 @@ export const isMuggerSafe = (p: Player): boolean => p.housingId === "highsec";
 /** Own a refrigerator? Lets frozen groceries keep — the (6d) spoilage hook. */
 export const ownsFridge = (p: Player): boolean => p.inventory.includes("fridge");
 
+/** Own a computer? Earns a little passive weekly income (a home business). */
+export const ownsComputer = (p: Player): boolean => p.inventory.includes("computer");
+
 /** Will the pawn shop buy this back? Durable goods only — not food/tickets/frozen packs. */
 export const isPawnable = (item: Item): boolean => !item.food && !item.lottery && item.meals === 0;
 

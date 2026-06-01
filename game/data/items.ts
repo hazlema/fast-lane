@@ -14,16 +14,17 @@ export interface Item {
 }
 
 export const ITEMS: Record<ItemId, Item> = {
-  burger:    { id: "burger",    name: "Frosty Burger",        cost: 8,   timeCost: 1, happinessGain: 6,  clothing: false, food: true,  meals: 0, lottery: false },
-  burger8:   { id: "burger8",   name: "Frozen Burger 8-Pack", cost: 40,  timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 8, lottery: false },
-  newspaper: { id: "newspaper", name: "Daily Newspaper",      cost: 1,   timeCost: 1, happinessGain: 2,  clothing: false, food: false, meals: 0, lottery: false },
+  burger:    { id: "burger",    name: "Frosty Burger",        cost: 10,   timeCost: 1, happinessGain: 6,  clothing: false, food: true,  meals: 0, lottery: false },
+  burger8:   { id: "burger8",   name: "Frozen Burger 8-Pack", cost: 50,  timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 8, lottery: false },
+  newspaper: { id: "newspaper", name: "Daily Newspaper",      cost: 5,   timeCost: 1, happinessGain: 2,  clothing: false, food: false, meals: 0, lottery: false },
   lottery:   { id: "lottery",   name: "Lottery Ticket",       cost: 10,  timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: true  },
-  tv:        { id: "tv",        name: "Television",           cost: 300, timeCost: 1, happinessGain: 25, clothing: false, food: false, meals: 0, lottery: false },
-  tv_used:   { id: "tv_used",   name: "Used Television",      cost: 150, timeCost: 1, happinessGain: 12, clothing: false, food: false, meals: 0, lottery: false },
-  stereo:    { id: "stereo",    name: "Stereo",               cost: 120, timeCost: 1, happinessGain: 10, clothing: false, food: false, meals: 0, lottery: false },
-  fridge:    { id: "fridge",    name: "Refrigerator",         cost: 250, timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: false },
-  suit:      { id: "suit",      name: "Business Suit",        cost: 200, timeCost: 1, happinessGain: 5,  clothing: true,  food: false, meals: 0, lottery: false },
-  casual:    { id: "casual",    name: "Casual Clothes",       cost: 80,  timeCost: 1, happinessGain: 1,  clothing: true,  food: false, meals: 0, lottery: false },
+  tv:        { id: "tv",        name: "Television",           cost: 500, timeCost: 1, happinessGain: 25, clothing: false, food: false, meals: 0, lottery: false },
+  tv_used:   { id: "tv_used",   name: "Used Television",      cost: 250, timeCost: 1, happinessGain: 12, clothing: false, food: false, meals: 0, lottery: false },
+  stereo:    { id: "stereo",    name: "Stereo",               cost: 1000, timeCost: 1, happinessGain: 10, clothing: false, food: false, meals: 0, lottery: false },
+  fridge:    { id: "fridge",    name: "Refrigerator",         cost: 2000, timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: false },
+  computer:  { id: "computer",  name: "Computer",             cost: 2500, timeCost: 1, happinessGain: 15, clothing: false, food: false, meals: 0, lottery: false },
+  suit:      { id: "suit",      name: "Business Suit",        cost: 500, timeCost: 1, happinessGain: 5,  clothing: true,  food: false, meals: 0, lottery: false },
+  casual:    { id: "casual",    name: "Casual Clothes",       cost: 100,  timeCost: 1, happinessGain: 1,  clothing: true,  food: false, meals: 0, lottery: false },
 };
 
 // Flavor headlines printed when you buy a newspaper. Pure fun.
