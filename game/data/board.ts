@@ -30,7 +30,7 @@ export const testRing: BoardGraph = {
 export const BOARD: BoardGraph = {
   nodes: [
     "highsec", "rentoffice", "lowcost", "pawn", "discount", "frosty", "offrack",
-    "electronics", "university", "employment", "factory", "bank", "tryandsave",
+    "electronics", "university", "dealership", "employment", "factory", "bank", "tryandsave",
   ],
 };
 
@@ -67,6 +67,7 @@ export const NODE_XY: Record<NodeId, { x: number; y: number }> = {
   offrack: { x: 2058, y: 1373 },
   electronics: { x: 2058, y: 1825 },
   university: { x: 1613, y: 1825 },
+  dealership: { x: 1133, y: 1826 },
   employment: { x: 787, y: 1825 },
   factory: { x: 293, y: 1825 },
   bank: { x: 239, y: 1375 },

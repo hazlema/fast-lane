@@ -23,17 +23,17 @@ test("hopsBetween throws on unknown node", () => {
   expect(() => hopsBetween(testRing, "n0", "nope")).toThrow();
 });
 
-test("BOARD is a 13-node ring in clockwise order", () => {
+test("BOARD is a 14-node ring in clockwise order", () => {
   expect(BOARD.nodes).toEqual([
     "highsec", "rentoffice", "lowcost", "pawn", "discount", "frosty", "offrack",
-    "electronics", "university", "employment", "factory", "bank", "tryandsave",
+    "electronics", "university", "dealership", "employment", "factory", "bank", "tryandsave",
   ]);
 });
 
-test("hopsBetween works on the real board (shorter way around 13 nodes)", () => {
+test("hopsBetween works on the real board (shorter way around 14 nodes)", () => {
   expect(hopsBetween(BOARD, "highsec", "rentoffice")).toBe(1);
   expect(hopsBetween(BOARD, "highsec", "tryandsave")).toBe(1); // wraps backward
-  expect(hopsBetween(BOARD, "highsec", "electronics")).toBe(6); // 7 fwd vs 6 back
+  expect(hopsBetween(BOARD, "highsec", "electronics")).toBe(7); // 7 fwd vs 7 back (tie)
 });
 
 test("NODE_XY has a coordinate for every board node, within the board", () => {

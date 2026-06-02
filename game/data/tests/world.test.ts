@@ -4,9 +4,9 @@ import { makeWorld, WORLD, TEST_WORLD } from "../world";
 import { BOARD, testRing } from "../board";
 import { TEST_BUILDINGS } from "../buildings";
 
-test("WORLD uses the real 13-node board", () => {
-  expect(WORLD.graph.nodes.length).toBe(13);
-  expect(WORLD.buildings.length).toBe(13);
+test("WORLD uses the real 14-node board", () => {
+  expect(WORLD.graph.nodes.length).toBe(14);
+  expect(WORLD.buildings.length).toBe(14);
 });
 
 test("TEST_WORLD uses the testRing fixture", () => {

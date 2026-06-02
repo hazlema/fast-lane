@@ -52,6 +52,8 @@ export const BUILDINGS: Building[] = [
     services: [{ kind: "bank" }, { kind: "workplace" }] },
   { id: "tryandsave", name: "Try and Save", hitBoxId: "Try-and-Save", node: "tryandsave",
     services: [{ kind: "workplace" }, { kind: "shop", itemIds: ["burger8", "newspaper", "lottery"] }] },
+  { id: "dealership", name: "Tesla Dealership", hitBoxId: "Tesla-Dealership", node: "dealership",
+    services: [{ kind: "shop", itemIds: ["tesla"] }] },
 ];
 
 // Small fixture wired to testRing (n0..n5) for engine unit tests.

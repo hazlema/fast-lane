@@ -303,6 +303,18 @@ test("without a Tesla, travel still costs time", () => {
   expect(you(g).timeLeft).toBeLessThan(t);
 });
 
+test("the Tesla dealership sells a Tesla to a well-paid worker", () => {
+  let g = start({ jobId: "broker", cash: 9999 }, "dealership"); // broker pays well
+  g = act(g, { type: "buy", item: "tesla" }).state;
+  expect(you(g).inventory).toContain("tesla");
+});
+
+test("the dealership won't finance a burger flipper", () => {
+  const r = act(start({ jobId: "cook", cash: 9999 }, "dealership"), { type: "buy", item: "tesla" });
+  expect(r.ok).toBe(false);
+  expect(r.reason).toMatch(/job|finance/i);
+});
+
 test("a Tesla earns weekend robotaxi income", () => {
   let g = start({ inventory: ["tesla"], housingId: null }, "lowcost"); // no rent noise
   const cash = you(g).cash;
