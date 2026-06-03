@@ -1,11 +1,9 @@
 {
   "scripts": {
-    "dev": "bun --watch tools/index.ts",
-    "start": "bun tools/index.ts",
+    "dev": "vite",
     "batch": "bun tools/batch.ts",
     "export": "bun tools/export-layout.ts",
     "test": "bun test",
-    "ui:dev": "vite",
     "ui:build": "vite build",
     "ui:check": "svelte-check --tsconfig ./game/ui/tsconfig.json",
     "test:logic": "bun test game/engine/tests/gameplay.test.ts",
