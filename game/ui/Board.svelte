@@ -36,7 +36,14 @@
 </div>
 
 <style>
-  .board { position: absolute; inset: 0; }
+  .board {
+    position: absolute;
+    inset: 0;
+    border: 2px solid #2a2a2a;
+    border-radius: 18px;
+    overflow: hidden; /* clip the artwork to the rounded corners */
+    box-shadow: 0 16px 40px #000a;
+  }
   .board :global(svg) { width: 100%; height: 100%; display: block; }
   /* Hide the faint waypoint diamonds in-game (they're a dev aid). */
   .board :global(#Waypoints) { display: none; }
