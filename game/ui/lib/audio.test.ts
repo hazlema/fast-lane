@@ -142,3 +142,19 @@ test("the travel track is preloaded at construction but not played", () => {
   expect(el("travel")!.playCount).toBe(0); // but not playing yet
   void mgr; // constructed is enough
 });
+
+test("getVolume reflects setVolume", () => {
+  const { mgr } = makeManager();
+  expect(mgr.getVolume()).toBe(1); // default
+  mgr.setVolume(0.4);
+  expect(mgr.getVolume()).toBe(0.4);
+});
+
+test("isMuted reflects mute and toggleMute", () => {
+  const { mgr } = makeManager();
+  expect(mgr.isMuted()).toBe(false); // default
+  mgr.mute(true);
+  expect(mgr.isMuted()).toBe(true);
+  mgr.toggleMute();
+  expect(mgr.isMuted()).toBe(false);
+});

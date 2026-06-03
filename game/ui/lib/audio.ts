@@ -85,6 +85,16 @@ export class AudioManager {
     this.mute(!this.muted);
   }
 
+  /** Current master volume, 0..1. */
+  getVolume(): number {
+    return this.vol;
+  }
+
+  /** Whether audio is currently muted. */
+  isMuted(): boolean {
+    return this.muted;
+  }
+
   private applyVolume(): void {
     const el = this.currentEl();
     if (el) el.volume = this.muted ? 0 : this.vol;
