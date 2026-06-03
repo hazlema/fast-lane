@@ -27,21 +27,16 @@ async function servePng(dir: string, pathname: string) {
   return new Response(file, { headers: { "content-type": "image/png" } });
 }
 
-Bun.serve({
-  port: 3000,
-  // Long-running batch streams; don't time the request out.
-  idleTimeout: 255,
-
-  async fetch(req) {
+export async function handleToolsRequest(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
 
-    // Layout is the default page.
-    if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/layout")) {
+    // Asset Foundry / layout editor.
+    if (req.method === "GET" && url.pathname === "/tools") {
       return serveHtml();
     }
 
     // SVG structure tester: renders board.svg with overlays + validates it against game data.
-    if (req.method === "GET" && url.pathname === "/svg-check") {
+    if (req.method === "GET" && url.pathname === "/validate") {
       return new Response(Bun.file(path.join(ROOT, "svg-check.html")), {
         headers: { "content-type": "text/html; charset=utf-8" }
       });
@@ -231,8 +226,18 @@ Bun.serve({
       return Response.json({ ok: true, imageUrl: `/generated/cropped/${filename}` });
     }
 
-    return new Response("Not found", { status: 404 });
-  }
-});
+    // Not a tools route — let the caller (Vite) handle it.
+    return null;
+}
 
-console.log("Asset Foundry running at http://localhost:3000");
+// Allow running this file directly as a standalone server (not used by `bun run dev`).
+if (import.meta.main) {
+  Bun.serve({
+    port: 3000,
+    idleTimeout: 255,
+    async fetch(req) {
+      return (await handleToolsRequest(req)) ?? new Response("Not found", { status: 404 });
+    }
+  });
+  console.log("Asset Foundry (standalone) running at http://localhost:3000");
+}

@@ -7,3 +7,5 @@ tools/generated/
 *.af~*
 .playwright-mcp/
 dist/
+/tools/*
+!/tools/*.ts
