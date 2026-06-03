@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "vite",
+    "dev": "bun --bun vite",
     "batch": "bun tools/batch.ts",
     "export": "bun tools/export-layout.ts",
     "test": "bun test",

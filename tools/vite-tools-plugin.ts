@@ -1,6 +1,9 @@
 import type { Plugin } from "vite";
 import type { IncomingMessage, ServerResponse } from "node:http";
-import { handleToolsRequest } from "./index";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+type ToolsHandler = (req: Request) => Promise<Response | null>;
 
 /** Convert a Node IncomingMessage into a web Request (buffering any body). */
 export async function toWebRequest(req: IncomingMessage): Promise<Request> {
@@ -43,9 +46,18 @@ export function toolsServer(): Plugin {
   return {
     name: "tools-server",
     configureServer(server) {
+      // Lazily load the handler at runtime. A static `import` would force Vite's
+      // config bundler to compile the whole tools/openai chain (top-level await,
+      // Bun-only `import.meta.dir`) to CJS, which fails. A computed dynamic import
+      // stays a runtime import, so the config bundler never touches that chain.
+      const handlerPromise: Promise<ToolsHandler> = import(
+        pathToFileURL(path.resolve(process.cwd(), "tools/index.ts")).href
+      ).then((m) => m.handleToolsRequest as ToolsHandler);
+
       // Registered directly so it runs before Vite's SPA fallback.
       server.middlewares.use(async (req, res, next) => {
         try {
+          const handleToolsRequest = await handlerPromise;
           const request = await toWebRequest(req as IncomingMessage);
           const response = await handleToolsRequest(request);
           if (!response) { next(); return; }
