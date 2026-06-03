@@ -3,6 +3,7 @@
   import Board from "./Board.svelte";
   import DialogPanel from "./DialogPanel.svelte";
   import Feedback from "./Feedback.svelte";
+  import Splash from "./Splash.svelte";
   import EscapeMenu from "./EscapeMenu.svelte";
   import { audio } from "./lib/sound";
   import { menuStore } from "./stores/menu.svelte";
@@ -23,6 +24,7 @@
     <Board />
     <div class="panel"><DialogPanel /></div>
     <Feedback />
+    <Splash />
     {#if menuStore.open}<EscapeMenu />{/if}
   </div>
 </main>

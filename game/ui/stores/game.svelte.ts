@@ -39,6 +39,10 @@ type Notice = { id: number; tone: NoticeTone; title: string; text: string };
 let notice = $state<Notice | null>(null);
 let noticeSeq = 0;
 
+// Week-end interstitial art queue (sprite keys, e.g. "doctor", "rent").
+// Splash.svelte drains it, showing each sprite for a few seconds.
+let splashes = $state<string[]>([]);
+
 // Road path + per-node offsets, attached by Board.svelte once the SVG mounts.
 let roadPath: SVGPathElement | null = null;
 let roadLen = 0;
@@ -65,9 +69,17 @@ export const gameStore = {
   get economyIndex(): number { return game.economyIndex; },
   get month(): number { return monthOf(game.week); },
   get notice(): Notice | null { return notice; },
+  get splashes(): string[] { return splashes; },
 
   // Raise a transient bit of feedback for the overlay to show.
   pushNotice(tone: NoticeTone, text: string, title = ""): void { notice = { id: ++noticeSeq, tone, text, title }; },
+
+  // Splash.svelte takes the next queued week-end sprite (undefined when empty).
+  shiftSplash(): string | undefined {
+    const [head, ...rest] = splashes;
+    splashes = rest;
+    return head;
+  },
 
   // Buy an item and show feedback: a toast for ordinary purchases, the headline
   // popup for a newspaper.
@@ -193,6 +205,12 @@ export const gameStore = {
       audio.play("weekend"); // weekend-over song, loops until the next track
       // Surface a weekend event / falling sick as a popup.
       if (game.phase === "playing") {
+        // Interstitial art: a doctor visit (food poisoning this weekend) and/or
+        // the rent reminder, each flashed over the stage for a few seconds.
+        const queue: string[] = [];
+        if (game.log.some((e) => e.week === game.week && e.text.startsWith("🤢"))) queue.push("doctor");
+        if (this.player.rentDue > 0) queue.push("rent");
+        splashes = queue;
         const ev = [...game.log].reverse().find((e) => e.week === game.week && /^[🚨🎵💰🤢🏭📉]/u.test(e.text));
         if (ev) {
           const good = ev.text.startsWith("🎵") || ev.text.startsWith("💰");
