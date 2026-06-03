@@ -19,9 +19,11 @@ import dealershipUrl from "../../../assets/sound/tesla_dealership.mp3?url";
 import pawnUrl from "../../../assets/sound/pawn_shop.mp3?url";
 import discountUrl from "../../../assets/sound/discount_store.mp3?url";
 import offrackUrl from "../../../assets/sound/off_the_rack.mp3?url";
+import weekendUrl from "../../../assets/sound/weekend_over.mp3?url";
 
-// Manifest keys are `theme`, `travel`, and building ids (node id === building
-// id). Buildings absent here fall back to the theme until their track exists.
+// Manifest keys are `theme`, `travel`, `weekend` (played after the week ends),
+// and building ids (node id === building id). Buildings absent here fall back
+// to the theme until their track exists.
 const manifest: Record<string, string> = {
   theme: themeUrl,
   travel: travelUrl,
@@ -39,6 +41,7 @@ const manifest: Record<string, string> = {
   pawn: pawnUrl,
   discount: discountUrl,
   offrack: offrackUrl,
+  weekend: weekendUrl,
 };
 
 export const audio = new AudioManager(manifest);
