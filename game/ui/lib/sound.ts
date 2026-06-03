@@ -16,6 +16,9 @@ import lowcostUrl from "../../../assets/sound/low_security.mp3?url";
 import universityUrl from "../../../assets/sound/university.mp3?url";
 import factoryUrl from "../../../assets/sound/factory.mp3?url";
 import dealershipUrl from "../../../assets/sound/tesla_dealership.mp3?url";
+import pawnUrl from "../../../assets/sound/pawn_shop.mp3?url";
+import discountUrl from "../../../assets/sound/discount_store.mp3?url";
+import offrackUrl from "../../../assets/sound/off_the_rack.mp3?url";
 
 // Manifest keys are `theme`, `travel`, and building ids (node id === building
 // id). Buildings absent here fall back to the theme until their track exists.
@@ -33,6 +36,9 @@ const manifest: Record<string, string> = {
   university: universityUrl,
   factory: factoryUrl,
   dealership: dealershipUrl,
+  pawn: pawnUrl,
+  discount: discountUrl,
+  offrack: offrackUrl,
 };
 
 export const audio = new AudioManager(manifest);
