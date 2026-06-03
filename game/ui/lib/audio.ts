@@ -46,6 +46,7 @@ export class AudioManager {
     this.factory = opts.factory ?? ((src) => new Audio(src) as unknown as SoundEl);
     this.store = opts.storage ?? (typeof localStorage !== "undefined" ? localStorage : null);
     this.fadeMs = opts.fadeMs ?? 60;
+    this.load();
   }
 
   /** Play the looping track for `key` (theme | building id). No-op if already current. */
@@ -60,6 +61,42 @@ export class AudioManager {
   /** Convenience: the traveling loop. */
   playTravel(): void {
     this.play("travel");
+  }
+
+  /** Master volume, 0..1. */
+  setVolume(v: number): void {
+    this.vol = Math.max(0, Math.min(1, v));
+    this.applyVolume();
+    this.persist();
+  }
+
+  mute(on: boolean): void {
+    this.muted = on;
+    this.applyVolume();
+    this.persist();
+  }
+
+  toggleMute(): void {
+    this.mute(!this.muted);
+  }
+
+  private applyVolume(): void {
+    const el = this.currentEl();
+    if (el) el.volume = this.muted ? 0 : this.vol;
+  }
+
+  private persist(): void {
+    this.store?.setItem(PERSIST_KEY, JSON.stringify({ vol: this.vol, muted: this.muted }));
+  }
+
+  private load(): void {
+    const raw = this.store?.getItem(PERSIST_KEY);
+    if (!raw) return;
+    try {
+      const { vol, muted } = JSON.parse(raw);
+      if (typeof vol === "number") this.vol = vol;
+      if (typeof muted === "boolean") this.muted = muted;
+    } catch { /* ignore corrupt persisted audio settings */ }
   }
 
   /** Fade out and go silent. */
