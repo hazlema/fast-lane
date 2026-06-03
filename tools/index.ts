@@ -30,8 +30,14 @@ async function servePng(dir: string, pathname: string) {
 export async function handleToolsRequest(req: Request): Promise<Response | null> {
     const url = new URL(req.url);
 
-    // Asset Foundry / layout editor.
+    // Asset Foundry / layout editor. Generation needs an OpenAI key, so gate
+    // the page behind a friendly notice when it's missing.
     if (req.method === "GET" && url.pathname === "/tools") {
+      if (!process.env.OPENAI_API_KEY) {
+        return new Response(Bun.file(path.join(ROOT, "no-api-key.html")), {
+          headers: { "content-type": "text/html; charset=utf-8" }
+        });
+      }
       return serveHtml();
     }
 

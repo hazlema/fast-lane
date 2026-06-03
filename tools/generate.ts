@@ -2,9 +2,19 @@ import OpenAI from "openai";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Construct the client lazily so this module imports fine without a key — the
+// OpenAI SDK throws at construction when OPENAI_API_KEY is missing. Only the
+// generation path needs it; the /tools route shows a friendly notice instead.
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not set — add it to .env");
+    }
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
+}
 
 const ROOT = import.meta.dir;
 export const SOURCE_DIR = path.join(ROOT, "generated", "source");
@@ -130,7 +140,7 @@ export async function generateAsset(input: GenerateInput): Promise<GenerateResul
 
   console.log(`Model ${model}, Size: ${size}, BG: ${bg}\nPrompt: ${prompt}`);
 
-  const result = await openai.images.generate({
+  const result = await getOpenAI().images.generate({
     model,
     prompt,
     size,
