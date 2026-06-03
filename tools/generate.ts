@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "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"
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 const ROOT = import.meta.dir;
