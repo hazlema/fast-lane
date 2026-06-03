@@ -3,11 +3,11 @@ node_modules/
 .env
 .env.local
 tools/generated/
+*.backup
+
 # Affinity editor artifacts
 *~lock~
 ~$*
 *.af~*
 .playwright-mcp/
 dist/
-/tools/*
-!/tools/*.ts
