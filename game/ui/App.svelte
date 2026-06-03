@@ -3,11 +3,19 @@
   import Board from "./Board.svelte";
   import DialogPanel from "./DialogPanel.svelte";
   import Feedback from "./Feedback.svelte";
+  import EscapeMenu from "./EscapeMenu.svelte";
   import { audio } from "./lib/sound";
+  import { menuStore } from "./stores/menu.svelte";
 
-  // The main theme is the first thing heard; if the browser blocks autoplay
-  // here, AudioManager retries on the player's first interaction.
-  onMount(() => audio.play("theme"));
+  onMount(() => {
+    // The main theme is the first thing heard; if the browser blocks autoplay
+    // here, AudioManager retries on the player's first interaction.
+    audio.play("theme");
+    // Escape toggles the settings overlay from anywhere.
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") menuStore.toggle(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 </script>
 
 <main>
@@ -15,6 +23,7 @@
     <Board />
     <div class="panel"><DialogPanel /></div>
     <Feedback />
+    {#if menuStore.open}<EscapeMenu />{/if}
   </div>
 </main>
 
