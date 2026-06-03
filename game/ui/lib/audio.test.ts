@@ -135,3 +135,10 @@ test("a blocked first play retries on unlock()", async () => {
   await flush();
   expect(theme().playCount).toBe(2);
 });
+
+test("the travel track is preloaded at construction but not played", () => {
+  const { mgr, el } = makeManager();
+  expect(el("travel")).toBeDefined();   // element created eagerly
+  expect(el("travel")!.playCount).toBe(0); // but not playing yet
+  void mgr; // constructed is enough
+});

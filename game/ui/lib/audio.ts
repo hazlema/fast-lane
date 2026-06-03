@@ -50,6 +50,8 @@ export class AudioManager {
     this.store = opts.storage ?? (typeof localStorage !== "undefined" ? localStorage : null);
     this.fadeMs = opts.fadeMs ?? 60;
     this.load();
+    // Travel is used constantly and must be instant — create (load) it now.
+    if (this.manifest.travel) this.el("travel");
   }
 
   /** Play the looping track for `key` (theme | building id). No-op if already current. */
