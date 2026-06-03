@@ -107,3 +107,31 @@ test("a fresh manager restores persisted volume and mute", () => {
   mgr.play("bank"); // muted → volume 0
   expect(els.get("bank.mp3")!.volume).toBe(0);
 });
+
+// Flush microtasks (the play() promise + its .then/.catch) via a macrotask.
+const flush = () => new Promise((r) => setTimeout(r, 0));
+
+test("a blocked first play retries on unlock()", async () => {
+  const els = new Map<string, FakeEl>();
+  const manifest = { theme: "theme.mp3", travel: "travel.mp3", bank: "bank.mp3" };
+  const mgr = new AudioManager(manifest, {
+    fadeMs: 0, storage: new FakeStorage(),
+    factory: (src) => {
+      const el = new FakeEl();
+      if (src === "theme.mp3") el.rejectPlay = true; // browser blocks the first track
+      els.set(src, el);
+      return el;
+    },
+  });
+  const theme = () => els.get("theme.mp3")!;
+
+  mgr.play("theme");
+  await flush();
+  expect(theme().playCount).toBe(1); // attempted once, blocked
+
+  // Player interacts → audio unlocks → pending track retries (now allowed).
+  theme().rejectPlay = false;
+  mgr.unlock();
+  await flush();
+  expect(theme().playCount).toBe(2);
+});

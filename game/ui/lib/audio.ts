@@ -40,6 +40,9 @@ export class AudioManager {
 
   private vol = 1;
   private muted = false;
+  private pendingKey: string | null = null;
+  private unlocked = false;
+  private unlockBound = false;
 
   constructor(manifest: Record<string, string>, opts: AudioOpts = {}) {
     this.manifest = manifest;
@@ -130,7 +133,37 @@ export class AudioManager {
     el.loop = true;
     el.currentTime = 0;
     el.volume = this.muted ? 0 : this.vol;
-    void el.play();
+    el.play().then(() => {
+      this.unlocked = true;
+      this.pendingKey = null;
+    }).catch(() => {
+      // Autoplay blocked (only ever the first track). Remember it and wait
+      // for the first user interaction to retry.
+      this.pendingKey = key;
+      this.bindUnlock();
+    });
+  }
+
+  /** Retry a track that the browser blocked, once the user has interacted. */
+  unlock(): void {
+    if (this.unlocked || !this.pendingKey) return;
+    this.start(this.pendingKey);
+  }
+
+  // Attach one-time interaction listeners that call unlock(). Guarded so the
+  // pure class never touches the DOM under bun test.
+  private bindUnlock(): void {
+    if (this.unlockBound || typeof window === "undefined") return;
+    this.unlockBound = true;
+    const handler = () => {
+      this.unlock();
+      if (this.unlocked) {
+        window.removeEventListener("pointerdown", handler);
+        window.removeEventListener("keydown", handler);
+      }
+    };
+    window.addEventListener("pointerdown", handler);
+    window.addEventListener("keydown", handler);
   }
 
   // Fade the volume to zero then pause, so a track swap doesn't click.
