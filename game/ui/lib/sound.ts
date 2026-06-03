@@ -14,6 +14,7 @@ import rentofficeUrl from "../../../assets/sound/rent_office.mp3?url";
 import highsecUrl from "../../../assets/sound/high_security.mp3?url";
 import lowcostUrl from "../../../assets/sound/low_security.mp3?url";
 import universityUrl from "../../../assets/sound/university.mp3?url";
+import factoryUrl from "../../../assets/sound/factory.mp3?url";
 
 // Manifest keys are `theme`, `travel`, and building ids (node id === building
 // id). Buildings absent here fall back to the theme until their track exists.
@@ -29,6 +30,7 @@ const manifest: Record<string, string> = {
   highsec: highsecUrl,
   lowcost: lowcostUrl,
   university: universityUrl,
+  factory: factoryUrl,
 };
 
 export const audio = new AudioManager(manifest);
