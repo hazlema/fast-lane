@@ -1,7 +1,13 @@
 <script lang="ts">
+  import { onMount } from "svelte";
   import Board from "./Board.svelte";
   import DialogPanel from "./DialogPanel.svelte";
   import Feedback from "./Feedback.svelte";
+  import { audio } from "./lib/sound";
+
+  // The main theme is the first thing heard; if the browser blocks autoplay
+  // here, AudioManager retries on the player's first interaction.
+  onMount(() => audio.play("theme"));
 </script>
 
 <main>

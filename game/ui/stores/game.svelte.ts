@@ -7,6 +7,7 @@ import { NODE_XY, type NodeId } from "../../data/board";
 import { monthOf } from "../../engine/calendar";
 import { CONFIG } from "../../data/config";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
+import { audio } from "../lib/sound";
 
 const START_NODE: NodeId = "lowcost"; // you begin at home (you start renting Low Cost Housing)
 const WALK_MS_PER_HALF = 2200; // time to traverse half the loop; scaled by arc length
@@ -155,6 +156,7 @@ export const gameStore = {
     const from = game.players[game.current].position;
     if (from === node) { this.openBuilding(node); return; }
     if (!this.dispatch({ type: "moveTo", node })) return; // rejected (e.g. no time)
+    audio.playTravel(); // travel music for the duration of the walk
     await this.walkRoad(from, node); // travel first…
     // Spent your last time getting here? End the week on arrival rather than
     // opening a building you can't act in.
@@ -162,7 +164,7 @@ export const gameStore = {
     else this.openBuilding(node); // …otherwise open the building
   },
 
-  openBuilding(node: NodeId): void { screen = node; },
+  openBuilding(node: NodeId): void { screen = node; audio.play(node); },
 
   async walkRoad(from: NodeId, to: NodeId): Promise<void> {
     if (!roadPath || !offsets) { tokenXY = { ...NODE_XY[to] }; return; }
