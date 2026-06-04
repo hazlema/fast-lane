@@ -11,3 +11,4 @@ tools/generated/
 *.af~*
 .playwright-mcp/
 dist/
+assets/sound/orig/
