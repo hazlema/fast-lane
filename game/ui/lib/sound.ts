@@ -50,8 +50,5 @@ const manifest: Record<string, string> = {
 export const audio = new AudioManager(manifest);
 
 // One-shot effects: `accept` for actions that succeed, `deny` for rejections.
-// FX follow the music manager's volume/mute, read live at each play.
-export const fx = new FxManager(
-  { accept: acceptUrl, deny: denyUrl },
-  { volume: () => audio.getVolume(), muted: () => audio.isMuted() },
-);
+// FX volume/mute are independent of the music and persisted on their own.
+export const fx = new FxManager({ accept: acceptUrl, deny: denyUrl });

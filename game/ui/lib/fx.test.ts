@@ -1,5 +1,6 @@
 import { test, expect } from "bun:test";
 import { FxManager, type FxEl } from "./fx";
+import type { Storage } from "./audio";
 
 // Records every interaction so tests can assert on playback behavior.
 class FakeEl implements FxEl {
@@ -9,12 +10,18 @@ class FakeEl implements FxEl {
   async play(): Promise<void> { this.playCount++; }
 }
 
+class FakeStorage implements Storage {
+  map = new Map<string, string>();
+  getItem(k: string) { return this.map.get(k) ?? null; }
+  setItem(k: string, v: string) { this.map.set(k, v); }
+}
+
 // Build a manager whose elements are FakeEls we can inspect by key.
-function makeFx(opts: { volume?: () => number; muted?: () => boolean } = {}) {
+function makeFx(storage: Storage = new FakeStorage()) {
   const els = new Map<string, FakeEl>();
   const manifest = { accept: "accept.wav", deny: "deny.wav" };
   const fx = new FxManager(manifest, {
-    ...opts,
+    storage,
     factory: (src: string) => {
       const el = new FakeEl();
       els.set(src, el);
@@ -46,14 +53,31 @@ test("an unknown key is a silent no-op", () => {
   expect(el("kaboom")).toBeUndefined();
 });
 
-test("play() follows the injected master volume", () => {
-  const { fx, el } = makeFx({ volume: () => 0.4 });
+test("setVolume applies to subsequent plays", () => {
+  const { fx, el } = makeFx();
+  fx.setVolume(0.4);
   fx.play("accept");
   expect(el("accept")!.volume).toBe(0.4);
+  expect(fx.getVolume()).toBe(0.4);
 });
 
-test("muted master audio suppresses effects entirely", () => {
-  const { fx, el } = makeFx({ muted: () => true });
+test("muting suppresses effects; unmuting restores them", () => {
+  const { fx, el } = makeFx();
+  fx.mute(true);
+  expect(fx.isMuted()).toBe(true);
   fx.play("accept");
   expect(el("accept")?.playCount ?? 0).toBe(0);
+  fx.toggleMute();
+  fx.play("accept");
+  expect(el("accept")!.playCount).toBe(1);
+});
+
+test("volume and mute persist, and a fresh manager restores them", () => {
+  const storage = new FakeStorage();
+  const a = makeFx(storage);
+  a.fx.setVolume(0.3);
+  a.fx.mute(true);
+  const b = makeFx(storage); // new session, same storage
+  expect(b.fx.getVolume()).toBe(0.3);
+  expect(b.fx.isMuted()).toBe(true);
 });

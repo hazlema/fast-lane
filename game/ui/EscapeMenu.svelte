@@ -1,13 +1,15 @@
 <!-- game/ui/EscapeMenu.svelte -->
 <script lang="ts">
   import { menuStore } from "./stores/menu.svelte";
-  import { audio } from "./lib/sound";
+  import { audio, fx } from "./lib/sound";
 
   // Mirror the audio state locally. App gates this component with {#if}, so it
   // mounts fresh each time the menu opens — these initialize from the live
   // values on open.
   let vol = $state(audio.getVolume());
   let muted = $state(audio.isMuted());
+  let fxVol = $state(fx.getVolume());
+  let fxMuted = $state(fx.isMuted());
 
   function onVolume(e: Event): void {
     vol = +(e.currentTarget as HTMLInputElement).value;
@@ -19,6 +21,18 @@
     audio.toggleMute();
     muted = audio.isMuted();
   }
+
+  function onFxVolume(e: Event): void {
+    fxVol = +(e.currentTarget as HTMLInputElement).value;
+    fx.setVolume(fxVol);
+    if (fxMuted) { fx.mute(false); fxMuted = false; } // dragging unmutes
+  }
+
+  function toggleFxMute(): void {
+    fx.toggleMute();
+    fxMuted = fx.isMuted();
+    if (!fxMuted) fx.play("accept"); // audible confirmation it's back on
+  }
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -29,14 +43,26 @@
   <div class="card" onclick={(e) => e.stopPropagation()}>
     <h2>Menu</h2>
 
-    <!-- Audio group -->
+    <!-- Music group -->
     <div class="group">
       <button class="toggle" onclick={toggleMute}>
-        {muted ? "🔇 Sound off" : "🔊 Sound on"}
+        {muted ? "🔇 Music off" : "🎵 Music on"}
       </button>
       <label class="vol">
         <span>Volume</span>
         <input type="range" min="0" max="1" step="0.01" value={vol} oninput={onVolume} />
+      </label>
+    </div>
+
+    <!-- Sound-effects group. Releasing the slider chirps at the new level. -->
+    <div class="group">
+      <button class="toggle" onclick={toggleFxMute}>
+        {fxMuted ? "🔇 FX off" : "🔔 FX on"}
+      </button>
+      <label class="vol">
+        <span>Volume</span>
+        <input type="range" min="0" max="1" step="0.01" value={fxVol}
+          oninput={onFxVolume} onchange={() => fx.play("accept")} />
       </label>
     </div>
 
