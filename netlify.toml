@@ -1,0 +1,5 @@
+# Netlify deploy for the game. The game is fully client-side — the Bun dev
+# server (and its /tools asset-pipeline routes) is dev-only and not deployed.
+[build]
+  command = "bun run build"
+  publish = "dist"
