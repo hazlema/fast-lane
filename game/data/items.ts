@@ -11,6 +11,9 @@ export interface Item {
   food: boolean;         // true if eating it counts as THIS week's meal right away
   meals: number;         // frozen meals it stocks (cooked one-a-week automatically); 0 if none
   lottery: boolean;      // true if buying it enters next turn's lottery draw
+  // A weekend plan: buying it books your weekend — consumed at the next turn
+  // start for happiness, plus a seeded incidental spend (concert snacks/merch).
+  weekend?: { happiness: number; spendMin: number; spendMax: number; news: string };
 }
 
 export const ITEMS: Record<ItemId, Item> = {
@@ -26,6 +29,10 @@ export const ITEMS: Record<ItemId, Item> = {
   tesla:     { id: "tesla",     name: "Tesla",                cost: 5000, timeCost: 1, happinessGain: 20, clothing: false, food: false, meals: 0, lottery: false },
   suit:      { id: "suit",      name: "Business Suit",        cost: 500, timeCost: 1, happinessGain: 5,  clothing: true,  food: false, meals: 0, lottery: false },
   casual:    { id: "casual",    name: "Casual Clothes",       cost: 100,  timeCost: 1, happinessGain: 1,  clothing: true,  food: false, meals: 0, lottery: false },
+  book:      { id: "book",      name: "Paperback Book",       cost: 20,   timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: false,
+    weekend: { happiness: 8, spendMin: 0, spendMax: 0, news: "📖 You spent the weekend lost in your new book." } },
+  concert:   { id: "concert",   name: "Concert Ticket",       cost: 40,   timeCost: 1, happinessGain: 0,  clothing: false, food: false, meals: 0, lottery: false,
+    weekend: { happiness: 15, spendMin: 20, spendMax: 60, news: "🎟️ You went to the concert this weekend — what a show!" } },
 };
 
 // Flavor headlines printed when you buy a newspaper. Pure fun.

@@ -232,6 +232,52 @@ test("the pawn shop will NOT buy food", () => {
   expect(r.reason).toMatch(/won't buy/i);
 });
 
+// — Weekend plans (books & concert tickets) ———————————————————————————
+
+test("a concert ticket is enjoyed over the weekend — happiness up, some cash spent there", () => {
+  // seed 2 → a quiet week-1 weekend, isolating the plan from random events.
+  let g = { ...start({ happiness: 50, cash: 200, inventory: ["concert"] }), seed: 2 };
+  g = act(g, { type: "endWeek" }).state;
+  const plan = ITEMS.concert.weekend!;
+  expect(you(g).happiness).toBe(50 - CONFIG.happinessDecayPerWeek + plan.happiness);
+  expect(you(g).inventory).not.toContain("concert");
+  const spent = 200 - you(g).cash;
+  expect(spent).toBeGreaterThanOrEqual(plan.spendMin);
+  expect(spent).toBeLessThanOrEqual(plan.spendMax);
+  expect(g.log.some((e) => /concert/i.test(e.text) && e.text.includes(`$${spent}`))).toBe(true);
+});
+
+test("a book is read over the weekend — happiness up, nothing spent", () => {
+  let g = { ...start({ happiness: 50, cash: 100, inventory: ["book"] }), seed: 2 };
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).happiness).toBe(50 - CONFIG.happinessDecayPerWeek + ITEMS.book.weekend!.happiness);
+  expect(you(g).cash).toBe(100);
+  expect(you(g).inventory).not.toContain("book");
+  expect(g.log.some((e) => /book/i.test(e.text))).toBe(true);
+});
+
+test("concert spending can't exceed the cash in your pocket", () => {
+  let g = { ...start({ cash: 3, inventory: ["concert"] }), seed: 2 };
+  g = act(g, { type: "endWeek" }).state;
+  expect(you(g).cash).toBeGreaterThanOrEqual(0);
+});
+
+test("a book and a concert ticket both pay off in the same weekend", () => {
+  let g = { ...start({ happiness: 0, cash: 500, inventory: ["book", "concert"] }), seed: 2 };
+  g = act(g, { type: "endWeek" }).state;
+  // decay floors at 0, then both plans land
+  expect(you(g).happiness).toBe(ITEMS.book.weekend!.happiness + ITEMS.concert.weekend!.happiness);
+  expect(you(g).inventory).toEqual([]);
+});
+
+test("the pawn shop sells used books; the discount store sells books and concert tickets", () => {
+  let g = act(start({ cash: 100 }, "pawn"), { type: "buy", item: "book" }).state;
+  expect(you(g).inventory).toContain("book");
+  let d = start({ cash: 100 }, "discount");
+  d = act(d, { type: "buy", item: "concert" }).state;
+  expect(you(d).inventory).toContain("concert");
+});
+
 test("Electronics sells a fridge — the 6d spoilage hook", () => {
   let g = start({ cash: 9999 }, "electronics");
   g = act(g, { type: "buy", item: "fridge" }).state;
@@ -266,7 +312,8 @@ test("living in High Security means you're never mugged", () => {
 
 // — Discount Store weekly special ——————————————————————————————————————
 
-const DISCOUNT_POOL = ["tv", "stereo", "suit", "casual"];
+// Must mirror the discount building's shop itemIds (the deal rolls over them).
+const DISCOUNT_POOL = ["tv", "stereo", "suit", "casual", "book", "concert"];
 
 test("the Discount Store's weekly special is cheaper there", () => {
   let g = start({ cash: 99999 }, "discount");

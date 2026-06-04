@@ -106,6 +106,24 @@ export function startTurn(state: GameState, world: World): GameState {
     lotteryTicket = false; // consumed at the draw
   }
 
+  // Weekend plans: a book or concert ticket bought during the week is enjoyed
+  // now. Happiness lands, and a concert also has you spending a little while
+  // you're there (seeded, capped at the cash in your pocket).
+  let happiness = you.happiness;
+  let inventory = you.inventory;
+  if (inventory.some((id) => world.items[id]?.weekend)) {
+    const spendRoll = makeRng(state.seed + state.week * 211 + 3);
+    inventory = inventory.filter((id) => {
+      const plan = world.items[id]?.weekend;
+      if (!plan) return true; // not a weekend plan — keep it
+      happiness += plan.happiness;
+      const spent = Math.min(cash, plan.spendMin + Math.floor(spendRoll() * (plan.spendMax - plan.spendMin + 1)));
+      cash -= spent;
+      news.push(spent > 0 ? `${plan.news} You spent $${spent} while you were there.` : plan.news);
+      return false; // consumed
+    });
+  }
+
   // You have to show up for work.
   const skippedWork = isEmployed(you) && !you.workedThisWeek;
   const weeksSinceWorked = skippedWork ? you.weeksSinceWorked + 1 : 0;
@@ -141,6 +159,8 @@ export function startTurn(state: GameState, world: World): GameState {
     position: home,
     cash,
     debt,
+    happiness,
+    inventory,
     timeLeft: time,
     hungry,
     sick,
