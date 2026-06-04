@@ -1,11 +1,14 @@
 <!-- game/ui/screens/ActionRow.svelte -->
 <script lang="ts">
+  import { fx } from "../lib/sound";
+
   type Badge = { text: string; kind?: "cost" };
   let { name, sub = "", badges = [], disabled = false, reason = "", onact }:
     { name: string; sub?: string; badges?: Badge[]; disabled?: boolean; reason?: string; onact: () => void } = $props();
 </script>
 
-<button class="row" class:disabled onclick={() => { if (!disabled) onact(); }} title={disabled ? reason : ""}>
+<!-- A click on a blocked row buzzes instead of acting — the reason is shown inline. -->
+<button class="row" class:disabled onclick={() => { if (disabled) fx.play("deny"); else onact(); }} title={disabled ? reason : ""}>
   <span class="info">
     <span class="nm">{name}</span>
     {#if disabled && reason}<span class="sub reason">{reason}</span>{:else if sub}<span class="sub">{sub}</span>{/if}

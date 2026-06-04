@@ -7,7 +7,7 @@ import { NODE_XY, type NodeId } from "../../data/board";
 import { monthOf } from "../../engine/calendar";
 import { CONFIG } from "../../data/config";
 import { nodeOffsets, shorterArc, wrap, type Pt } from "../lib/roadWalk";
-import { audio } from "../lib/sound";
+import { audio, fx } from "../lib/sound";
 
 const START_NODE: NodeId = "lowcost"; // you begin at home (you start renting Low Cost Housing)
 const WALK_MS_PER_HALF = 2200; // time to traverse half the loop; scaled by arc length
@@ -71,8 +71,14 @@ export const gameStore = {
   get notice(): Notice | null { return notice; },
   get splashes(): string[] { return splashes; },
 
-  // Raise a transient bit of feedback for the overlay to show.
-  pushNotice(tone: NoticeTone, text: string, title = ""): void { notice = { id: ++noticeSeq, tone, text, title }; },
+  // Raise a transient bit of feedback for the overlay to show. Every notice
+  // carries its sound: a deny buzz on the bad ones, an accept chirp on
+  // successes (news headlines stay silent — reading isn't a verdict).
+  pushNotice(tone: NoticeTone, text: string, title = ""): void {
+    notice = { id: ++noticeSeq, tone, text, title };
+    if (tone === "bad") fx.play("deny");
+    else if (tone !== "news") fx.play("accept");
+  },
 
   // Splash.svelte takes the next queued week-end sprite (undefined when empty).
   shiftSplash(): string | undefined {

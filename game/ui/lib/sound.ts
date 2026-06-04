@@ -1,8 +1,9 @@
 // game/ui/lib/sound.ts
-// Vite glue: resolves the mp3 URLs at build time and builds the app-wide
-// AudioManager singleton. Import { audio } anywhere to drive playback.
-// (The testable mechanics live in ./audio.ts.)
+// Vite glue: resolves the sound URLs at build time and builds the app-wide
+// singletons — `audio` for looping background music, `fx` for one-shot
+// effects. (The testable mechanics live in ./audio.ts and ./fx.ts.)
 import { AudioManager } from "./audio";
+import { FxManager } from "./fx";
 import themeUrl from "../../../assets/sound/main_theme.mp3?url";
 import travelUrl from "../../../assets/sound/traveling.mp3?url";
 import employmentUrl from "../../../assets/sound/employment_office.mp3?url";
@@ -20,6 +21,8 @@ import pawnUrl from "../../../assets/sound/pawn_shop.mp3?url";
 import discountUrl from "../../../assets/sound/discount_store.mp3?url";
 import offrackUrl from "../../../assets/sound/off_the_rack.mp3?url";
 import weekendUrl from "../../../assets/sound/weekend_over.mp3?url";
+import acceptUrl from "../../../assets/FX/accept.wav?url";
+import denyUrl from "../../../assets/FX/deny.wav?url";
 
 // Manifest keys are `theme`, `travel`, `weekend` (played after the week ends),
 // and building ids (node id === building id). Buildings absent here fall back
@@ -45,3 +48,10 @@ const manifest: Record<string, string> = {
 };
 
 export const audio = new AudioManager(manifest);
+
+// One-shot effects: `accept` for actions that succeed, `deny` for rejections.
+// FX follow the music manager's volume/mute, read live at each play.
+export const fx = new FxManager(
+  { accept: acceptUrl, deny: denyUrl },
+  { volume: () => audio.getVolume(), muted: () => audio.isMuted() },
+);
