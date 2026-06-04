@@ -54,12 +54,15 @@ test("canFinanceCar needs a job that pays well enough (no burger flippers)", () 
   expect(canFinanceCar(player({ jobId: null }), null)).toBe(false);          // unemployed
 });
 
-test("isPawnable accepts durables, rejects food/tickets/frozen packs", () => {
+test("isPawnable accepts only durables — no disposables, no clothes off your back", () => {
   expect(isPawnable(ITEMS.tv)).toBe(true);
-  expect(isPawnable(ITEMS.suit)).toBe(true);
-  expect(isPawnable(ITEMS.burger)).toBe(false);   // food
-  expect(isPawnable(ITEMS.lottery)).toBe(false);  // ticket
-  expect(isPawnable(ITEMS.burger8)).toBe(false);  // frozen meals
+  expect(isPawnable(ITEMS.tesla)).toBe(true);      // selling the car is a real trade-off
+  expect(isPawnable(ITEMS.suit)).toBe(false);      // clothing (wear is tracked, not the item)
+  expect(isPawnable(ITEMS.casual)).toBe(false);    // clothing
+  expect(isPawnable(ITEMS.newspaper)).toBe(false); // disposable
+  expect(isPawnable(ITEMS.burger)).toBe(false);    // food
+  expect(isPawnable(ITEMS.lottery)).toBe(false);   // ticket
+  expect(isPawnable(ITEMS.burger8)).toBe(false);   // frozen meals
 });
 
 test("missingDegrees lists only the degrees not yet earned", () => {

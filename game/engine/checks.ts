@@ -60,15 +60,17 @@ export const ownsCar = (p: Player): boolean => p.inventory.includes("tesla");
 export const canFinanceCar = (p: Player, job: Job | null | undefined): boolean =>
   isEmployed(p) && !!job && job.wage >= CONFIG.carJobWageMin;
 
-/** Will the pawn shop buy this back? Durable goods only — not food/tickets/frozen packs. */
-export const isPawnable = (item: Item): boolean => !item.food && !item.lottery && item.meals === 0;
-
 // One-per-customer durables: appliances you own, not repeatable buys (newspaper,
 // clothes, food). Buying a second is rejected (see buy.ts).
 const DURABLE_ITEMS = new Set(["tv", "tv_used", "stereo", "fridge", "computer", "tesla"]);
 
 /** Is this a one-only durable good (an appliance you can't sensibly own twice)? */
 export const isDurable = (item: Item): boolean => DURABLE_ITEMS.has(item.id);
+
+/** Will the pawn shop buy this back? Durables only — no disposables (newspaper),
+ *  and not the clothes off your back (clothing state lives in clothingWear, so
+ *  pawning a suit wouldn't even undress you). */
+export const isPawnable = isDurable;
 
 // --- Hiring --------------------------------------------------------------
 
